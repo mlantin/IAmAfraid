@@ -1,0 +1,535 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.20506</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <RootNamespace></RootNamespace>
+    <ProjectGuid>{FD94E790-F58C-759F-4F41-E85A2E0667AA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <AssemblyName>Assembly-CSharp</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <BaseDirectory>Assets</BaseDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Temp\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_5_6_0;UNITY_5_6;UNITY_5;UNITY_ANALYTICS;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_GENERICS;ENABLE_PVR_GI;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_RUNTIME_NAVMESH_BUILDING;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_PHYSICS_EDGE_RADIUS;ENABLE_TERRAIN;ENABLE_RAKNET;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;ENABLE_NATIVE_ARRAY;INCLUDE_DYNAMIC_GI;INCLUDE_GI;PLATFORM_SUPPORTS_MONO;INCLUDE_PUBNUB;ENABLE_PLAYMODE_TESTS_RUNNER;ENABLE_SCRIPTING_NEW_CSHARP_COMPILER;ENABLE_VIDEO;ENABLE_CUSTOM_RENDER_TEXTURE;UNITY_ANDROID;ENABLE_SUBSTANCE;UNITY_ANDROID_API;ENABLE_EGL;ENABLE_NETWORK;ENABLE_RUNTIME_GI;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_UNITYWEBREQUEST;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;PLATFORM_SUPPORTS_ADS_ID;UNITY_CAN_SHOW_SPLASH_SCREEN;ENABLE_VR;ENABLE_UNITYADS_RUNTIME;UNITY_UNITYADS_API;ENABLE_MONO;NET_2_0_SUBSET;ENABLE_PROFILER;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_OSX;ENABLE_NATIVE_ARRAY_CHECKS;UNITY_TEAM_LICENSE;UNITY_HAS_GOOGLEVR</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Temp\bin\Release\</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="UnityEngine">
+      <HintPath>/Applications/Unity/Unity.app/Contents/Managed/UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor">
+      <HintPath>/Applications/Unity/Unity.app/Contents/Managed/UnityEditor.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\DemoInputManager.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\GVRDemo\Teleport.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\PermissionsDemo\PermissionsFlowManager.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\ScrollingUIDemo\PaginatedScrolling\JumpToPage.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\ScrollingUIDemo\PaginatedScrolling\PageProviders\ChildrenPageProvider.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\ScrollingUIDemo\PaginatedScrolling\PageProviders\IPageProvider.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\ScrollingUIDemo\PaginatedScrolling\PageProviders\PrefabPageProvider.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\ScrollingUIDemo\PaginatedScrolling\PagedScrollBar.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\ScrollingUIDemo\PaginatedScrolling\PagedScrollRect.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\ScrollingUIDemo\PaginatedScrolling\ScrollEffects\BaseScrollEffect.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\ScrollingUIDemo\PaginatedScrolling\ScrollEffects\BaseTile.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\ScrollingUIDemo\PaginatedScrolling\ScrollEffects\FadeScrollEffect.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\ScrollingUIDemo\PaginatedScrolling\ScrollEffects\FloatTile.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\ScrollingUIDemo\PaginatedScrolling\ScrollEffects\MaskedTile.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\ScrollingUIDemo\PaginatedScrolling\ScrollEffects\ScaleScrollEffect.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\ScrollingUIDemo\PaginatedScrolling\ScrollEffects\TileScrollEffect.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\ScrollingUIDemo\PaginatedScrolling\ScrollEffects\TiledPage.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\ScrollingUIDemo\PaginatedScrolling\ScrollEffects\TranslateScrollEffect.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\ScrollingUIDemo\Tabs\Tab.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\ScrollingUIDemo\Tabs\TabGroup.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\ScrollingUIDemo\Transitions\IUITransition.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\ScrollingUIDemo\Transitions\UIFadeTransition.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\VideoDemo\AppButtonInput.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\VideoDemo\AutoPlayVideo.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\VideoDemo\InputEvents.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\VideoDemo\MenuHandler.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\VideoDemo\PositionSwapper.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\VideoDemo\ScrubberEvents.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\VideoDemo\SwitchVideos.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\VideoDemo\ToggleAction.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\VideoDemo\VideoControlsManager.cs" />
+     <Compile Include="Assets\GoogleVR\Demos\Scripts\VideoDemo\VideoPlayerReference.cs" />
+     <Compile Include="Assets\GoogleVR\Legacy\Scripts\GazeInputModule.cs" />
+     <Compile Include="Assets\GoogleVR\Legacy\Scripts\GvrHead.cs" />
+     <Compile Include="Assets\GoogleVR\Legacy\Scripts\Internal\GvrCameraUtils.cs" />
+     <Compile Include="Assets\GoogleVR\Legacy\Scripts\Internal\GvrEye.cs" />
+     <Compile Include="Assets\GoogleVR\Legacy\Scripts\Internal\GvrPostRender.cs" />
+     <Compile Include="Assets\GoogleVR\Legacy\Scripts\Internal\GvrPreRender.cs" />
+     <Compile Include="Assets\GoogleVR\Legacy\Scripts\Internal\GvrProfile.cs" />
+     <Compile Include="Assets\GoogleVR\Legacy\Scripts\Internal\StereoController.cs" />
+     <Compile Include="Assets\GoogleVR\Legacy\Scripts\Internal\StereoRenderEffect.cs" />
+     <Compile Include="Assets\GoogleVR\Legacy\Scripts\Internal\VRDevices\AndroidDevice.cs" />
+     <Compile Include="Assets\GoogleVR\Legacy\Scripts\Internal\VRDevices\BaseAndroidDevice.cs" />
+     <Compile Include="Assets\GoogleVR\Legacy\Scripts\Internal\VRDevices\BaseVRDevice.cs" />
+     <Compile Include="Assets\GoogleVR\Legacy\Scripts\Internal\VRDevices\EditorDevice.cs" />
+     <Compile Include="Assets\GoogleVR\Legacy\Scripts\Internal\VRDevices\GvrDevice.cs" />
+     <Compile Include="Assets\GoogleVR\Legacy\Scripts\Internal\VRDevices\UnityVRDevice.cs" />
+     <Compile Include="Assets\GoogleVR\Legacy\Scripts\Internal\VRDevices\iOSDevice.cs" />
+     <Compile Include="Assets\GoogleVR\Legacy\Scripts\UI\GvrGaze.cs" />
+     <Compile Include="Assets\GoogleVR\Legacy\Scripts\UI\GvrReticle.cs" />
+     <Compile Include="Assets\GoogleVR\Legacy\Scripts\UI\IGvrGazeResponder.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Audio\GvrAudio.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Audio\GvrAudioListener.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Audio\GvrAudioRoom.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Audio\GvrAudioSoundfield.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Audio\GvrAudioSource.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Controller\GvrArmModel.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Controller\GvrArmModelOffsets.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Controller\GvrController.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Controller\GvrControllerVisual.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Controller\GvrControllerVisualManager.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Controller\GvrPointerManager.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Controller\GvrTooltip.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Controller\Internal\ControllerProviderFactory.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Controller\Internal\ControllerProviders\AndroidNativeControllerProvider.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Controller\Internal\ControllerProviders\DummyControllerProvider.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Controller\Internal\ControllerProviders\EmulatorControllerProvider.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Controller\Internal\ControllerState.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Controller\Internal\Emulator\EmulatorClientSocket.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Controller\Internal\Emulator\EmulatorConfig.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Controller\Internal\Emulator\EmulatorDataTypes.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Controller\Internal\Emulator\EmulatorManager.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Controller\Internal\Emulator\PhoneEvent.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Controller\Internal\IControllerProvider.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\EventSystem\GvrBasePointer.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\EventSystem\GvrBasePointerRaycaster.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\EventSystem\GvrEventInterfacesExtension.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\EventSystem\GvrExecuteEventsExtension.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\EventSystem\GvrPointerGraphicRaycaster.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\EventSystem\GvrPointerInputModule.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\EventSystem\GvrPointerPhysicsRaycaster.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\EventSystem\IGvrPointer.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\GvrSettings.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\GvrUnitySdkVersion.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\GvrViewer.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Permissions\GvrPermissionsRequester.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Pose3D.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\UI\GvrLaserPointer.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\UI\GvrReticlePointer.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Utilities\GvrFPS.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Utilities\GvrIntent.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Utilities\GvrUIHelpers.cs" />
+     <Compile Include="Assets\GoogleVR\Scripts\Video\GvrVideoPlayerTexture.cs" />
+     <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExampleAlchemyDataNews.cs" />
+     <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExampleAlchemyLanguage.cs" />
+     <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExampleConversation.cs" />
+     <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExampleConversationExperimental.cs" />
+     <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExampleDiscoveryV1.cs" />
+     <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExampleDocumentConversion.cs" />
+     <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExampleLanguageTranslation.cs" />
+     <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExampleLanguageTranslator.cs" />
+     <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExampleNaturalLanguageClassifier.cs" />
+     <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExamplePersonalityInsightsV2.cs" />
+     <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExamplePersonalityInsightsV3.cs" />
+     <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExampleRetrieveAndRank.cs" />
+     <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExampleSpeechToText.cs" />
+     <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExampleStreaming.cs" />
+     <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExampleTextToSpeech.cs" />
+     <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExampleToneAnalyzer.cs" />
+     <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExampleTradeoffAnalytics.cs" />
+     <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExampleVisualRecognition.cs" />
+     <Compile Include="Assets\Watson\Examples\WidgetExamples\Scripts\ReverseNormals.cs" />
+     <Compile Include="Assets\Watson\Examples\WidgetExamples\Scripts\WebCamRecognition.cs" />
+     <Compile Include="Assets\Watson\Scenes\UnitTests\Scripts\ConfigLoader.cs" />
+     <Compile Include="Assets\Watson\Scenes\UnitTests\Scripts\LogSystemInitilization.cs" />
+     <Compile Include="Assets\Watson\Scenes\UnitTests\Scripts\MainUI.cs" />
+     <Compile Include="Assets\Watson\Scripts\Camera\CameraTarget.cs" />
+     <Compile Include="Assets\Watson\Scripts\Camera\HotCorner.cs" />
+     <Compile Include="Assets\Watson\Scripts\Camera\WatsonCamera.cs" />
+     <Compile Include="Assets\Watson\Scripts\Connection\RESTConnector.cs" />
+     <Compile Include="Assets\Watson\Scripts\Connection\WSConnector.cs" />
+     <Compile Include="Assets\Watson\Scripts\Debug\DebugConsole.cs" />
+     <Compile Include="Assets\Watson\Scripts\Debug\DebugReactor.cs" />
+     <Compile Include="Assets\Watson\Scripts\Debug\QualityManager.cs" />
+     <Compile Include="Assets\Watson\Scripts\Logging\FileReactor.cs" />
+     <Compile Include="Assets\Watson\Scripts\Logging\ILogReactor.cs" />
+     <Compile Include="Assets\Watson\Scripts\Logging\Logger.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\AlchemyAPI\AlchemyAPI.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\AlchemyAPI\DataModels.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\Conversation-Experimental\Conversation-Experimental.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\Conversation-Experimental\DataModels.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\Conversation\Conversation.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\Conversation\DataModels.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\DeepQA\DataModels.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\DeepQA\DeepQA.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\Discovery\v1\DataModels.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\Discovery\v1\Discovery.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\DocumentConversion\DataModels.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\DocumentConversion\DocumentConversion.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\IWatsonService.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\LanguageTranslation\DataModels.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\LanguageTranslation\LanguageTranslation.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\LanguageTranslator\DataModels.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\LanguageTranslator\LanguageTranslator.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\NaturalLanguageClassifier\DataModels.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\NaturalLanguageClassifier\NaturalLanguageClassifier.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\PersonalityInsights\v2\DataModels.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\PersonalityInsights\v2\PersonalityInsights.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\PersonalityInsights\v3\DataModels.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\PersonalityInsights\v3\PersonalityInsights.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\RetrieveAndRank\DataModels.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\RetrieveAndRank\RetrieveAndRank.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\SpeechToText\DataModels.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\SpeechToText\SpeechToText.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\TextToSpeech\DataModels.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\TextToSpeech\TextToSpeech.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\ToneAnalyzer\DataModels.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\ToneAnalyzer\ToneAnalyzer.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\TradeoffAnalytics\DataModels.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\TradeoffAnalytics\TradeoffAnalytics.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\VisualRecognition\DataModels.cs" />
+     <Compile Include="Assets\Watson\Scripts\Services\VisualRecognition\VisualRecognition.cs" />
+     <Compile Include="Assets\Watson\Scripts\UnitTests\TestAlchemyLanguage.cs" />
+     <Compile Include="Assets\Watson\Scripts\UnitTests\TestConversation.cs" />
+     <Compile Include="Assets\Watson\Scripts\UnitTests\TestConversationExperimental.cs" />
+     <Compile Include="Assets\Watson\Scripts\UnitTests\TestDiscovery.cs" />
+     <Compile Include="Assets\Watson\Scripts\UnitTests\TestDocumentConversion.cs" />
+     <Compile Include="Assets\Watson\Scripts\UnitTests\TestEventManager.cs" />
+     <Compile Include="Assets\Watson\Scripts\UnitTests\TestLanguageTranslation.cs" />
+     <Compile Include="Assets\Watson\Scripts\UnitTests\TestLanguageTranslator.cs" />
+     <Compile Include="Assets\Watson\Scripts\UnitTests\TestNaturalLanguageClassifier.cs" />
+     <Compile Include="Assets\Watson\Scripts\UnitTests\TestPersonalityInsightsV2.cs" />
+     <Compile Include="Assets\Watson\Scripts\UnitTests\TestPersonalityInsightsV3.cs" />
+     <Compile Include="Assets\Watson\Scripts\UnitTests\TestRetrieveAndRank.cs" />
+     <Compile Include="Assets\Watson\Scripts\UnitTests\TestRunnable.cs" />
+     <Compile Include="Assets\Watson\Scripts\UnitTests\TestSpeechToText.cs" />
+     <Compile Include="Assets\Watson\Scripts\UnitTests\TestTextToSpeech.cs" />
+     <Compile Include="Assets\Watson\Scripts\UnitTests\TestToneAnalyzer.cs" />
+     <Compile Include="Assets\Watson\Scripts\UnitTests\TestTradeoffAnalytics.cs" />
+     <Compile Include="Assets\Watson\Scripts\UnitTests\TestVisualRecognition.cs" />
+     <Compile Include="Assets\Watson\Scripts\UnitTests\UnitTest.cs" />
+     <Compile Include="Assets\Watson\Scripts\UnitTests\UnitTestManager.cs" />
+     <Compile Include="Assets\Watson\Scripts\Utilities\AudioClipUtil.cs" />
+     <Compile Include="Assets\Watson\Scripts\Utilities\Config.cs" />
+     <Compile Include="Assets\Watson\Scripts\Utilities\Constants.cs" />
+     <Compile Include="Assets\Watson\Scripts\Utilities\Credentials.cs" />
+     <Compile Include="Assets\Watson\Scripts\Utilities\DataCache.cs" />
+     <Compile Include="Assets\Watson\Scripts\Utilities\EventManager.cs" />
+     <Compile Include="Assets\Watson\Scripts\Utilities\FrameRateCounter.cs" />
+     <Compile Include="Assets\Watson\Scripts\Utilities\KeyEventManager.cs" />
+     <Compile Include="Assets\Watson\Scripts\Utilities\NestedPrefabs.cs" />
+     <Compile Include="Assets\Watson\Scripts\Utilities\Runnable.cs" />
+     <Compile Include="Assets\Watson\Scripts\Utilities\SerializedDelegate.cs" />
+     <Compile Include="Assets\Watson\Scripts\Utilities\Singleton.cs" />
+     <Compile Include="Assets\Watson\Scripts\Utilities\TimedDestroy.cs" />
+     <Compile Include="Assets\Watson\Scripts\Utilities\TouchEventManager.cs" />
+     <Compile Include="Assets\Watson\Scripts\Utilities\UnityObjectUtil.cs" />
+     <Compile Include="Assets\Watson\Scripts\Utilities\Utility.cs" />
+     <Compile Include="Assets\Watson\Scripts\Utilities\WatsonException.cs" />
+     <Compile Include="Assets\Watson\Scripts\Utilities\WaveFile.cs" />
+     <Compile Include="Assets\Watson\Scripts\Widgets\ActivateWidget.cs" />
+     <Compile Include="Assets\Watson\Scripts\Widgets\ClassDisplayWidget.cs" />
+     <Compile Include="Assets\Watson\Scripts\Widgets\ClassifierWidget.cs" />
+     <Compile Include="Assets\Watson\Scripts\Widgets\DataTypes.cs" />
+     <Compile Include="Assets\Watson\Scripts\Widgets\EventWidget.cs" />
+     <Compile Include="Assets\Watson\Scripts\Widgets\KeyboardWidget.cs" />
+     <Compile Include="Assets\Watson\Scripts\Widgets\LanguageTranslatorWidget.cs" />
+     <Compile Include="Assets\Watson\Scripts\Widgets\MicrophoneWidget.cs" />
+     <Compile Include="Assets\Watson\Scripts\Widgets\NaturalLanguageClassifierWidget.cs" />
+     <Compile Include="Assets\Watson\Scripts\Widgets\SpeechDisplayWidget.cs" />
+     <Compile Include="Assets\Watson\Scripts\Widgets\SpeechToTextWidget.cs" />
+     <Compile Include="Assets\Watson\Scripts\Widgets\TextToSpeechWidget.cs" />
+     <Compile Include="Assets\Watson\Scripts\Widgets\TouchWidget.cs" />
+     <Compile Include="Assets\Watson\Scripts\Widgets\WebCamDisplayWidget.cs" />
+     <Compile Include="Assets\Watson\Scripts\Widgets\WebCamWidget.cs" />
+     <Compile Include="Assets\Watson\Scripts\Widgets\Widget.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Converters\Unity\AnimationCurve_DirectConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Converters\Unity\Bounds_DirectConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Converters\Unity\Gradient_DirectConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Converters\Unity\Keyframe_DirectConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Converters\Unity\LayerMask_DirectConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Converters\Unity\Rect_DirectConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Converters\fsArrayConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Converters\fsDateConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Converters\fsDictionaryConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Converters\fsEnumConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Converters\fsForwardConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Converters\fsGuidConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Converters\fsIEnumerableConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Converters\fsKeyValuePairConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Converters\fsNullableConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Converters\fsPrimitiveConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Converters\fsReflectedConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Converters\fsTypeConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Converters\fsWeakReferenceConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Internal\fsCyclicReferenceManager.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Internal\fsOption.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Internal\fsPortableReflection.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Internal\fsTypeExtensions.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Internal\fsVersionManager.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Internal\fsVersionedType.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Reflection\fsMetaProperty.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Reflection\fsMetaType.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Reflection\fsReflectionUtility.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\Reflection\fsTypeLookup.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\fsAotCompilationManager.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\fsBaseConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\fsConfig.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\fsContext.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\fsConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\fsConverterRegistrar.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\fsData.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\fsDirectConverter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\fsExceptions.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\fsISerializationCallbacks.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\fsIgnoreAttribute.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\fsJsonParser.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\fsJsonPrinter.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\fsMemberSerialization.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\fsObjectAttribute.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\fsObjectProcessor.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\fsPropertyAttribute.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\fsResult.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\FullSerializer\Source\fsSerializer.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\MiniJSON\MiniJSON.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Modules\TUIO\Scripts\InputSources\TuioInput.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Behaviors\TouchScriptInputModule.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Behaviors\Transformer.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Behaviors\Visualizer\TouchProxy.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Behaviors\Visualizer\TouchVisualizer.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Clusters\Clusters.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\DebuggableMonoBehaviour.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Devices\Display\DisplayDevice.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Devices\Display\GenericDisplayDevice.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Devices\Display\IDisplayDevice.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\GestureManager.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\GestureManagerInstance.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Gestures\Base\PinnedTransformGestureBase.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Gestures\Base\TransformGestureBase.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Gestures\Clustered\ClusteredPinnedTransformGesture.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Gestures\Clustered\ClusteredScreenTransformGesture.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Gestures\Clustered\ClusteredTransformGesture.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Gestures\FlickGesture.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Gestures\Gesture.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Gestures\IGestureDelegate.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Gestures\ITransformGesture.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Gestures\LongPressGesture.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Gestures\MetaGesture.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Gestures\PinnedTransformGesture.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Gestures\PressGesture.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Gestures\ReleaseGesture.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Gestures\ScreenTransformGesture.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Gestures\TapGesture.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Gestures\TransformGesture.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Gestures\UI\UIGesture.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Hit\HitTest.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Hit\TouchHit.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Hit\Untouchable.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\IDebuggable.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\IGestureManager.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\ITouchManager.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\InputSources\ICoordinatesRemapper.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\InputSources\IInputSource.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\InputSources\InputHandlers\MouseHandler.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\InputSources\InputHandlers\TouchHandler.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\InputSources\InputHandlers\WindowsTouchHandlers.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\InputSources\InputSource.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\InputSources\MobileInput.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\InputSources\MouseInput.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\InputSources\StandardInput.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Layers\CameraLayer.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Layers\CameraLayer2D.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Layers\CameraLayerBase.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Layers\FullscreenLayer.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Layers\ILayerDelegate.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Layers\ProjectionParams.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Layers\TouchLayer.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Layers\UILayer.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Tags.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\TouchManager.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\TouchManagerInstance.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\TouchPoint.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Utils\Attributes\NullToggleAttribute.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Utils\Attributes\ToggleLeftAttribute.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Utils\ClusterUtils.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Utils\Debug\DebugHelper.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Utils\Debug\GLDebug.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Utils\EventHandlerExtensions.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Utils\Geom\TwoD.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Utils\ObjectPool.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Utils\ProjectionUtils.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Utils\TimedSequence.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Utils\TouchUtils.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\TouchScript\Scripts\Utils\TransformUtils.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\AssemblyInfo.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\ByteOrder.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\CloseEventArgs.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\CloseStatusCode.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\CompressionMethod.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\ErrorEventArgs.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Ext.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Fin.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\HttpBase.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\HttpRequest.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\HttpResponse.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\LogData.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\LogLevel.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Logger.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Mask.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\MessageEventArgs.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\AuthenticationBase.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\AuthenticationChallenge.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\AuthenticationResponse.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\AuthenticationSchemes.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\Chunk.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\ChunkStream.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\ChunkedRequestStream.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\ClientSslConfiguration.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\Cookie.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\CookieCollection.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\CookieException.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\EndPointListener.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\EndPointManager.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\HttpBasicIdentity.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\HttpConnection.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\HttpDigestIdentity.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\HttpHeaderInfo.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\HttpHeaderType.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\HttpListener.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\HttpListenerAsyncResult.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\HttpListenerContext.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\HttpListenerException.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\HttpListenerPrefix.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\HttpListenerPrefixCollection.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\HttpListenerRequest.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\HttpListenerResponse.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\HttpRequestHeader.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\HttpResponseHeader.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\HttpStatusCode.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\HttpStreamAsyncResult.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\HttpUtility.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\HttpVersion.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\InputChunkState.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\InputState.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\LineState.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\NetworkCredential.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\QueryStringCollection.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\ReadBufferState.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\RequestStream.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\ResponseStream.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\ServerSslConfiguration.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\SslConfiguration.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\WebHeaderCollection.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\WebSockets\HttpListenerWebSocketContext.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\WebSockets\TcpListenerWebSocketContext.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Net\WebSockets\WebSocketContext.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Opcode.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\PayloadData.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Rsv.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Server\HttpRequestEventArgs.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Server\HttpServer.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Server\IWebSocketSession.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Server\ServerState.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Server\WebSocketBehavior.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Server\WebSocketServer.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Server\WebSocketServiceHost.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Server\WebSocketServiceHost`1.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Server\WebSocketServiceManager.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\Server\WebSocketSessionManager.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\WebSocket.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\WebSocketException.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\WebSocketFrame.cs" />
+     <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\WebSocketState.cs" />
+     <Compile Include="Assets\Watson\Travis\TravisBuild.cs" />
+     <Compile Include="Assets\Watson\Travis\TravisIntegrationTests.cs" />
+     <None Include="Assets\Watson\ThirdParty\TouchScript\Shaders\DebugDepthTest.shader" />
+     <None Include="Assets\GoogleVR\Distortion\GvrDistortion.cginc" />
+     <None Include="Assets\Plugins\Android\proguard-gvr.txt" />
+     <None Include="Assets\GoogleVR\Demos\Shaders\VideoDemo\VideoDemoInsideShader.shader" />
+     <None Include="Assets\GoogleVR\Shaders\GvrUIOverlayFont.shader" />
+     <None Include="Assets\GoogleVR\Legacy\Resources\UnlitTexture.shader" />
+     <None Include="Assets\Watson\ThirdParty\TouchScript\license.txt" />
+     <None Include="Assets\GoogleVR\Shaders\GvrAdditiveOverlay.shader" />
+     <None Include="Assets\Watson\Scripts\Editor\TestData\pizza_sample.xml" />
+     <None Include="Assets\Watson\ThirdParty\TouchScript\Shaders\DebugMultiplyDepthTest.shader" />
+     <None Include="Assets\GoogleVR\Demos\Environment\DemoEnvUnlitGrayscale.shader" />
+     <None Include="Assets\GoogleVR\Shaders\GvrUnlitTransparentOverlay.shader" />
+     <None Include="Assets\Watson\ThirdParty\TouchScript\Shaders\DebugNoDepthTest.shader" />
+     <None Include="Assets\GoogleVR\Shaders\GvrUnlitTransparentOverlayColor.shader" />
+     <None Include="Assets\GoogleVR\Demos\Shaders\GVRDemo\GVRDemoAmbientOcclusion.shader" />
+     <None Include="Assets\GoogleVR\Shaders\GvrUnlitTextureOverlay.shader" />
+     <None Include="Assets\Watson\ThirdParty\HtmlAgilityPack\HtmlAgilityPack.xml" />
+     <None Include="Assets\Plugins\Android\AndroidManifest-Daydream.xml" />
+     <None Include="Assets\GoogleVR\Demos\Shaders\GVRDemo\GVRDemoUnlitGrayscaleToColor.shader" />
+     <None Include="Assets\Watson\ThirdParty\TouchScript\Shaders\DebugMultiplyNoDepthTest.shader" />
+     <None Include="Assets\GoogleVR\Shaders\GvrReticleShader.shader" />
+     <None Include="Assets\Watson\Examples\ServiceExamples\TestData\test-stt-corpus.txt" />
+     <None Include="Assets\GoogleVR\Shaders\GvrUIOverlay.shader" />
+     <None Include="Assets\Plugins\Android\AndroidManifest-Cardboard.xml" />
+     <None Include="Assets\GoogleVR\Legacy\Resources\SolidColor.shader" />
+     <None Include="Assets\GoogleVR\Shaders\GvrUnityCompatibility.cginc" />
+     <None Include="Assets\Watson\ThirdParty\WebSocketSharp\LICENSE.txt" />
+     <None Include="Assets\GoogleVR\Demos\Shaders\VideoDemo\VideoDemoStereoShader.shader" />
+ <Reference Include="UnityEngine.UI">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.Networking">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.TestRunner">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/TestRunner/UnityEngine.TestRunner.dll</HintPath>
+ </Reference>
+ <Reference Include="nunit.framework">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/TestRunner/nunit.framework.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.Analytics">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.HoloLens">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityHoloLens/RuntimeEditor/UnityEngine.HoloLens.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.VR">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll</HintPath>
+ </Reference>
+ <Reference Include="Google.ProtocolBuffers">
+ <HintPath>/Users/mlantin/Documents/Research/VR/Unity/daydream/IAmAfraid/Assets/Plugins/Google.ProtocolBuffers.dll</HintPath>
+ </Reference>
+ <Reference Include="HtmlAgilityPack">
+ <HintPath>/Users/mlantin/Documents/Research/VR/Unity/daydream/IAmAfraid/Assets/Watson/ThirdParty/HtmlAgilityPack/HtmlAgilityPack.dll</HintPath>
+ </Reference>
+ <Reference Include="OSCsharp">
+ <HintPath>/Users/mlantin/Documents/Research/VR/Unity/daydream/IAmAfraid/Assets/Watson/ThirdParty/TouchScript/Modules/TUIO/Libraries/OSCsharp.dll</HintPath>
+ </Reference>
+ <Reference Include="TUIOsharp">
+ <HintPath>/Users/mlantin/Documents/Research/VR/Unity/daydream/IAmAfraid/Assets/Watson/ThirdParty/TouchScript/Modules/TUIO/Libraries/TUIOsharp.dll</HintPath>
+ </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  
+</Project>
