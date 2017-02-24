@@ -8,9 +8,9 @@ using IBM.Watson.DeveloperCloud.Utilities;
 using IBM.Watson.DeveloperCloud.DataTypes;
 
 public class SpeechToTextToAudio : MonoBehaviour {
-	private static string[] permissionNames = { "android.permission.RECORD_AUDIO" };
-	private static List<GvrPermissionsRequester.PermissionStatus> permissionList =
-		new List<GvrPermissionsRequester.PermissionStatus>();
+	//private static string[] permissionNames = { "android.permission.RECORD_AUDIO" };
+	//private static List<GvrPermissionsRequester.PermissionStatus> permissionList =
+	//	new List<GvrPermissionsRequester.PermissionStatus>();
 
 	public GameObject m_textcanvas = null;
 	private Text m_textField;
@@ -30,7 +30,7 @@ public class SpeechToTextToAudio : MonoBehaviour {
 		LogSystem.InstallDefaultReactors();
 		Log.Debug("ExampleStreaming", "Start();");
 
-		RequestPermissions ();
+//		RequestPermissions ();
 		Active = true;
 		//StartRecording();
 	}
@@ -188,32 +188,32 @@ public class SpeechToTextToAudio : MonoBehaviour {
 		
 	}
 
-	public void RequestPermissions() {
-		GvrPermissionsRequester permissionRequester = GvrPermissionsRequester.Instance;
-		if (permissionRequester == null) {
-			m_textField.text = "Permission requester cannot be initialized.";
-			return;
-		}
-		Debug.Log("Permissions.RequestPermisions: Check if permission has been granted");
-		if (!permissionRequester.IsPermissionGranted(permissionNames[0])) {
-			Debug.Log("Permissions.RequestPermisions: Permission has not been previously granted");
-			if (permissionRequester.ShouldShowRational(permissionNames[0])) {
-				m_textField.text = "This app needs to access the microphone.  Please grant permission when prompted.";
-			}
-			permissionRequester.RequestPermissions(permissionNames,
-				(GvrPermissionsRequester.PermissionStatus[] permissionResults) =>
-				{
-					permissionList.Clear();
-					permissionList.AddRange(permissionResults);
-					string msg = "";
-					foreach (GvrPermissionsRequester.PermissionStatus p in permissionList) {
-						msg += p.Name + ": " + (p.Granted ? "Granted" : "Denied") + "\n";
-					}
-					m_textField.text = msg;
-				});
-		}
-		else {
-			m_textField.text = "Microphone permission already granted!";
-		}
-	}
+//	public void RequestPermissions() {
+//		GvrPermissionsRequester permissionRequester = GvrPermissionsRequester.Instance;
+//		if (permissionRequester == null) {
+//			m_textField.text = "Permission requester cannot be initialized.";
+//			return;
+//		}
+//		Debug.Log("Permissions.RequestPermisions: Check if permission has been granted");
+//		if (!permissionRequester.IsPermissionGranted(permissionNames[0])) {
+//			Debug.Log("Permissions.RequestPermisions: Permission has not been previously granted");
+//			if (permissionRequester.ShouldShowRational(permissionNames[0])) {
+//				m_textField.text = "This app needs to access the microphone.  Please grant permission when prompted.";
+//			}
+//			permissionRequester.RequestPermissions(permissionNames,
+//				(GvrPermissionsRequester.PermissionStatus[] permissionResults) =>
+//				{
+//					permissionList.Clear();
+//					permissionList.AddRange(permissionResults);
+//					string msg = "";
+//					foreach (GvrPermissionsRequester.PermissionStatus p in permissionList) {
+//						msg += p.Name + ": " + (p.Granted ? "Granted" : "Denied") + "\n";
+//					}
+//					m_textField.text = msg;
+//				});
+//		}
+//		else {
+//			m_textField.text = "Microphone permission already granted!";
+//		}
+//	}
 }
