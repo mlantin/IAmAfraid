@@ -18,8 +18,10 @@ public class SpeechToTextToAudio : MonoBehaviour {
 	private int m_RecordingRoutine = 0;
 	private string m_MicrophoneID = null;
 	private AudioClip m_Recording = null;
-	private int m_RecordingBufferSize = 2;
-	private int m_RecordingHZ = 22050;
+	private int m_RecordingBufferSize = 5;
+	private int m_RecordingHZ = 44100;
+
+	private bool m_readytosend = false;
 
 	private SpeechToText m_SpeechToText = new SpeechToText();
 
@@ -31,7 +33,7 @@ public class SpeechToTextToAudio : MonoBehaviour {
 		Log.Debug("ExampleStreaming", "Start();");
 
 //		RequestPermissions ();
-		Active = true;
+//		Active = true;
 		//StartRecording();
 	}
 
@@ -47,7 +49,7 @@ public class SpeechToTextToAudio : MonoBehaviour {
 				m_SpeechToText.EnableTimestamps = false;
 				m_SpeechToText.SilenceThreshold = 0.03f;
 				m_SpeechToText.MaxAlternatives = 1;
-				m_SpeechToText.EnableContinousRecognition = true;
+				m_SpeechToText.EnableContinousRecognition = false;
 				m_SpeechToText.EnableInterimResults = true;
 				m_SpeechToText.OnError = OnError;
 //				bool res = m_SpeechToText.StartListening(OnRecognize);
@@ -73,19 +75,20 @@ public class SpeechToTextToAudio : MonoBehaviour {
 			yield return null;
 		}
 	}
-
+		
 	public void StartRecording()
 	{
-		Active = true;
+//		Active = true;
 		if (m_RecordingRoutine == 0)
 		{
 			UnityObjectUtil.StartDestroyQueue();
-			m_RecordingRoutine = Runnable.Run(RecordingHandler());
+			m_RecordingRoutine = Runnable.Run(RecordingHandler2());
 		}
 	}
 
 	private void StopRecording()
 	{
+		m_readytosend = false;
 		if (m_RecordingRoutine != 0)
 		{
 			Microphone.End(m_MicrophoneID);
@@ -94,11 +97,65 @@ public class SpeechToTextToAudio : MonoBehaviour {
 		}
 	}
 
+	public void sendRecording() {
+		m_readytosend = true;
+	}
+
 	private void OnError(string error)
 	{
 		Active = false;
 
 		m_textField.text = "Error! " + error;
+	}
+
+	private IEnumerator RecordingHandler2()
+	{
+		m_readytosend = false;
+		//m_textField.text = "Streaming devices: " + Microphone.devices;
+		Log.Debug("ExampleStreaming", "devices: {0}", Microphone.devices);
+		m_Recording = Microphone.Start(m_MicrophoneID, false, m_RecordingBufferSize, m_RecordingHZ);
+		yield return null;      // let m_RecordingRoutine get set..
+
+		if (m_Recording == null)
+		{
+			StopRecording();
+			yield break;
+		}
+
+		while (m_RecordingRoutine != 0 && m_Recording != null)
+		{
+			int writePos = Microphone.GetPosition(m_MicrophoneID);
+			if (writePos > m_Recording.samples || !Microphone.IsRecording (m_MicrophoneID)) {
+				m_textField.text = "Error: Microphone disconnected";
+				Log.Error ("MicrophoneWidget", "Microphone disconnected.");
+
+				StopRecording ();
+				yield break;
+			} else if (m_readytosend) {
+				m_textField.text = "sending " + writePos + " samples";
+				float[] samples = null;
+				samples = new float[writePos];
+
+				Microphone.End (m_MicrophoneID);
+
+				m_Recording.GetData (samples, 0);
+
+				AudioData record = new AudioData ();
+				record.MaxLevel = Mathf.Max (samples);
+				record.Clip = AudioClip.Create ("Recording", writePos, m_Recording.channels, m_RecordingHZ, false);
+				record.Clip.SetData (samples, 0);
+
+				AudioClip theclip = AudioClip.Create ("clipx", writePos, 1, 44100, false);
+				theclip.SetData (samples, 0);
+				//m_SpeechToText.OnListen (record);
+				m_SpeechToText.Recognize(theclip,OnRecognize);
+				StopRecording ();
+			} else {
+				yield return new WaitUntil (() => m_readytosend == true);
+			}
+		}
+
+		yield break;
 	}
 
 	private IEnumerator RecordingHandler()
@@ -167,15 +224,18 @@ public class SpeechToTextToAudio : MonoBehaviour {
 
 	private void OnRecognize(SpeechRecognitionEvent result)
 	{
-		m_textField.text = "got a result";
-
 		if (result != null && result.results.Length > 0)
 		{
 			foreach (var res in result.results)
 			{
 				foreach (var alt in res.alternatives)
 				{
-					string text = "Watson: " + alt.transcript;
+					string text;
+					if (res.final) {
+						text = "Final: " + alt.transcript;
+					} else {
+						text = "Interim: " + alt.transcript;
+					}
 					Log.Debug("ExampleStreaming", string.Format("{0} ({1}, {2:0.00})\n", text, res.final ? "Final" : "Interim", alt.confidence));
 					m_textField.text = text;
 
