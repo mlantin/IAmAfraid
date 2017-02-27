@@ -20,7 +20,7 @@ public class makeaword : MonoBehaviour {
 				break;
 			}
 		}
-		m_xspace = extent.x;
+		m_xspace = extent.x/2.5f;
 	}
 	
 	// Update is called once per frame
@@ -70,7 +70,7 @@ public class makeaword : MonoBehaviour {
 					extent = letter.sharedMesh.bounds.extents;
 					boxsize.Set (boxsize.x + m_xspace + extent.x * 2, Mathf.Max (boxsize.y, extent.y*2), Mathf.Max (boxsize.z, extent.z * 2));
 					newletter.transform.localPosition = letterpos-lettercentre+extent;
-					letterpos.x += extent.x*2;
+					letterpos.x += extent.x*2 + m_xspace;
 					break;
 				}
 			}

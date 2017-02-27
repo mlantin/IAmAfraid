@@ -238,7 +238,7 @@ public class SpeechToTextToAudio : MonoBehaviour {
 						text = "Final: " + alt.transcript;
 						Vector3 pos = new Vector3 (0.0f, 0.0f, 1.5f);
 						pos = GvrController.Orientation * pos;
-						m_wordmakerScript.makeword (alt.transcript, 0.2f, pos, GvrController.Orientation, m_mostRecentClip);
+						m_wordmakerScript.makeword (alt.transcript, 1f, pos, GvrController.Orientation, m_mostRecentClip);
 					} else {
 						text = "Interim: " + alt.transcript;
 					}

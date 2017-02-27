@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 
-public class wordActs : MonoBehaviour, IGvrPointerHoverHandler, IPointerEnterHandler {
+public class wordActs : MonoBehaviour, IGvrPointerHoverHandler, IPointerEnterHandler, IPointerClickHandler, IPointerDownHandler {
 
 	private static Vector3 m_relpos = new Vector3(0.0f,1.6f,0.0f);
 	private bool m_positioned = false;
@@ -41,5 +41,18 @@ public class wordActs : MonoBehaviour, IGvrPointerHoverHandler, IPointerEnterHan
 
 	public void OnPointerEnter (PointerEventData eventData) {
 		m_wordSource.Play ();
+	}
+
+	public void OnPointerClick (PointerEventData eventData) {
+		//get the coordinates of the trackpad so we know what kind of event we want to trigger
+		if (m_positioned && GvrController.TouchPos.y > .85f) {
+			Destroy (this.gameObject);
+		} 
+	}
+
+	public void OnPointerDown (PointerEventData eventData) {
+		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
+			m_positioned = false;
+		}
 	}
 }
