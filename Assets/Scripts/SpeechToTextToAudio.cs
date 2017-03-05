@@ -41,6 +41,12 @@ public class SpeechToTextToAudio : MonoBehaviour {
 //		Active = true;
 	}
 
+	void Update() {
+		if (m_RecordingRoutine != 0) {
+			transform.RotateAround (transform.position, Vector3.up, 3);
+		}
+	}
+
 	public bool Active
 	{
 		get { return m_SpeechToText.IsListening; }
@@ -236,9 +242,7 @@ public class SpeechToTextToAudio : MonoBehaviour {
 					string text;
 					if (res.final) {
 						text = "Final: " + alt.transcript;
-						Vector3 pos = new Vector3 (0.0f, 0.0f, 1.5f);
-						pos = GvrController.Orientation * pos;
-						m_wordmakerScript.makeword (alt.transcript, 1f, pos, GvrController.Orientation, m_mostRecentClip);
+						m_wordmakerScript.makeword (alt.transcript, 1f, m_mostRecentClip);
 					} else {
 						text = "Interim: " + alt.transcript;
 					}
@@ -248,10 +252,6 @@ public class SpeechToTextToAudio : MonoBehaviour {
 				}
 			}
 		}
-	}
-	// Update is called once per frame
-	void Update () {
-		
 	}
 
 //	public void RequestPermissions() {

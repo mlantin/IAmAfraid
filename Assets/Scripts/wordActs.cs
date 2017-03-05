@@ -9,21 +9,24 @@ public class wordActs : MonoBehaviour, IGvrPointerHoverHandler, IPointerEnterHan
 
 	private static Vector3 m_relpos = new Vector3(0.0f,1.6f,0.0f);
 	private bool m_positioned = false;
-	private AudioSource m_wordSource;
+	private float m_distanceToPointer = 1.0f;
+	private GvrAudioSource m_wordSource;
 
 	public Vector3 bbdim = new Vector3(0.0f,0.0f,0.0f);
 	public Text m_debugText = null;
 
 	// Use this for initialization
 	void Start () {
-		m_wordSource = GetComponent<AudioSource> ();
+		m_wordSource = GetComponent<GvrAudioSource> ();
 	}
 
 	// Update is called once per frame
 	void Update () {
 		if (!m_positioned) {
-			transform.position = GvrController.ArmModel.pointerRotation * Vector3.forward + 
-				GvrController.ArmModel.pointerPosition + (m_relpos - 0.5f*transform.localScale.x * bbdim);
+			Vector3 pos = GvrController.ArmModel.pointerRotation * Vector3.forward + 
+				GvrController.ArmModel.pointerPosition + m_relpos;
+//			pos.x -= 0.5f * transform.localScale.x * bbdim.x;
+			transform.position = pos;
 			transform.rotation = GvrController.ArmModel.pointerRotation;
 			if (GvrController.ClickButtonUp) {
 				m_positioned = true;
