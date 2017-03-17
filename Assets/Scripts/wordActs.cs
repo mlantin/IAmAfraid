@@ -8,6 +8,7 @@ using UnityEngine.EventSystems;
 public class wordActs : MonoBehaviour, IGvrPointerHoverHandler, IPointerEnterHandler, IPointerClickHandler, IPointerDownHandler {
 
 	private static Vector3 m_relpos = new Vector3(0.0f,1.6f,0.0f);
+	private static Vector3 m_laserdif = new Vector3(0f,0f,0f);
 	private bool m_positioned = false;
 	private float m_distanceToPointer = 1.0f;
 	private GvrAudioSource m_wordSource;
@@ -23,8 +24,8 @@ public class wordActs : MonoBehaviour, IGvrPointerHoverHandler, IPointerEnterHan
 	// Update is called once per frame
 	void Update () {
 		if (!m_positioned) {
-			Vector3 pos = GvrController.ArmModel.pointerRotation * Vector3.forward + 
-				GvrController.ArmModel.pointerPosition + m_relpos;
+			Vector3 pos = GvrController.ArmModel.pointerRotation * Vector3.forward*m_distanceToPointer + 
+				GvrController.ArmModel.pointerPosition + m_relpos + m_laserdif;
 //			pos.x -= 0.5f * transform.localScale.x * bbdim.x;
 			transform.position = pos;
 			transform.rotation = GvrController.ArmModel.pointerRotation;
@@ -55,6 +56,7 @@ public class wordActs : MonoBehaviour, IGvrPointerHoverHandler, IPointerEnterHan
 
 	public void OnPointerDown (PointerEventData eventData) {
 		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
+			m_laserdif = eventData.pointerCurrentRaycast.worldPosition - (GvrController.ArmModel.pointerRotation * Vector3.forward * m_distanceToPointer+m_relpos);
 			m_positioned = false;
 		}
 	}

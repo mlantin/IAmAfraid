@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class NonVerbalRecord : MonoBehaviour {
 
 	public GameObject m_soundParent; // The parent of all sound objects
+	public Material m_soundMat;
 	public Text m_DebugText;
 
 	private string m_MicrophoneID = null;
@@ -78,6 +79,10 @@ public class NonVerbalRecord : MonoBehaviour {
 	private void makeSoundObject() {
 		// Create a new sound object which somehow reflects the sound recorded
 		GameObject soundobj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+		Renderer rend = soundobj.GetComponent<Renderer>();
+		if (rend != null){
+			rend.material = m_soundMat;
+		}
 		soundobj.transform.localScale = Vector3.one * .1f;
 		soundobj.transform.parent = m_soundParent.transform;
 		soundobj.transform.position = GvrController.ArmModel.pointerRotation * Vector3.forward
@@ -96,7 +101,7 @@ public class NonVerbalRecord : MonoBehaviour {
 		verts = mesh.vertices;
 		for(int i = 0; i < verts.Length; i++)
 		{
-			verts[i] *= Random.Range (.6f, 1.4f);
+			verts[i] *= Random.Range (.7f, 1.3f);
 		}
 		mesh.vertices = verts;
 		mesh.RecalculateBounds();

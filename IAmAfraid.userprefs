@@ -1,20 +1,23 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/SpeechToTextToAudio.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/wordActs.cs">
     <Files>
-      <File FileName="Assets/Scripts/SpeechToTextToAudio.cs" Line="161" Column="15" />
       <File FileName="Assets/Watson/Scripts/Widgets/MicrophoneWidget.cs" Line="1" Column="1" />
       <File FileName="Assets/Watson/Scripts/Widgets/ClassDisplayWidget.cs" Line="1" Column="1" />
       <File FileName="Assets/Watson/Scripts/Widgets/SpeechDisplayWidget.cs" Line="1" Column="1" />
       <File FileName="Assets/Watson/Scripts/Widgets/Widget.cs" Line="1" Column="1" />
       <File FileName="Assets/Watson/Scripts/Widgets/DataTypes.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/makeaword.cs" Line="1" Column="1" />
       <File FileName="Assets/GoogleVR/Demos/Scripts/DemoInputManager.cs" Line="1" Column="1" />
-      <File FileName="Assets/GoogleVR/Scripts/Controller/GvrController.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/wordActs.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/makeaword.cs" Line="66" Column="53" />
+      <File FileName="Assets/Scripts/SpeechToTextToAudio.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/wordActs.cs" Line="14" Column="38" />
       <File FileName="Assets/GoogleVR/Scripts/EventSystem/GvrPointerPhysicsRaycaster.cs" Line="1" Column="1" />
       <File FileName="Assets/GoogleVR/Scripts/EventSystem/GvrEventInterfacesExtension.cs" Line="1" Column="1" />
-      <File FileName="Assets/GoogleVR/Scripts/UI/GvrLaserPointer.cs" Line="1" Column="1" />
+      <File FileName="Assets/GoogleVR/Scripts/UI/GvrLaserPointer.cs" Line="26" Column="41" />
+      <File FileName="Assets/Scripts/NonVerbalRecord.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/NonVerbalActs.cs" Line="1" Column="1" />
+      <File FileName="Assets/GoogleVR/Scripts/Controller/GvrArmModel.cs" Line="1" Column="1" />
+      <File FileName="Assets/GoogleVR/Scripts/EventSystem/GvrBasePointer.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
