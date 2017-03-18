@@ -5,6 +5,7 @@ using System.Collections;
 public class makeaword : MonoBehaviour {
 
 	public GameObject alphabet;
+	public GameObject wordPrefab;
 	public Text m_debugText;
 
 	private float m_xspace = 0;
@@ -28,14 +29,14 @@ public class makeaword : MonoBehaviour {
 	}
 
 	public void makeword(string word, float scale, AudioClip clip) {
-		GameObject newword = new GameObject (word+"obj");
-		GameObject newwordTrans = new GameObject (word);
+		// Create the Bullet from the Bullet Prefab
+		GameObject newwordTrans  = (GameObject)Instantiate(wordPrefab);		
 		newwordTrans.transform.parent = transform;
-		newword.transform.parent = newwordTrans.transform;
-		wordActs wordscript = newwordTrans.AddComponent<wordActs> ();
 		newwordTrans.transform.position = GvrController.ArmModel.pointerRotation * Vector3.forward + 
 			GvrController.ArmModel.pointerPosition + Vector3.up * 1.6f;
 		newwordTrans.transform.rotation = GvrController.ArmModel.pointerRotation;
+
+		GameObject newword = newwordTrans.transform.GetChild (0).gameObject;
 
 		GameObject newletter;
 		MeshFilter lettermesh;
@@ -45,7 +46,7 @@ public class makeaword : MonoBehaviour {
 
 		newword.transform.localScale = scalevec;
 
-		GvrAudioSource wordsource = newwordTrans.AddComponent<GvrAudioSource>();
+		GvrAudioSource wordsource = newwordTrans.GetComponent<GvrAudioSource>();
 		wordsource.clip = clip;
 		wordsource.loop = false;
 
@@ -81,13 +82,10 @@ public class makeaword : MonoBehaviour {
 			
 		newword.transform.localPosition -= boxsize / 2f;
 
-		Rigidbody rb = newwordTrans.AddComponent<Rigidbody> ();
-		rb.useGravity = false;
-		rb.constraints = RigidbodyConstraints.FreezeAll;
-
-		BoxCollider bc = newwordTrans.AddComponent<BoxCollider> ();
+		BoxCollider bc = newwordTrans.GetComponent<BoxCollider> ();
 		bc.size = boxsize;
 
+		wordActs wordscript = newwordTrans.GetComponent<wordActs> ();
 		wordscript.bbdim = boxsize;
 		wordscript.m_debugText = m_debugText;
 
