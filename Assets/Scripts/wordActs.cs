@@ -1,11 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 
-public class wordActs : MonoBehaviour, IGvrPointerHoverHandler, IPointerEnterHandler, IPointerClickHandler, IPointerDownHandler {
+public class wordActs : NetworkBehaviour, IGvrPointerHoverHandler, IPointerEnterHandler, IPointerClickHandler, IPointerDownHandler {
 
 	private static Vector3 m_relpos = new Vector3(0.0f,1.6f,0.0f);
 	private static Vector3 m_laserdif = new Vector3(0f,0f,0f);

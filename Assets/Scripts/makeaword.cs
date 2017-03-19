@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 using System.Collections;
 
 public class makeaword : MonoBehaviour {
@@ -28,7 +29,7 @@ public class makeaword : MonoBehaviour {
 	void Update () {
 	}
 
-	public void makeword(string word, float scale, AudioClip clip) {
+	public void CmdMakeword(string word, float scale, AudioClip clip) {
 		// Create the Bullet from the Bullet Prefab
 		GameObject newwordTrans  = (GameObject)Instantiate(wordPrefab);		
 		newwordTrans.transform.parent = transform;
@@ -90,5 +91,7 @@ public class makeaword : MonoBehaviour {
 		wordscript.m_debugText = m_debugText;
 
 		wordsource.Play ();
+
+		NetworkServer.Spawn (newwordTrans);
 	}
 }

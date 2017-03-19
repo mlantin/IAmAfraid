@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 using IBM.Watson.DeveloperCloud.Logging;
 using IBM.Watson.DeveloperCloud.Services.SpeechToText.v1;
@@ -167,69 +169,6 @@ public class SpeechToTextToAudio : MonoBehaviour {
 		yield break;
 	}
 
-	private IEnumerator RecordingHandler()
-	{
-		//m_textField.text = "Streaming devices: " + Microphone.devices;
-		Log.Debug("ExampleStreaming", "devices: {0}", Microphone.devices);
-		m_Recording = Microphone.Start(m_MicrophoneID, true, m_RecordingBufferSize, m_RecordingHZ);
-		yield return null;      // let m_RecordingRoutine get set..
-
-		if (m_Recording == null)
-		{
-			StopRecording();
-			yield break;
-		}
-
-		bool bFirstBlock = true;
-		int midPoint = m_Recording.samples / 2;
-		float[] samples = null;
-
-		while (m_RecordingRoutine != 0 && m_Recording != null)
-		{
-			int writePos = Microphone.GetPosition(m_MicrophoneID);
-			//m_textField.text = "firstblock " + bFirstBlock.ToString() + " " + "midpoint is " + midPoint + " in here with " + writePos + " samples";
-			if (writePos > m_Recording.samples || !Microphone.IsRecording(m_MicrophoneID))
-			{
-				m_textField.text = "Error: Microphone disconnected";
-				Log.Error("MicrophoneWidget", "Microphone disconnected.");
-
-				StopRecording();
-				yield break;
-			}
-
-			if ((bFirstBlock && writePos >= midPoint)
-				|| (!bFirstBlock && writePos < midPoint))
-			{
-
-				// front block is recorded, make a RecordClip and pass it onto our callback.
-				samples = new float[midPoint];
-				m_Recording.GetData(samples, bFirstBlock ? 0 : midPoint);
-
-				AudioData record = new AudioData();
-				record.MaxLevel = Mathf.Max(samples);
-				record.Clip = AudioClip.Create("Recording", midPoint, m_Recording.channels, m_RecordingHZ, false);
-				record.Clip.SetData(samples, 0);
-
-				m_SpeechToText.OnListen(record);
-
-				bFirstBlock = !bFirstBlock;
-
-				//m_textField.text = "Sending sending sending sending sending";
-			}
-			else
-			{
-				// calculate the number of samples remaining until we ready for a block of audio, 
-				// and wait that amount of time it will take to record.
-				int remaining = bFirstBlock ? (midPoint - writePos) : (m_Recording.samples - writePos);
-				float timeRemaining = (float)remaining / (float)m_RecordingHZ;
-
-				yield return new WaitForSeconds(timeRemaining);
-			}
-
-		}
-
-		yield break;
-	}
 
 	private void OnRecognize(SpeechRecognitionEvent result)
 	{
@@ -242,7 +181,8 @@ public class SpeechToTextToAudio : MonoBehaviour {
 					string text;
 					if (res.final) {
 						text = "Final: " + alt.transcript;
-						m_wordmakerScript.makeword (alt.transcript, 1f, m_mostRecentClip);
+						StartCoroutine (Upload ());
+						m_wordmakerScript.CmdMakeword (alt.transcript, 1f, m_mostRecentClip);
 					} else {
 						text = "Interim: " + alt.transcript;
 					}
@@ -252,6 +192,45 @@ public class SpeechToTextToAudio : MonoBehaviour {
 				}
 			}
 		}
+	}
+
+	IEnumerator Upload() {
+		float[] audioData = new float[m_mostRecentClip.samples];
+		m_mostRecentClip.GetData (audioData, 0);
+		MemoryStream stream = new MemoryStream();
+		BinaryWriter bw = new BinaryWriter(stream);
+		ConvertAndWrite (bw, audioData, m_mostRecentClip.samples, m_mostRecentClip.channels);
+		byte[] floatBytes = stream.ToArray();
+		UnityWebRequest www = UnityWebRequest.Put("http://192.168.11.13:3000/user", floatBytes);
+		yield return www.Send();
+
+		if(www.isError) {
+			Debug.Log(www.error);
+		}
+		else {
+			Debug.Log("Upload complete!");
+		}
+	}
+
+	void ConvertAndWrite(BinaryWriter bw, float[] samplesData, int numsamples, int channels)
+	{
+		float[] samples = new float[numsamples*channels];
+
+		samples = samplesData;
+
+		short intDatum;
+
+		byte[] bytesData = new byte[samples.Length * 2];
+
+		const float rescaleFactor = 32767; //to convert float to Int16
+
+		for (int i = 0; i < samples.Length; i++)
+		{
+			intDatum = (short)(samples[i] * rescaleFactor);
+			bw.Write (intDatum);
+			//Debug.Log (samples [i]);
+		}
+		bw.Flush ();
 	}
 
 //	public void RequestPermissions() {
