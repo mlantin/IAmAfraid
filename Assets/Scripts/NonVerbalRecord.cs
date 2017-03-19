@@ -85,8 +85,12 @@ public class NonVerbalRecord : MonoBehaviour {
 		}
 		soundobj.transform.localScale = Vector3.one * .1f;
 		soundobj.transform.parent = m_soundParent.transform;
+		// For now I've commented this out since it will never get called from a desktop client for now.
+		// Eventually it might be nice to be able to add sounds via a desktop client. But later.
+		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 		soundobj.transform.position = GvrController.ArmModel.pointerRotation * Vector3.forward
 		+ GvrController.ArmModel.pointerPosition + Vector3.up * 1.6f;
+		#endif
 		NonVerbalActs soundscript = soundobj.AddComponent<NonVerbalActs> ();
 		soundscript.m_DebugText = m_DebugText;
 

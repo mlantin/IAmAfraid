@@ -29,13 +29,12 @@ public class makeaword : MonoBehaviour {
 	void Update () {
 	}
 
-	public void CmdMakeword(string word, float scale, AudioClip clip) {
+	public void CmdMakeword(string word, float scale, Vector3 pos, Quaternion rot, AudioClip clip) {
 		// Create the Bullet from the Bullet Prefab
 		GameObject newwordTrans  = (GameObject)Instantiate(wordPrefab);		
 		newwordTrans.transform.parent = transform;
-		newwordTrans.transform.position = GvrController.ArmModel.pointerRotation * Vector3.forward + 
-			GvrController.ArmModel.pointerPosition + Vector3.up * 1.6f;
-		newwordTrans.transform.rotation = GvrController.ArmModel.pointerRotation;
+		newwordTrans.transform.position = pos;
+		newwordTrans.transform.rotation = rot;
 
 		GameObject newword = newwordTrans.transform.GetChild (0).gameObject;
 

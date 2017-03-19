@@ -4,7 +4,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class NonVerbalActs : MonoBehaviour, IGvrPointerHoverHandler, IPointerEnterHandler, IPointerClickHandler, IPointerDownHandler {
+public class NonVerbalActs : MonoBehaviour
+#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
+, IGvrPointerHoverHandler, IPointerEnterHandler, IPointerClickHandler, IPointerDownHandler
+#endif
+{
 
 	public Text m_DebugText;
 	private static Vector3 m_relpos = new Vector3(0.0f,1.6f,0.0f);
@@ -19,6 +23,7 @@ public class NonVerbalActs : MonoBehaviour, IGvrPointerHoverHandler, IPointerEnt
 	}
 
 	void Update () {
+		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 		if (!m_positioned) {
 			transform.position = GvrController.ArmModel.pointerRotation * Vector3.forward
 				+GvrController.ArmModel.pointerPosition + m_relpos;
@@ -27,8 +32,10 @@ public class NonVerbalActs : MonoBehaviour, IGvrPointerHoverHandler, IPointerEnt
 				m_positioned = true;
 			}
 		}
+		#endif
 	}
 
+	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 	public void OnGvrPointerHover(PointerEventData eventData) {
 		Vector3 reticleInWord;
 		Vector3 reticleLocal;
@@ -55,5 +62,6 @@ public class NonVerbalActs : MonoBehaviour, IGvrPointerHoverHandler, IPointerEnt
 			m_positioned = false;
 		}
 	}
+	#endif
 }
 	

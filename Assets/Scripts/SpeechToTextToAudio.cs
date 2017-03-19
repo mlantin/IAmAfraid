@@ -168,8 +168,7 @@ public class SpeechToTextToAudio : MonoBehaviour {
 
 		yield break;
 	}
-
-
+		
 	private void OnRecognize(SpeechRecognitionEvent result)
 	{
 		if (result != null && result.results.Length > 0)
@@ -182,7 +181,18 @@ public class SpeechToTextToAudio : MonoBehaviour {
 					if (res.final) {
 						text = "Final: " + alt.transcript;
 						StartCoroutine (Upload ());
-						m_wordmakerScript.CmdMakeword (alt.transcript, 1f, m_mostRecentClip);
+
+						Vector3 pos;
+						Quaternion rot;
+						#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
+						pos = GvrController.ArmModel.pointerRotation * Vector3.forward + 
+							GvrController.ArmModel.pointerPosition + Vector3.up * 1.6f;
+						rot = GvrController.ArmModel.pointerRotation;
+						#else
+						pos = Vector3.forward*2f;
+						rot = Quaternion.identity;
+						#endif
+						m_wordmakerScript.CmdMakeword (alt.transcript, 1f, pos, rot, m_mostRecentClip);
 					} else {
 						text = "Interim: " + alt.transcript;
 					}
@@ -201,7 +211,8 @@ public class SpeechToTextToAudio : MonoBehaviour {
 		BinaryWriter bw = new BinaryWriter(stream);
 		ConvertAndWrite (bw, audioData, m_mostRecentClip.samples, m_mostRecentClip.channels);
 		byte[] floatBytes = stream.ToArray();
-		UnityWebRequest www = UnityWebRequest.Put("http://192.168.11.13:3000/user", floatBytes);
+		//NetworkConnection conn = NetworkManager.singleton.client.connection;
+		UnityWebRequest www = UnityWebRequest.Put("http://192.168.11.13:3000/audio?fn="+GenerateFileName("hello"), floatBytes);
 		yield return www.Send();
 
 		if(www.isError) {
@@ -211,6 +222,12 @@ public class SpeechToTextToAudio : MonoBehaviour {
 			Debug.Log("Upload complete!");
 		}
 	}
+
+	public string GenerateFileName(string context)
+	{
+		return context + "_" + System.DateTime.Now.ToString("yyyyMMddHHmm") + "_" + System.Guid.NewGuid().ToString("N");
+	}
+
 
 	void ConvertAndWrite(BinaryWriter bw, float[] samplesData, int numsamples, int channels)
 	{

@@ -6,7 +6,11 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 
-public class wordActs : NetworkBehaviour, IGvrPointerHoverHandler, IPointerEnterHandler, IPointerClickHandler, IPointerDownHandler {
+public class wordActs : NetworkBehaviour
+#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
+, IGvrPointerHoverHandler, IPointerEnterHandler, IPointerClickHandler, IPointerDownHandler 
+#endif
+{
 
 	private static Vector3 m_relpos = new Vector3(0.0f,1.6f,0.0f);
 	private static Vector3 m_laserdif = new Vector3(0f,0f,0f);
@@ -24,6 +28,9 @@ public class wordActs : NetworkBehaviour, IGvrPointerHoverHandler, IPointerEnter
 
 	// Update is called once per frame
 	void Update () {
+		if (isServer)
+			return;
+		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 		if (!m_positioned) {
 			Vector3 pos = GvrController.ArmModel.pointerRotation * Vector3.forward*m_distanceToPointer + 
 				GvrController.ArmModel.pointerPosition + m_relpos + m_laserdif;
@@ -34,8 +41,10 @@ public class wordActs : NetworkBehaviour, IGvrPointerHoverHandler, IPointerEnter
 				m_positioned = true;
 			}
 		}
+		#endif
 	}
 
+	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 	public void OnGvrPointerHover(PointerEventData eventData) {
 		Vector3 reticleInWord;
 		Vector3 reticleLocal;
@@ -61,4 +70,5 @@ public class wordActs : NetworkBehaviour, IGvrPointerHoverHandler, IPointerEnter
 			m_positioned = false;
 		}
 	}
+	#endif
 }
