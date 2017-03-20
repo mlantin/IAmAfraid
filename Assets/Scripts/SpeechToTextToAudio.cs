@@ -47,9 +47,19 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 	}
 
 	void Update() {
-		if (m_RecordingRoutine != 0 || Input.GetKey(KeyCode.Space)) {
+		//if (m_RecordingRoutine != 0 || Input.GetKey(KeyCode.Space)) {
+		if (m_isRotating) {
 			transform.RotateAround (transform.position, Vector3.up, 3);
 		}
+		if (Input.GetKeyDown (KeyCode.Space))
+			CmdSetRotateState (true);
+		else if (Input.GetKeyUp (KeyCode.Space))
+			CmdSetRotateState (false);
+	}
+
+	[Command]
+	void CmdSetRotateState(bool state) {
+		m_isRotating = state;
 	}
 
 	public bool Active
@@ -98,6 +108,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 		{
 			UnityObjectUtil.StartDestroyQueue();
 			m_RecordingRoutine = Runnable.Run(RecordingHandler2());
+			CmdSetRotateState(true);
 		}
 	}
 
@@ -109,6 +120,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 			Microphone.End(m_MicrophoneID);
 			Runnable.Stop(m_RecordingRoutine);
 			m_RecordingRoutine = 0;
+			CmdSetRotateState(false);
 		}
 	}
 
