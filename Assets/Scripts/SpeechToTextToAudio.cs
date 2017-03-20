@@ -9,7 +9,7 @@ using IBM.Watson.DeveloperCloud.Services.SpeechToText.v1;
 using IBM.Watson.DeveloperCloud.Utilities;
 using IBM.Watson.DeveloperCloud.DataTypes;
 
-public class SpeechToTextToAudio : MonoBehaviour {
+public class SpeechToTextToAudio : NetworkBehaviour {
 	//private static string[] permissionNames = { "android.permission.RECORD_AUDIO" };
 	//private static List<GvrPermissionsRequester.PermissionStatus> permissionList =
 	//	new List<GvrPermissionsRequester.PermissionStatus>();
@@ -28,6 +28,9 @@ public class SpeechToTextToAudio : MonoBehaviour {
 
 	private bool m_readytosend = false;
 
+	[SyncVar]
+	private bool m_isRotating = false;
+
 	private AudioClip m_mostRecentClip = null;
 
 	private SpeechToText m_SpeechToText = new SpeechToText();
@@ -44,7 +47,7 @@ public class SpeechToTextToAudio : MonoBehaviour {
 	}
 
 	void Update() {
-		if (m_RecordingRoutine != 0) {
+		if (m_RecordingRoutine != 0 || Input.GetKey(KeyCode.Space)) {
 			transform.RotateAround (transform.position, Vector3.up, 3);
 		}
 	}
