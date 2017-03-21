@@ -14,8 +14,11 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 	//private static List<GvrPermissionsRequester.PermissionStatus> permissionList =
 	//	new List<GvrPermissionsRequester.PermissionStatus>();
 
+
 	public GameObject m_textcanvas = null;
 	public GameObject m_wordmaker = null;
+	public string m_audioServer = "192.168.11.13";
+
 	private makeaword m_wordmakerScript = null;
 
 	private Text m_textField;
@@ -205,7 +208,8 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 					string text;
 					if (res.final) {
 						text = "Final: " + alt.transcript;
-						StartCoroutine (Upload ());
+						string filename = GenerateFileName (netId.ToString ());
+						StartCoroutine (Upload (filename));
 
 						Vector3 pos;
 						Quaternion rot;
@@ -217,7 +221,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 						pos = Vector3.forward*2f;
 						rot = Quaternion.identity;
 						#endif
-						m_wordmakerScript.CmdMakeword (alt.transcript, 1f, pos, rot, m_mostRecentClip);
+						m_wordmakerScript.makeword (alt.transcript, 1f, pos, rot, m_mostRecentClip, filename);
 					} else {
 						text = "Interim: " + alt.transcript;
 					}
@@ -229,7 +233,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 		}
 	}
 
-	IEnumerator Upload() {
+	IEnumerator Upload(string filename) {
 		float[] audioData = new float[m_mostRecentClip.samples];
 		m_mostRecentClip.GetData (audioData, 0);
 		MemoryStream stream = new MemoryStream();
@@ -237,7 +241,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 		ConvertAndWrite (bw, audioData, m_mostRecentClip.samples, m_mostRecentClip.channels);
 		byte[] floatBytes = stream.ToArray();
 		//NetworkConnection conn = NetworkManager.singleton.client.connection;
-		UnityWebRequest www = UnityWebRequest.Put("http://192.168.11.13:3000/audio?fn="+GenerateFileName("hello"), floatBytes);
+		UnityWebRequest www = UnityWebRequest.Put("http://"+m_audioServer+"/audio?fn="+filename, floatBytes);
 		yield return www.Send();
 
 		if(www.isError) {

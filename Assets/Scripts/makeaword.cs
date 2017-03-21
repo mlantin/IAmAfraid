@@ -29,7 +29,7 @@ public class makeaword : MonoBehaviour {
 	void Update () {
 	}
 
-	public void CmdMakeword(string word, float scale, Vector3 pos, Quaternion rot, AudioClip clip) {
+	public void makeword(string word, float scale, Vector3 pos, Quaternion rot, AudioClip clip, string clipfn) {
 		// Create the Bullet from the Bullet Prefab
 		GameObject newwordTrans  = (GameObject)Instantiate(wordPrefab);		
 		newwordTrans.transform.parent = transform;
@@ -88,6 +88,7 @@ public class makeaword : MonoBehaviour {
 		wordActs wordscript = newwordTrans.GetComponent<wordActs> ();
 		wordscript.bbdim = boxsize;
 		wordscript.m_debugText = m_debugText;
+		wordscript.serverFileName = clipfn;
 
 		wordsource.Play ();
 
