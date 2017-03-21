@@ -3,11 +3,11 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Collections;
 
-public class makeaword : MonoBehaviour {
+// this is connected to the player object
+public class makeaword : NetworkBehaviour {
 
 	public GameObject alphabet;
 	public GameObject wordPrefab;
-	public Text m_debugText;
 
 	private float m_xspace = 0;
 
@@ -23,6 +23,7 @@ public class makeaword : MonoBehaviour {
 			}
 		}
 		m_xspace = extent.x/2.5f;
+
 	}
 	
 	// Update is called once per frame
@@ -30,9 +31,25 @@ public class makeaword : MonoBehaviour {
 	}
 
 	public void makeword(string word, float scale, Vector3 pos, Quaternion rot, AudioClip clip, string clipfn) {
+		CmdSpawnWord (word, scale, pos, rot, clipfn);
+		// TODO: not sure if we can find out when the word has been created and assign the AudioClip
+		// we already have on the client. If not from this function, then there is no point having it
+		// as an intermediary. Could just call CmdSpawnWord directly and have a way of finding out which
+		// client asked for it, and then assign the last audioclip recorded. It's a bit kludgy and relies
+		// on no records taking place in between. Also we have an issue because it needs to be positioned
+		// in the world. So the WordActs script needs to take that into account. Only pay attention to the 
+		// m_positioned variable if you own the word.
+
+		//GvrAudioSource wordsource = newwordTrans.GetComponent<GvrAudioSource>();
+		//wordsource.clip = clip;
+		//wordsource.loop = false;
+		//wordsource.Play ();
+	}
+
+	[Command]
+	void CmdSpawnWord(string word, float scale, Vector3 pos, Quaternion rot, string clipfn) {
 		// Create the Bullet from the Bullet Prefab
 		GameObject newwordTrans  = (GameObject)Instantiate(wordPrefab);		
-		newwordTrans.transform.parent = transform;
 		newwordTrans.transform.position = pos;
 		newwordTrans.transform.rotation = rot;
 
@@ -47,7 +64,7 @@ public class makeaword : MonoBehaviour {
 		newword.transform.localScale = scalevec;
 
 		GvrAudioSource wordsource = newwordTrans.GetComponent<GvrAudioSource>();
-		wordsource.clip = clip;
+		//wordsource.clip = clip;
 		wordsource.loop = false;
 
 
@@ -79,7 +96,7 @@ public class makeaword : MonoBehaviour {
 				}
 			}
 		}
-			
+
 		newword.transform.localPosition -= boxsize / 2f;
 
 		BoxCollider bc = newwordTrans.GetComponent<BoxCollider> ();
@@ -87,11 +104,11 @@ public class makeaword : MonoBehaviour {
 
 		wordActs wordscript = newwordTrans.GetComponent<wordActs> ();
 		wordscript.bbdim = boxsize;
-		wordscript.m_debugText = m_debugText;
 		wordscript.serverFileName = clipfn;
 
-		wordsource.Play ();
+		//wordsource.Play ();
 
-		NetworkServer.Spawn (newwordTrans);
+		NetworkServer.SpawnWithClientAuthority (newwordTrans, connectionToClient);
 	}
+		
 }

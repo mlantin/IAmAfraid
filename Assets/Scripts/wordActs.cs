@@ -20,6 +20,10 @@ public class wordActs : NetworkBehaviour
 
 	public Vector3 bbdim = new Vector3(0.0f,0.0f,0.0f);
 	public Text m_debugText = null;
+
+	[SyncVar]
+	public string m_wordstr = "";
+	[SyncVar]
 	public string serverFileName = "";
 
 	// Use this for initialization

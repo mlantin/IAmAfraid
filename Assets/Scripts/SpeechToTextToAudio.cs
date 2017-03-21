@@ -16,7 +16,6 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 
 
 	public GameObject m_textcanvas = null;
-	public GameObject m_wordmaker = null;
 	public string m_audioServer = "192.168.11.13:3000";
 
 	private makeaword m_wordmakerScript = null;
@@ -40,10 +39,9 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 
 	void Start()
 	{
-		m_wordmakerScript = m_wordmaker.GetComponent<MonoBehaviour>() as makeaword;
+		m_wordmakerScript = LocalPlayer.playerObject.GetComponent<makeaword>();
 		m_textField = m_textcanvas.GetComponent<Text> ();
 		LogSystem.InstallDefaultReactors();
-		Log.Debug("ExampleStreaming", "Start();");
 
 //		RequestPermissions ();
 //		Active = true;
