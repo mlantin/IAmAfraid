@@ -17,7 +17,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 
 	public GameObject m_textcanvas = null;
 	public GameObject m_wordmaker = null;
-	public string m_audioServer = "192.168.11.13";
+	public string m_audioServer = "192.168.11.13:3000";
 
 	private makeaword m_wordmakerScript = null;
 
