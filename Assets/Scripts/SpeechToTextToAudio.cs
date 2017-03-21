@@ -52,15 +52,24 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 			transform.RotateAround (transform.position, Vector3.up, 3);
 		}
 		if (Input.GetKeyDown (KeyCode.Space))
-			CmdSetRotateState (true);
+			setRotateState (true);
 		else if (Input.GetKeyUp (KeyCode.Space))
-			CmdSetRotateState (false);
+			setRotateState (false);
+	}
+
+	void setRotateState(bool state) {
+		if (!GetComponent<NetworkIdentity>().hasAuthority)
+			LocalPlayer.getAuthority (netId);
+		// TODO:There is a problem here...the rotate state will not be set by the server
+		// if it had to get authority first. So this next call will always fail if 
+		// the getAuthority call was done in the previous line. In practice the first
+		// time you click on the cube, it won't rotate.
+		CmdSetRotateState (state);
 	}
 
 	[Command]
 	void CmdSetRotateState(bool state) {
 		m_isRotating = state;
-		Debug.Log ("setting the recording state");
 	}
 
 	public bool Active
@@ -109,7 +118,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 		{
 			UnityObjectUtil.StartDestroyQueue();
 			m_RecordingRoutine = Runnable.Run(RecordingHandler2());
-			CmdSetRotateState(true);
+			setRotateState(true);
 		}
 	}
 
@@ -121,7 +130,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 			Microphone.End(m_MicrophoneID);
 			Runnable.Stop(m_RecordingRoutine);
 			m_RecordingRoutine = 0;
-			CmdSetRotateState(false);
+			setRotateState(false);
 		}
 	}
 
