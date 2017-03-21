@@ -60,6 +60,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 	[Command]
 	void CmdSetRotateState(bool state) {
 		m_isRotating = state;
+		Debug.Log ("setting the recording state");
 	}
 
 	public bool Active
