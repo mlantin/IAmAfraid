@@ -18,17 +18,35 @@ public class wordActs : NetworkBehaviour
 	private float m_distanceToPointer = 1.0f;
 	private GvrAudioSource m_wordSource;
 
+	private float m_xspace = 0;
+
+	public GameObject alphabet;
 	public Vector3 bbdim = new Vector3(0.0f,0.0f,0.0f);
 	public Text m_debugText = null;
 
-	[SyncVar]
+	// The hook should only be called once because the word will be set once
+	[SyncVar (hook="addLetters")]
 	public string m_wordstr = "";
 	[SyncVar]
-	public string serverFileName = "";
+	public float m_scale = 1.0f;
+	[SyncVar (hook="fetchAudio")]
+	public string m_serverFileName = "";
 
 	// Use this for initialization
 	void Start () {
 		m_wordSource = GetComponent<GvrAudioSource> ();
+		m_wordSource.loop = false;
+
+		string ci = "i";
+		MeshFilter[] letters = alphabet.GetComponentsInChildren<MeshFilter> ();
+		Vector3 extent = new Vector3();
+		foreach (MeshFilter letter in letters) {
+			if (letter.name == ci) {
+				extent = letter.sharedMesh.bounds.extents;
+				break;
+			}
+		}
+		m_xspace = extent.x/2.5f;
 	}
 
 	// Update is called once per frame
@@ -74,6 +92,60 @@ public class wordActs : NetworkBehaviour
 			m_laserdif = eventData.pointerCurrentRaycast.worldPosition - (GvrController.ArmModel.pointerRotation * Vector3.forward * m_distanceToPointer+m_relpos);
 			m_positioned = false;
 		}
+	}
+
+	void addLetters(string word) {
+
+		GameObject newword = transform.GetChild (0).gameObject;
+
+		GameObject newletter;
+		MeshFilter lettermesh;
+		Vector3 letterpos = new Vector3 ();
+		Vector3 scalevec = new Vector3 (m_scale, m_scale, m_scale);
+		Vector3 letterscale = new Vector3 (1f, 1f, 1f);
+
+		newword.transform.localScale = scalevec;
+
+		MeshFilter[] letters = alphabet.GetComponentsInChildren<MeshFilter> ();
+		Vector3 lettercentre;
+		Vector3 extent = new Vector3();
+		Vector3 boxsize = new Vector3 ();
+		string lowcaseWord = word.ToLower ();
+		foreach (char c in lowcaseWord) {
+			if (c == ' ') {
+				letterpos.x += m_xspace*2;
+				boxsize.x += m_xspace * 2;
+				continue;
+			}
+			foreach (MeshFilter letter in letters) {
+				if (letter.name == c.ToString()) {
+					lettermesh = Instantiate(letter) as MeshFilter;
+					newletter = lettermesh.gameObject;
+					newletter.name = c.ToString ();
+					newletter.transform.parent = newword.transform;
+					newletter.transform.localScale = letterscale;
+					newletter.transform.localRotation = Quaternion.identity;
+					lettercentre = letter.sharedMesh.bounds.center;
+					extent = letter.sharedMesh.bounds.extents;
+					boxsize.Set (boxsize.x + m_xspace + extent.x * 2, Mathf.Max (boxsize.y, extent.y*2), Mathf.Max (boxsize.z, extent.z * 2));
+					newletter.transform.localPosition = letterpos-lettercentre+extent;
+					letterpos.x += extent.x*2 + m_xspace;
+					break;
+				}
+			}
+		}
+
+		newword.transform.localPosition -= boxsize / 2f;
+
+		BoxCollider bc = GetComponent<BoxCollider> ();
+		bc.size = boxsize;
+
+		bbdim = boxsize;
+	}
+
+	//TODO: add code to fetch audio. If it's the local client the audio is probably still in memory in the Watson Cube.
+	// could add code to get that in here.
+	void fetchAudio(string clipfn) {
 	}
 	#endif
 }

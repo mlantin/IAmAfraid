@@ -219,7 +219,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 						pos = Vector3.forward*2f;
 						rot = Quaternion.identity;
 						#endif
-						m_wordmakerScript.makeword (alt.transcript, 1f, pos, rot, m_mostRecentClip, filename);
+						m_wordmakerScript.CmdSpawnWord (alt.transcript, 1f, pos, rot, filename);
 					} else {
 						text = "Interim: " + alt.transcript;
 					}
