@@ -93,6 +93,7 @@ public class wordActs : NetworkBehaviour
 			m_positioned = false;
 		}
 	}
+	#endif
 
 	void addLetters(string word) {
 
@@ -147,5 +148,4 @@ public class wordActs : NetworkBehaviour
 	// could add code to get that in here.
 	void fetchAudio(string clipfn) {
 	}
-	#endif
 }

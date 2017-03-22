@@ -64,7 +64,7 @@ public class NonVerbalActs : NetworkBehaviour
 	public void OnPointerDown (PointerEventData eventData) {
 		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
 			m_distanceFromPointer = eventData.pointerCurrentRaycast.distance;
-			m_DebugText.text = m_distanceFromPointer.ToString () + " " + eventData.pointerCurrentRaycast.distance.ToString ();
+			//m_DebugText.text = m_distanceFromPointer.ToString () + " " + eventData.pointerCurrentRaycast.distance.ToString ();
 			m_positioned = false;
 		}
 	}
@@ -92,6 +92,7 @@ public class NonVerbalActs : NetworkBehaviour
 		Vector3 maxvert;
 		maxvert = mesh.bounds.max;
 		col.radius = Mathf.Max(Mathf.Max(maxvert.x,maxvert.y),maxvert.z)+ .02f;
+		Debug.Log ("The RADIUS is: "+col.radius);
 	}
 }
 	
