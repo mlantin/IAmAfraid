@@ -9,7 +9,6 @@ public class makeaword : NetworkBehaviour {
 
 	[Command]
 	public void CmdSpawnWord(string word, float scale, Vector3 pos, Quaternion rot, string clipfn) {
-		// Create the Bullet from the Bullet Prefab
 		GameObject newwordTrans  = (GameObject)Instantiate(wordPrefab);		
 		newwordTrans.transform.position = pos;
 		newwordTrans.transform.rotation = rot;

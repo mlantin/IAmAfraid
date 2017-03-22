@@ -16,7 +16,6 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 
 
 	public GameObject m_textcanvas = null;
-	public string m_audioServer = "192.168.11.13:3000";
 
 	private makeaword m_wordmakerScript = null;
 
@@ -206,8 +205,8 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 					string text;
 					if (res.final) {
 						text = "Final: " + alt.transcript;
-						string filename = GenerateFileName (netId.ToString ());
-						StartCoroutine (Upload (filename));
+						string filename = Webserver.singleton.GenerateFileName (netId.ToString ());
+						StartCoroutine (Webserver.singleton.Upload (filename, m_mostRecentClip));
 
 						Vector3 pos;
 						Quaternion rot;
@@ -231,51 +230,6 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 		}
 	}
 
-	IEnumerator Upload(string filename) {
-		float[] audioData = new float[m_mostRecentClip.samples];
-		m_mostRecentClip.GetData (audioData, 0);
-		MemoryStream stream = new MemoryStream();
-		BinaryWriter bw = new BinaryWriter(stream);
-		ConvertAndWrite (bw, audioData, m_mostRecentClip.samples, m_mostRecentClip.channels);
-		byte[] floatBytes = stream.ToArray();
-		//NetworkConnection conn = NetworkManager.singleton.client.connection;
-		UnityWebRequest www = UnityWebRequest.Put("http://"+m_audioServer+"/audio?fn="+filename, floatBytes);
-		yield return www.Send();
-
-		if(www.isError) {
-			Debug.Log(www.error);
-		}
-		else {
-			Debug.Log("Upload complete!");
-		}
-	}
-
-	public string GenerateFileName(string context)
-	{
-		return context + "_" + System.DateTime.Now.ToString("yyyyMMddHHmm") + "_" + System.Guid.NewGuid().ToString("N");
-	}
-
-
-	void ConvertAndWrite(BinaryWriter bw, float[] samplesData, int numsamples, int channels)
-	{
-		float[] samples = new float[numsamples*channels];
-
-		samples = samplesData;
-
-		short intDatum;
-
-		byte[] bytesData = new byte[samples.Length * 2];
-
-		const float rescaleFactor = 32767; //to convert float to Int16
-
-		for (int i = 0; i < samples.Length; i++)
-		{
-			intDatum = (short)(samples[i] * rescaleFactor);
-			bw.Write (intDatum);
-			//Debug.Log (samples [i]);
-		}
-		bw.Flush ();
-	}
 
 //	public void RequestPermissions() {
 //		GvrPermissionsRequester permissionRequester = GvrPermissionsRequester.Instance;

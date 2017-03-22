@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
 public class NonVerbalRecord : MonoBehaviour {
 
-	public GameObject m_soundParent; // The parent of all sound objects
 	public Material m_soundMat;
 	public Text m_DebugText;
 
@@ -64,8 +64,12 @@ public class NonVerbalRecord : MonoBehaviour {
 
 				m_mostRecentClip = AudioClip.Create ("clipy", writePos, 1, m_RecordingHZ, false);
 				m_mostRecentClip.SetData (samples, 0);
+
+				string filename = Webserver.singleton.GenerateFileName (LocalPlayer.playerObject.GetComponent<NetworkIdentity>().netId.ToString ());
+				StartCoroutine (Webserver.singleton.Upload (filename, m_mostRecentClip));
+
 				// create a new sound object
-				makeSoundObject();
+				LocalPlayer.playerObject.GetComponent<MakeSoundObject>().CmdSpawnSoundObject(filename);
 				yield break;
 
 			} else {
@@ -74,45 +78,5 @@ public class NonVerbalRecord : MonoBehaviour {
 		}
 
 		yield break;
-	}
-
-	private void makeSoundObject() {
-		// Create a new sound object which somehow reflects the sound recorded
-		GameObject soundobj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-		Renderer rend = soundobj.GetComponent<Renderer>();
-		if (rend != null){
-			rend.material = m_soundMat;
-		}
-		soundobj.transform.localScale = Vector3.one * .1f;
-		soundobj.transform.parent = m_soundParent.transform;
-		// For now I've commented this out since it will never get called from a desktop client for now.
-		// Eventually it might be nice to be able to add sounds via a desktop client. But later.
-		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-		soundobj.transform.position = GvrController.ArmModel.pointerRotation * Vector3.forward
-		+ GvrController.ArmModel.pointerPosition + Vector3.up * 1.6f;
-		#endif
-		NonVerbalActs soundscript = soundobj.AddComponent<NonVerbalActs> ();
-		soundscript.m_DebugText = m_DebugText;
-
-		GvrAudioSource wordsource = soundobj.AddComponent<GvrAudioSource>();
-		wordsource.clip = m_mostRecentClip;
-		wordsource.loop = false;
-
-		Mesh mesh;
-		Vector3[] verts;
-
-		mesh = soundobj.GetComponent<MeshFilter>().mesh;
-		verts = mesh.vertices;
-		for(int i = 0; i < verts.Length; i++)
-		{
-			verts[i] *= Random.Range (.7f, 1.3f);
-		}
-		mesh.vertices = verts;
-		mesh.RecalculateBounds();
-		mesh.RecalculateNormals();
-		SphereCollider col = soundobj.GetComponent<SphereCollider> ();
-		Vector3 maxvert;
-		maxvert = mesh.bounds.max;
-		col.radius = Mathf.Max(Mathf.Max(maxvert.x,maxvert.y),maxvert.z)+ .02f;
 	}
 }

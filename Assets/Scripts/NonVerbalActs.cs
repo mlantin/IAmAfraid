@@ -3,14 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.Networking;
 
-public class NonVerbalActs : MonoBehaviour
+public class NonVerbalActs : NetworkBehaviour
 #if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 , IGvrPointerHoverHandler, IPointerEnterHandler, IPointerClickHandler, IPointerDownHandler
 #endif
 {
 
+	[SyncVar (hook="fetchAudio")]
+	public string m_serverFileName = "";
 	public Text m_DebugText;
+
 	private static Vector3 m_relpos = new Vector3(0.0f,1.6f,0.0f);
 	private bool m_positioned = false;
 	private float m_distanceFromPointer = 1.0f;
@@ -23,6 +27,8 @@ public class NonVerbalActs : MonoBehaviour
 	}
 
 	void Update () {
+		if (isServer)
+			return;
 		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 		if (!m_positioned) {
 			transform.position = GvrController.ArmModel.pointerRotation * Vector3.forward
@@ -63,5 +69,29 @@ public class NonVerbalActs : MonoBehaviour
 		}
 	}
 	#endif
+
+
+	void fetchAudio(string filename) {
+		randomizePaperBall ();
+	}
+
+	void randomizePaperBall() {
+		Mesh mesh;
+		Vector3[] verts;
+
+		mesh = gameObject.GetComponent<MeshFilter>().mesh;
+		verts = mesh.vertices;
+		for(int i = 0; i < verts.Length; i++)
+		{
+			verts[i] *= Random.Range (.7f, 1.3f);
+		}
+		mesh.vertices = verts;
+		mesh.RecalculateBounds();
+		mesh.RecalculateNormals();
+		SphereCollider col = gameObject.GetComponent<SphereCollider> ();
+		Vector3 maxvert;
+		maxvert = mesh.bounds.max;
+		col.radius = Mathf.Max(Mathf.Max(maxvert.x,maxvert.y),maxvert.z)+ .02f;
+	}
 }
 	
