@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 
 public class NonVerbalActs : NetworkBehaviour
 #if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-, IGvrPointerHoverHandler, IPointerEnterHandler, IPointerClickHandler, IPointerDownHandler
+, IGvrPointerHoverHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IPointerDownHandler
 #endif
 {
 
@@ -21,8 +21,11 @@ public class NonVerbalActs : NetworkBehaviour
 	private Vector3 m_pointerDir;
 	private GvrAudioSource m_wordSource;
 
+	[SyncVar (hook ="playSound")]
+	bool objectHit = false;
+
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 		m_wordSource = GetComponent<GvrAudioSource> ();
 	}
 
@@ -51,7 +54,11 @@ public class NonVerbalActs : NetworkBehaviour
 	}
 
 	public void OnPointerEnter (PointerEventData eventData) {
-		m_wordSource.Play ();
+		CmdSetObjectHit(true);
+	}
+
+	public void OnPointerExit(PointerEventData eventData){
+		CmdSetObjectHit(false);
 	}
 
 	public void OnPointerClick (PointerEventData eventData) {
@@ -70,9 +77,25 @@ public class NonVerbalActs : NetworkBehaviour
 	}
 	#endif
 
+	[Command]
+	void CmdSetObjectHit(bool state) {
+		objectHit = state;
+	}
+
+	void playSound(bool hit) {
+		if (hit)
+			m_wordSource.Play();
+		Debug.Log ("play the sound");
+	}
 
 	void fetchAudio(string filename) {
 		randomizePaperBall ();
+		if (hasAuthority) { // we created the sound clip so it's probably still in memory
+			m_wordSource.clip = NonVerbalRecord.singleton.mostRecentClip;
+		} else {
+			StartCoroutine(Webserver.singleton.GetAudioClip (filename, 
+				(newclip) => { m_wordSource.clip = newclip;}));
+		}
 	}
 
 	void randomizePaperBall() {

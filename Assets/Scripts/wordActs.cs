@@ -166,12 +166,7 @@ public class wordActs : NetworkBehaviour
 		if (hasAuthority) { // we created the sound clip so it's probably still in memory
 			m_wordSource.clip = SpeechToTextToAudio.singleton.mostRecentClip;
 		} else {
-			fetchAudioFromServer (clipfn);
+			StartCoroutine(Webserver.singleton.GetAudioClip (clipfn, (newclip) => { m_wordSource.clip = newclip;}));
 		}
 	}
-		
-	void fetchAudioFromServer(string clipfn) {
-		StartCoroutine(Webserver.singleton.GetAudioClip (clipfn, (newclip) => { m_wordSource.clip = newclip;}));
-	}
-		
 }

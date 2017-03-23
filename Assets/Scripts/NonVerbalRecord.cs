@@ -6,18 +6,22 @@ using UnityEngine.Networking;
 
 public class NonVerbalRecord : MonoBehaviour {
 
+	static public NonVerbalRecord singleton;
+
 	public Material m_soundMat;
 	public Text m_DebugText;
 
 	private string m_MicrophoneID = null;
 	private AudioClip m_Recording = null;
-	private AudioClip m_mostRecentClip = null;
 	private int m_RecordingBufferSize = 10;
 	private int m_RecordingHZ = 44100;
 	private bool m_recordingDone = false;
 
+	private AudioClip m_mostRecentClip = null;
+
 	// Use this for initialization
 	void Start () {
+		singleton = this;
 		m_recordingDone = false;
 	}
 	
@@ -28,6 +32,10 @@ public class NonVerbalRecord : MonoBehaviour {
 		
 	public void PlaySound() {
 		
+	}
+
+	public AudioClip mostRecentClip {
+		get { return m_mostRecentClip; }
 	}
 
 	public void StartRecording(){
@@ -66,7 +74,9 @@ public class NonVerbalRecord : MonoBehaviour {
 				m_mostRecentClip.SetData (samples, 0);
 
 				string filename = Webserver.singleton.GenerateFileName (LocalPlayer.playerObject.GetComponent<NetworkIdentity>().netId.ToString ());
-				Webserver.singleton.Upload (filename, m_mostRecentClip, null);
+				DownloadHandlerBuffer handler = new DownloadHandlerBuffer ();
+				Webserver.singleton.Upload (filename, m_mostRecentClip, handler);
+				yield return new WaitUntil(() => handler.isDone == true);
 
 				// create a new sound object
 				LocalPlayer.playerObject.GetComponent<MakeSoundObject>().CmdSpawnSoundObject(filename);

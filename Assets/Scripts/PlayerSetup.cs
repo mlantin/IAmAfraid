@@ -18,6 +18,12 @@ public class PlayerSetup : NetworkBehaviour {
 
 		// tag the local player so we can look for it later in other objects
 		gameObject.tag = "Player";
+
+		if (!isServer) {
+			//Take control of the reticle
+			GameObject reticle = GameObject.Find ("Reticle");
+			GetComponent<AuthorityManager> ().CmdAssignObjectAuthority (reticle.GetComponent<NetworkIdentity> ().netId);
+		}
 	}
 
 	// Update is called once per frame

@@ -13,7 +13,6 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 	
 	static public SpeechToTextToAudio singleton = null;
 
-	private DownloadHandlerBuffer m_audioResponseHandler = new DownloadHandlerBuffer();
 
 	public GameObject m_textcanvas = null;
 
@@ -71,8 +70,8 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 		yield return new WaitUntil(() => hasAuthority == true);
 		CmdSetRotateState (state);
 
-//		if (state == false)
-//			LocalPlayer.removeAuthority (netId);
+		if (state == false)
+			LocalPlayer.removeAuthority (netId);
 	}
 
 	[Command]
@@ -231,7 +230,11 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 		DownloadHandlerBuffer handler = new DownloadHandlerBuffer ();
 		Webserver.singleton.Upload (m_mostRecentFilename, m_mostRecentClip, handler);
 		yield return new WaitUntil(() => handler.isDone == true);
+		if (!hasAuthority)
+			LocalPlayer.getAuthority (netId);
+		yield return new WaitUntil(() => hasAuthority == true);
 		spawnTheWord ();
+		LocalPlayer.removeAuthority (netId);
 	}
 
 
