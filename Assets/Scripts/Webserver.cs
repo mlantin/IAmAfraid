@@ -16,7 +16,7 @@ public class Webserver : MonoBehaviour {
 		singleton = this;
 	}
 	
-	public  bool Upload(string filename, AudioClip clip) {
+	public  bool Upload(string filename, AudioClip clip, DownloadHandler handler) {
 		float[] audioData = new float[clip.samples];
 		clip.GetData (audioData, 0);
 		MemoryStream stream = new MemoryStream();
@@ -25,6 +25,8 @@ public class Webserver : MonoBehaviour {
 		byte[] floatBytes = stream.ToArray();
 		//NetworkConnection conn = NetworkManager.singleton.client.connection;
 		UnityWebRequest www = UnityWebRequest.Put("http://"+m_serverIP+":"+m_serverPort+"/audio?fn="+filename, floatBytes);
+		if (handler != null)
+			www.downloadHandler = handler;
 		//yield return www.Send();
 		www.Send();
 

@@ -9,6 +9,8 @@ public class makeaword : NetworkBehaviour {
 
 	[Command]
 	public void CmdSpawnWord(string word, float scale, Vector3 pos, Quaternion rot, string clipfn) {
+		Debug.Log ("Spawning");
+
 		GameObject newwordTrans  = (GameObject)Instantiate(wordPrefab);		
 		newwordTrans.transform.position = pos;
 		newwordTrans.transform.rotation = rot;

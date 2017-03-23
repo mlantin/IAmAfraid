@@ -10,10 +10,10 @@ using IBM.Watson.DeveloperCloud.Utilities;
 using IBM.Watson.DeveloperCloud.DataTypes;
 
 public class SpeechToTextToAudio : NetworkBehaviour {
-	//private static string[] permissionNames = { "android.permission.RECORD_AUDIO" };
-	//private static List<GvrPermissionsRequester.PermissionStatus> permissionList =
-	//	new List<GvrPermissionsRequester.PermissionStatus>();
+	
 	static public SpeechToTextToAudio singleton = null;
+
+	private DownloadHandlerBuffer m_audioResponseHandler = new DownloadHandlerBuffer();
 
 	public GameObject m_textcanvas = null;
 
@@ -33,6 +33,8 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 	private bool m_isRotating = false;
 
 	private AudioClip m_mostRecentClip = null;
+	private string m_mostRecentFilename = "";
+	private string m_mostRecentTranscript = "";
 
 	private SpeechToText m_SpeechToText = new SpeechToText();
 
@@ -69,8 +71,8 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 		yield return new WaitUntil(() => hasAuthority == true);
 		CmdSetRotateState (state);
 
-		if (state == false)
-			LocalPlayer.removeAuthority (netId);
+//		if (state == false)
+//			LocalPlayer.removeAuthority (netId);
 	}
 
 	[Command]
@@ -211,20 +213,9 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 					string text;
 					if (res.final) {
 						text = "Final: " + alt.transcript;
-						string filename = Webserver.singleton.GenerateFileName (netId.ToString ());
-						bool uploaded = Webserver.singleton.Upload (filename, m_mostRecentClip);
-						m_textField.text = "Upload result: "+uploaded.ToString();
-						Vector3 pos;
-						Quaternion rot;
-						#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-						pos = GvrController.ArmModel.pointerRotation * Vector3.forward + 
-							GvrController.ArmModel.pointerPosition + Vector3.up * 1.6f;
-						rot = GvrController.ArmModel.pointerRotation;
-						#else
-						pos = Vector3.forward*2f;
-						rot = Quaternion.identity;
-						#endif
-						m_wordmakerScript.CmdSpawnWord (alt.transcript, 1f, pos, rot, filename);
+						m_mostRecentTranscript = alt.transcript;
+						m_mostRecentFilename = Webserver.singleton.GenerateFileName (netId.ToString ());
+						StartCoroutine(handleUpload ());
 					} else {
 						text = "Interim: " + alt.transcript;
 					}
@@ -234,5 +225,27 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 				}
 			}
 		}
+	}
+
+	IEnumerator handleUpload() {
+		DownloadHandlerBuffer handler = new DownloadHandlerBuffer ();
+		Webserver.singleton.Upload (m_mostRecentFilename, m_mostRecentClip, handler);
+		yield return new WaitUntil(() => handler.isDone == true);
+		spawnTheWord ();
+	}
+
+
+	public void spawnTheWord() {
+		Vector3 pos;
+		Quaternion rot;
+		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
+		pos = GvrController.ArmModel.pointerRotation * Vector3.forward + 
+			GvrController.ArmModel.pointerPosition + Vector3.up * 1.6f;
+		rot = GvrController.ArmModel.pointerRotation;
+		#else
+		pos = Vector3.forward*2f;
+		rot = Quaternion.identity;
+		#endif
+		m_wordmakerScript.CmdSpawnWord (m_mostRecentTranscript, 1f, pos, rot, m_mostRecentFilename);
 	}
 }
