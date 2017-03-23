@@ -13,7 +13,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 	//private static string[] permissionNames = { "android.permission.RECORD_AUDIO" };
 	//private static List<GvrPermissionsRequester.PermissionStatus> permissionList =
 	//	new List<GvrPermissionsRequester.PermissionStatus>();
-
+	static public SpeechToTextToAudio singleton = null;
 
 	public GameObject m_textcanvas = null;
 
@@ -38,6 +38,8 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 
 	void Start()
 	{
+		singleton = this;
+
 		m_wordmakerScript = LocalPlayer.playerObject.GetComponent<makeaword>();
 		m_textField = m_textcanvas.GetComponent<Text> ();
 		LogSystem.InstallDefaultReactors();
@@ -52,19 +54,23 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 			transform.RotateAround (transform.position, Vector3.up, 3);
 		}
 		if (Input.GetKeyDown (KeyCode.Space))
-			setRotateState (true);
+			StartCoroutine(setRotateState (true));
 		else if (Input.GetKeyUp (KeyCode.Space))
-			setRotateState (false);
+			StartCoroutine(setRotateState (false));
 	}
 
-	void setRotateState(bool state) {
-		if (!GetComponent<NetworkIdentity>().hasAuthority)
+	public AudioClip mostRecentClip {
+		get { return m_mostRecentClip; }
+	}
+
+	IEnumerator setRotateState(bool state) {
+		if (!hasAuthority)
 			LocalPlayer.getAuthority (netId);
-		// TODO:There is a problem here...the rotate state will not be set by the server
-		// if it had to get authority first. So this next call will always fail if 
-		// the getAuthority call was done in the previous line. In practice the first
-		// time you click on the cube, it won't rotate.
+		yield return new WaitUntil(() => hasAuthority == true);
 		CmdSetRotateState (state);
+
+		if (state == false)
+			LocalPlayer.removeAuthority (netId);
 	}
 
 	[Command]
@@ -118,7 +124,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 		{
 			UnityObjectUtil.StartDestroyQueue();
 			m_RecordingRoutine = Runnable.Run(RecordingHandler2());
-			setRotateState(true);
+			StartCoroutine(setRotateState(true));
 		}
 	}
 
@@ -130,7 +136,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 			Microphone.End(m_MicrophoneID);
 			Runnable.Stop(m_RecordingRoutine);
 			m_RecordingRoutine = 0;
-			setRotateState(false);
+			StartCoroutine(setRotateState(false));
 		}
 	}
 
@@ -229,34 +235,4 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 			}
 		}
 	}
-
-
-//	public void RequestPermissions() {
-//		GvrPermissionsRequester permissionRequester = GvrPermissionsRequester.Instance;
-//		if (permissionRequester == null) {
-//			m_textField.text = "Permission requester cannot be initialized.";
-//			return;
-//		}
-//		Debug.Log("Permissions.RequestPermisions: Check if permission has been granted");
-//		if (!permissionRequester.IsPermissionGranted(permissionNames[0])) {
-//			Debug.Log("Permissions.RequestPermisions: Permission has not been previously granted");
-//			if (permissionRequester.ShouldShowRational(permissionNames[0])) {
-//				m_textField.text = "This app needs to access the microphone.  Please grant permission when prompted.";
-//			}
-//			permissionRequester.RequestPermissions(permissionNames,
-//				(GvrPermissionsRequester.PermissionStatus[] permissionResults) =>
-//				{
-//					permissionList.Clear();
-//					permissionList.AddRange(permissionResults);
-//					string msg = "";
-//					foreach (GvrPermissionsRequester.PermissionStatus p in permissionList) {
-//						msg += p.Name + ": " + (p.Granted ? "Granted" : "Denied") + "\n";
-//					}
-//					m_textField.text = msg;
-//				});
-//		}
-//		else {
-//			m_textField.text = "Microphone permission already granted!";
-//		}
-//	}
 }

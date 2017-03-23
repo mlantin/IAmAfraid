@@ -33,7 +33,7 @@ public class wordActs : NetworkBehaviour
 	public string m_serverFileName = "";
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 		m_wordSource = GetComponent<GvrAudioSource> ();
 		m_wordSource.loop = false;
 
@@ -95,6 +95,23 @@ public class wordActs : NetworkBehaviour
 	}
 	#endif
 
+	IEnumerator playWord() {
+		if (!hasAuthority)
+			LocalPlayer.getAuthority (netId);
+		yield return new WaitUntil(() => hasAuthority == true);
+		CmdPlayWord ();
+	}
+
+	[Command]
+	void CmdPlayWord() {
+		RpcPlayWord();
+	}
+
+	[ClientRpc]
+	void RpcPlayWord() {
+		m_wordSource.Play();
+	}
+
 	void addLetters(string word) {
 
 		GameObject newword = transform.GetChild (0).gameObject;
@@ -144,8 +161,21 @@ public class wordActs : NetworkBehaviour
 		bbdim = boxsize;
 	}
 
+	void fetchAudio(string clipfn) {
+		if (hasAuthority) { // we created the sound clip so it's probably still in memory
+			m_wordSource.clip = SpeechToTextToAudio.singleton.mostRecentClip;
+		} else {
+			StartCoroutine(fetchAudioFromServer (clipfn));
+		}
+	}
+
 	//TODO: add code to fetch audio. If it's the local client the audio is probably still in memory in the Watson Cube.
 	// could add code to get that in here.
-	void fetchAudio(string clipfn) {
+	IEnumerator fetchAudioFromServer(string clipfn) {
+		Debug.Log ("Fetching the audio clip");
+		CoroutineWithData cd = new CoroutineWithData (this, Webserver.singleton.GetAudioClip (clipfn));
+		yield return cd.coroutine;
+		m_wordSource.clip = cd.result as AudioClip;
+		
 	}
 }

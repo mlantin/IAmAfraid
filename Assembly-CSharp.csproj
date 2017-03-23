@@ -139,14 +139,16 @@
      <Compile Include="Assets\GoogleVR\Scripts\Utilities\GvrIntent.cs" />
      <Compile Include="Assets\GoogleVR\Scripts\Utilities\GvrUIHelpers.cs" />
      <Compile Include="Assets\GoogleVR\Scripts\Video\GvrVideoPlayerTexture.cs" />
-     <Compile Include="Assets\MakeSoundObject.cs" />
      <Compile Include="Assets\Scripts\AuthorityManager.cs" />
+     <Compile Include="Assets\Scripts\CoroutineWithData.cs" />
      <Compile Include="Assets\Scripts\LocalPlayer.cs" />
+     <Compile Include="Assets\Scripts\MakeSoundObject.cs" />
      <Compile Include="Assets\Scripts\NetworkSetup.cs" />
      <Compile Include="Assets\Scripts\NonVerbalActs.cs" />
      <Compile Include="Assets\Scripts\NonVerbalRecord.cs" />
      <Compile Include="Assets\Scripts\PlayerSetup.cs" />
      <Compile Include="Assets\Scripts\SpeechToTextToAudio.cs" />
+     <Compile Include="Assets\Scripts\Webserver.cs" />
      <Compile Include="Assets\Scripts\makeaword.cs" />
      <Compile Include="Assets\Scripts\wordActs.cs" />
      <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExampleAlchemyDataNews.cs" />
@@ -471,7 +473,6 @@
      <Compile Include="Assets\Watson\ThirdParty\WebSocketSharp\WebSocketState.cs" />
      <Compile Include="Assets\Watson\Travis\TravisBuild.cs" />
      <Compile Include="Assets\Watson\Travis\TravisIntegrationTests.cs" />
-     <Compile Include="Assets\Webserver.cs" />
      <None Include="Assets\Watson\ThirdParty\TouchScript\Shaders\DebugDepthTest.shader" />
      <None Include="Assets\GoogleVR\Distortion\GvrDistortion.cginc" />
      <None Include="Assets\Plugins\Android\proguard-gvr.txt" />
