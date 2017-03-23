@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 
 public class wordActs : NetworkBehaviour
 #if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-, IGvrPointerHoverHandler, IPointerEnterHandler, IPointerClickHandler, IPointerDownHandler 
+, IGvrPointerHoverHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IPointerDownHandler 
 #endif
 {
 
@@ -31,6 +31,9 @@ public class wordActs : NetworkBehaviour
 	public float m_scale = 1.0f;
 	[SyncVar (hook="fetchAudio")]
 	public string m_serverFileName = "";
+
+	[SyncVar (hook ="playWord")]
+	bool wordHit = false;
 
 	// Use this for initialization
 	void Awake () {
@@ -77,7 +80,11 @@ public class wordActs : NetworkBehaviour
 	}
 
 	public void OnPointerEnter (PointerEventData eventData) {
-		m_wordSource.Play ();
+		CmdSetWordHit(true);
+	}
+
+	public void OnPointerExit(PointerEventData eventData){
+		CmdSetWordHit(false);
 	}
 
 	public void OnPointerClick (PointerEventData eventData) {
@@ -95,21 +102,15 @@ public class wordActs : NetworkBehaviour
 	}
 	#endif
 
-	IEnumerator playWord() {
-		if (!hasAuthority)
-			LocalPlayer.getAuthority (netId);
-		yield return new WaitUntil(() => hasAuthority == true);
-		CmdPlayWord ();
-	}
-
 	[Command]
-	void CmdPlayWord() {
-		RpcPlayWord();
+	void CmdSetWordHit(bool state) {
+		wordHit = state;
 	}
 
-	[ClientRpc]
-	void RpcPlayWord() {
-		m_wordSource.Play();
+	void playWord(bool hit) {
+		if (hit)
+			m_wordSource.Play();
+		Debug.Log ("play the word");
 	}
 
 	void addLetters(string word) {
@@ -165,17 +166,11 @@ public class wordActs : NetworkBehaviour
 		if (hasAuthority) { // we created the sound clip so it's probably still in memory
 			m_wordSource.clip = SpeechToTextToAudio.singleton.mostRecentClip;
 		} else {
-			StartCoroutine(fetchAudioFromServer (clipfn));
+			fetchAudioFromServer (clipfn);
 		}
 	}
-
-	//TODO: add code to fetch audio. If it's the local client the audio is probably still in memory in the Watson Cube.
-	// could add code to get that in here.
-	IEnumerator fetchAudioFromServer(string clipfn) {
-		Debug.Log ("Fetching the audio clip");
-		CoroutineWithData cd = new CoroutineWithData (this, Webserver.singleton.GetAudioClip (clipfn));
-		yield return cd.coroutine;
-		m_wordSource.clip = cd.result as AudioClip;
 		
+	void fetchAudioFromServer(string clipfn) {
+		StartCoroutine(Webserver.singleton.GetAudioClip (clipfn, (newclip) => { m_wordSource.clip = newclip;}));
 	}
 }

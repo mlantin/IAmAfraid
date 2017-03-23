@@ -140,7 +140,6 @@
      <Compile Include="Assets\GoogleVR\Scripts\Utilities\GvrUIHelpers.cs" />
      <Compile Include="Assets\GoogleVR\Scripts\Video\GvrVideoPlayerTexture.cs" />
      <Compile Include="Assets\Scripts\AuthorityManager.cs" />
-     <Compile Include="Assets\Scripts\CoroutineWithData.cs" />
      <Compile Include="Assets\Scripts\LocalPlayer.cs" />
      <Compile Include="Assets\Scripts\MakeSoundObject.cs" />
      <Compile Include="Assets\Scripts\NetworkSetup.cs" />

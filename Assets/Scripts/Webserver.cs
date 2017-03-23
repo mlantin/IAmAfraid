@@ -16,7 +16,7 @@ public class Webserver : MonoBehaviour {
 		singleton = this;
 	}
 	
-	public  IEnumerator Upload(string filename, AudioClip clip) {
+	public  bool Upload(string filename, AudioClip clip) {
 		float[] audioData = new float[clip.samples];
 		clip.GetData (audioData, 0);
 		MemoryStream stream = new MemoryStream();
@@ -25,7 +25,8 @@ public class Webserver : MonoBehaviour {
 		byte[] floatBytes = stream.ToArray();
 		//NetworkConnection conn = NetworkManager.singleton.client.connection;
 		UnityWebRequest www = UnityWebRequest.Put("http://"+m_serverIP+":"+m_serverPort+"/audio?fn="+filename, floatBytes);
-		yield return www.Send();
+		//yield return www.Send();
+		www.Send();
 
 		if(www.isError) {
 			Debug.Log(www.error);
@@ -33,6 +34,7 @@ public class Webserver : MonoBehaviour {
 		else {
 			Debug.Log("Upload complete!");
 		}
+		return !www.isError;
 	}
 
 	public void ConvertAndWrite(BinaryWriter bw, float[] samplesData, int numsamples, int channels)
@@ -61,7 +63,7 @@ public class Webserver : MonoBehaviour {
 		return context + "_" + System.DateTime.Now.ToString("yyyyMMddHHmm") + "_" + System.Guid.NewGuid().ToString("N");
 	}
 
-	public IEnumerator GetAudioClip(string fileName) {
+	public IEnumerator GetAudioClip(string fileName, System.Action<AudioClip> callback) {
 		using(UnityWebRequest www = UnityWebRequest.GetAudioClip("http://"+m_serverIP+":"+m_serverPort+"?fn=" + fileName, AudioType.WAV)) {
 			yield return www.Send();
 
@@ -74,8 +76,9 @@ public class Webserver : MonoBehaviour {
 					Debug.Log ("The received audio clip is null");
 				} else {
 					Debug.Log ("Acquisition of audio clip complete");
+					callback (newClip);
 				}
-				yield return newClip;
+				yield return null;
 			}
 		}
 	}

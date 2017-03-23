@@ -66,7 +66,7 @@ public class NonVerbalRecord : MonoBehaviour {
 				m_mostRecentClip.SetData (samples, 0);
 
 				string filename = Webserver.singleton.GenerateFileName (LocalPlayer.playerObject.GetComponent<NetworkIdentity>().netId.ToString ());
-				StartCoroutine (Webserver.singleton.Upload (filename, m_mostRecentClip));
+				Webserver.singleton.Upload (filename, m_mostRecentClip);
 
 				// create a new sound object
 				LocalPlayer.playerObject.GetComponent<MakeSoundObject>().CmdSpawnSoundObject(filename);

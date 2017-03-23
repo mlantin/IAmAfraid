@@ -212,8 +212,8 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 					if (res.final) {
 						text = "Final: " + alt.transcript;
 						string filename = Webserver.singleton.GenerateFileName (netId.ToString ());
-						StartCoroutine (Webserver.singleton.Upload (filename, m_mostRecentClip));
-
+						bool uploaded = Webserver.singleton.Upload (filename, m_mostRecentClip);
+						m_textField.text = "Upload result: "+uploaded.ToString();
 						Vector3 pos;
 						Quaternion rot;
 						#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
