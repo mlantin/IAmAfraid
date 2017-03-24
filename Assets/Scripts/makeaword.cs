@@ -15,12 +15,12 @@ public class makeaword : NetworkBehaviour {
 		newwordTrans.transform.position = pos;
 		newwordTrans.transform.rotation = rot;
 
-		NetworkServer.SpawnWithClientAuthority (newwordTrans, connectionToClient);
-
 		wordActs wordscript = newwordTrans.GetComponent<wordActs> ();
 		wordscript.m_scale = scale;
 		wordscript.m_wordstr = word;
 		wordscript.m_serverFileName = clipfn;
+
+		NetworkServer.SpawnWithClientAuthority (newwordTrans, connectionToClient);
 	}
 		
 }

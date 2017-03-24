@@ -26,11 +26,11 @@ public class wordActs : NetworkBehaviour
 	[SyncVar]
 	private bool m_positioned = false;
 	// The hook should only be called once because the word will be set once
-	[SyncVar (hook="addLetters")]
+	[SyncVar]
 	public string m_wordstr = "";
 	[SyncVar]
 	public float m_scale = 1.0f;
-	[SyncVar (hook="fetchAudio")]
+	[SyncVar]
 	public string m_serverFileName = "";
 
 	[SyncVar (hook ="playWord")]
@@ -51,6 +51,11 @@ public class wordActs : NetworkBehaviour
 			}
 		}
 		m_xspace = extent.x/2.5f;
+	}
+
+	public override void OnStartClient() {
+		addLetters (m_wordstr);
+		fetchAudio (m_serverFileName);
 	}
 
 	// Update is called once per frame
@@ -92,7 +97,7 @@ public class wordActs : NetworkBehaviour
 		Vector3 reticleLocal;
 		reticleInWord = eventData.pointerCurrentRaycast.worldPosition;
 		reticleLocal = transform.InverseTransformPoint (reticleInWord);
-		m_debugText.text = "x: " + reticleLocal.x / bbdim.x + " y: " + reticleLocal.y/bbdim.y;
+		//m_debugText.text = "x: " + reticleLocal.x / bbdim.x + " y: " + reticleLocal.y/bbdim.y;
 	}
 
 	public void OnPointerEnter (PointerEventData eventData) {
