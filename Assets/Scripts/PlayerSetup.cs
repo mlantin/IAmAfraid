@@ -7,8 +7,13 @@ public class PlayerSetup : NetworkBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		if (!isLocalPlayer)
+		if (!isLocalPlayer) {
 			gameObject.tag = "RemotePlayer";
+//			if (isServer) {
+//				GameObject maincamera = GameObject.FindGameObjectWithTag ("MainCamera");
+//				maincamera.transform.parent = gameObject.transform;
+//			}
+		}
 	}
 
 	public override void OnStartLocalPlayer() {
@@ -26,7 +31,9 @@ public class PlayerSetup : NetworkBehaviour {
 		}
 	}
 
-	// Update is called once per frame
-	void Update () {
-	}
+//	public override void OnStopClient() {
+//		// Take back the reticle
+//		GameObject reticle = GameObject.Find("Reticle");
+//		GetComponent<AuthorityManager> ().CmdRemoveObjectAuthority (reticle.GetComponent<NetworkIdentity> ().netId);
+//	}
 }

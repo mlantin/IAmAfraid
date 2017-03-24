@@ -249,6 +249,6 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 		pos = Vector3.forward*2f;
 		rot = Quaternion.identity;
 		#endif
-		m_wordmakerScript.CmdSpawnWord (m_mostRecentTranscript, 1f, pos, rot, m_mostRecentFilename);
+		m_wordmakerScript.CmdSpawnWord (m_mostRecentTranscript, 1f, pos, rot, m_mostRecentFilename, true);
 	}
 }

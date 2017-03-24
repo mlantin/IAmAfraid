@@ -11,18 +11,19 @@ public class NonVerbalActs : NetworkBehaviour
 #endif
 {
 
-	[SyncVar (hook="fetchAudio")]
+	[SyncVar]
 	public string m_serverFileName = "";
 	public Text m_DebugText;
 
 	private static Vector3 m_relpos = new Vector3(0.0f,1.6f,0.0f);
-	private bool m_positioned = false;
 	private float m_distanceFromPointer = 1.0f;
 	private Vector3 m_pointerDir;
 	private GvrAudioSource m_wordSource;
 
 	[SyncVar (hook ="playSound")]
 	bool objectHit = false;
+	[SyncVar]
+	private bool m_positioned = false;
 
 	// Use this for initialization
 	void Awake () {
@@ -33,15 +34,37 @@ public class NonVerbalActs : NetworkBehaviour
 		if (isServer)
 			return;
 		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-		if (!m_positioned) {
+		if (isClient && !m_positioned && hasAuthority) {
 			transform.position = GvrController.ArmModel.pointerRotation * Vector3.forward
 				+GvrController.ArmModel.pointerPosition + m_relpos;
 			transform.rotation = GvrController.ArmModel.pointerRotation;
 			if (GvrController.ClickButtonUp) {
-				m_positioned = true;
+				StartCoroutine(setPositionedState(true));
 			}
 		}
 		#endif
+	}
+
+	public override void OnStartClient() {
+		randomizePaperBall ();
+		fetchAudio (m_serverFileName);
+	}
+
+	IEnumerator setPositionedState(bool state) {
+		if (!hasAuthority)
+			LocalPlayer.getAuthority (netId);
+		yield return new WaitUntil(() => hasAuthority == true);
+		CmdSetPositioned (state);
+
+		if (state == true) {
+			yield return null;
+			LocalPlayer.removeAuthority (netId);
+		}
+	}
+
+	[Command]
+	void CmdSetPositioned(bool state) {
+		m_positioned = state;
 	}
 
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
@@ -54,11 +77,11 @@ public class NonVerbalActs : NetworkBehaviour
 	}
 
 	public void OnPointerEnter (PointerEventData eventData) {
-		CmdSetObjectHit(true);
+		StartCoroutine (setObjectHitState (true));
 	}
 
 	public void OnPointerExit(PointerEventData eventData){
-		CmdSetObjectHit(false);
+		StartCoroutine (setObjectHitState (false));
 	}
 
 	public void OnPointerClick (PointerEventData eventData) {
@@ -72,10 +95,24 @@ public class NonVerbalActs : NetworkBehaviour
 		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
 			m_distanceFromPointer = eventData.pointerCurrentRaycast.distance;
 			//m_DebugText.text = m_distanceFromPointer.ToString () + " " + eventData.pointerCurrentRaycast.distance.ToString ();
-			m_positioned = false;
+			StartCoroutine(setPositionedState(false));
 		}
 	}
 	#endif
+
+	IEnumerator setObjectHitState(bool state) {
+		if (!hasAuthority)
+			LocalPlayer.getAuthority (netId);
+		yield return new WaitUntil(() => hasAuthority == true);
+		CmdSetObjectHit (state);
+
+		// I'm doing this so that the player retains authority while they are on a paper ball
+		// But don't pull the rug out if we're currently positioning the word
+		if (state == false && m_positioned) {
+			yield return null;
+			LocalPlayer.removeAuthority (netId);
+		}
+	}
 
 	[Command]
 	void CmdSetObjectHit(bool state) {

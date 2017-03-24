@@ -140,14 +140,17 @@
      <Compile Include="Assets\GoogleVR\Scripts\Utilities\GvrUIHelpers.cs" />
      <Compile Include="Assets\GoogleVR\Scripts\Video\GvrVideoPlayerTexture.cs" />
      <Compile Include="Assets\Scripts\AuthorityManager.cs" />
+     <Compile Include="Assets\Scripts\LoadAndSaveState.cs" />
      <Compile Include="Assets\Scripts\LocalPlayer.cs" />
      <Compile Include="Assets\Scripts\MakeSoundObject.cs" />
      <Compile Include="Assets\Scripts\NetworkSetup.cs" />
      <Compile Include="Assets\Scripts\NonVerbalActs.cs" />
      <Compile Include="Assets\Scripts\NonVerbalRecord.cs" />
      <Compile Include="Assets\Scripts\PlayerSetup.cs" />
+     <Compile Include="Assets\Scripts\ReticleManager.cs" />
      <Compile Include="Assets\Scripts\SpeechToTextToAudio.cs" />
      <Compile Include="Assets\Scripts\Webserver.cs" />
+     <Compile Include="Assets\Scripts\WordInfo.cs" />
      <Compile Include="Assets\Scripts\makeaword.cs" />
      <Compile Include="Assets\Scripts\wordActs.cs" />
      <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExampleAlchemyDataNews.cs" />

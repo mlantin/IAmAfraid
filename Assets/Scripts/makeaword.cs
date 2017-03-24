@@ -8,7 +8,7 @@ public class makeaword : NetworkBehaviour {
 	public GameObject wordPrefab;
 
 	[Command]
-	public void CmdSpawnWord(string word, float scale, Vector3 pos, Quaternion rot, string clipfn) {
+	public void CmdSpawnWord(string word, float scale, Vector3 pos, Quaternion rot, string clipfn, bool owned) {
 		Debug.Log ("Spawning");
 
 		GameObject newwordTrans  = (GameObject)Instantiate(wordPrefab);		
@@ -20,7 +20,10 @@ public class makeaword : NetworkBehaviour {
 		wordscript.m_wordstr = word;
 		wordscript.m_serverFileName = clipfn;
 
-		NetworkServer.SpawnWithClientAuthority (newwordTrans, connectionToClient);
+		if (owned)
+			NetworkServer.SpawnWithClientAuthority (newwordTrans, connectionToClient);
+		else
+			NetworkServer.Spawn (newwordTrans);
 	}
 		
 }
