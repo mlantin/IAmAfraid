@@ -9,10 +9,10 @@ public class PlayerSetup : NetworkBehaviour {
 	void Start () {
 		if (!isLocalPlayer) {
 			gameObject.tag = "RemotePlayer";
-//			if (isServer) {
-//				GameObject maincamera = GameObject.FindGameObjectWithTag ("MainCamera");
-//				maincamera.transform.parent = gameObject.transform;
-//			}
+			if (isServer) {
+				GameObject maincamera = GameObject.FindGameObjectWithTag ("MainCamera");
+				maincamera.transform.parent = gameObject.transform;
+			}
 		}
 	}
 
