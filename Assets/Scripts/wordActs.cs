@@ -14,7 +14,6 @@ public class wordActs : NetworkBehaviour
 
 	private static Vector3 m_relpos = new Vector3(0.0f,1.6f,0.0f);
 	private static Vector3 m_laserdif = new Vector3(0f,0f,0f);
-	private bool m_positioned = false;
 	private float m_distanceToPointer = 1.0f;
 	private GvrAudioSource m_wordSource;
 
@@ -24,6 +23,8 @@ public class wordActs : NetworkBehaviour
 	public Vector3 bbdim = new Vector3(0.0f,0.0f,0.0f);
 	public Text m_debugText = null;
 
+	[SyncVar]
+	private bool m_positioned = false;
 	// The hook should only be called once because the word will be set once
 	[SyncVar (hook="addLetters")]
 	public string m_wordstr = "";
@@ -54,20 +55,35 @@ public class wordActs : NetworkBehaviour
 
 	// Update is called once per frame
 	void Update () {
-		if (isServer)
-			return;
 		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-		if (!m_positioned) {
+		if (isClient && !m_positioned && hasAuthority) {
 			Vector3 pos = GvrController.ArmModel.pointerRotation * Vector3.forward*m_distanceToPointer + 
 				GvrController.ArmModel.pointerPosition + m_relpos + m_laserdif;
 //			pos.x -= 0.5f * transform.localScale.x * bbdim.x;
 			transform.position = pos;
 			transform.rotation = GvrController.ArmModel.pointerRotation;
 			if (GvrController.ClickButtonUp) {
-				m_positioned = true;
+				StartCoroutine(setPositionedState(true));
 			}
 		}
 		#endif
+	}
+
+	IEnumerator setPositionedState(bool state) {
+		if (!hasAuthority)
+			LocalPlayer.getAuthority (netId);
+		yield return new WaitUntil(() => hasAuthority == true);
+		CmdSetPositioned (state);
+
+		if (state == true) {
+			yield return null;
+			LocalPlayer.removeAuthority (netId);
+		}
+	}
+
+	[Command]
+	void CmdSetPositioned(bool state) {
+		m_positioned = state;
 	}
 
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
@@ -80,11 +96,11 @@ public class wordActs : NetworkBehaviour
 	}
 
 	public void OnPointerEnter (PointerEventData eventData) {
-		CmdSetWordHit(true);
+		StartCoroutine(setWordHitState(true));
 	}
 
 	public void OnPointerExit(PointerEventData eventData){
-		CmdSetWordHit(false);
+		StartCoroutine(setWordHitState(false));
 	}
 
 	public void OnPointerClick (PointerEventData eventData) {
@@ -97,10 +113,25 @@ public class wordActs : NetworkBehaviour
 	public void OnPointerDown (PointerEventData eventData) {
 		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
 			m_laserdif = eventData.pointerCurrentRaycast.worldPosition - (GvrController.ArmModel.pointerRotation * Vector3.forward * m_distanceToPointer+m_relpos);
-			m_positioned = false;
+			// take control again
+			StartCoroutine(setPositionedState(false));
 		}
 	}
 	#endif
+
+	IEnumerator setWordHitState(bool state) {
+		if (!hasAuthority)
+			LocalPlayer.getAuthority (netId);
+		yield return new WaitUntil(() => hasAuthority == true);
+		CmdSetWordHit (state);
+
+		// I'm doing this so that the player retains authority while they are on a word
+		// But don't pull the rug out if we're currently positioning the word
+		if (state == false && m_positioned) {
+			yield return null;
+			LocalPlayer.removeAuthority (netId);
+		}
+	}
 
 	[Command]
 	void CmdSetWordHit(bool state) {
