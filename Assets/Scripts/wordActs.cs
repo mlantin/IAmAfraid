@@ -24,7 +24,7 @@ public class wordActs : NetworkBehaviour
 	public Text m_debugText = null;
 
 	[SyncVar]
-	private bool m_positioned = false;
+	public bool m_positioned = false;
 	// The hook should only be called once because the word will be set once
 	[SyncVar]
 	public string m_wordstr = "";

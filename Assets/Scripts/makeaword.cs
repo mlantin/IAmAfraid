@@ -19,6 +19,8 @@ public class makeaword : NetworkBehaviour {
 		wordscript.m_scale = scale;
 		wordscript.m_wordstr = word;
 		wordscript.m_serverFileName = clipfn;
+		if (!owned)	
+			wordscript.m_positioned = true;
 
 		if (owned)
 			NetworkServer.SpawnWithClientAuthority (newwordTrans, connectionToClient);

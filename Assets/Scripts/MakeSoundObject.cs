@@ -24,6 +24,7 @@ public class MakeSoundObject : NetworkBehaviour {
 		soundobj.transform.rotation = rot;
 		NonVerbalActs soundscript = soundobj.GetComponent<NonVerbalActs> ();
 		soundscript.m_serverFileName = clipfn;
+		soundscript.m_positioned = true;
 
 		NetworkServer.Spawn (soundobj);
 	}

@@ -23,7 +23,7 @@ public class NonVerbalActs : NetworkBehaviour
 	[SyncVar (hook ="playSound")]
 	bool objectHit = false;
 	[SyncVar]
-	private bool m_positioned = false;
+	public bool m_positioned = false;
 
 	// Use this for initialization
 	void Awake () {
