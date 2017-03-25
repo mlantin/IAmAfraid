@@ -73,7 +73,7 @@ public class NonVerbalRecord : MonoBehaviour {
 				m_mostRecentClip = AudioClip.Create ("clipy", writePos, 1, m_RecordingHZ, false);
 				m_mostRecentClip.SetData (samples, 0);
 
-				string filename = Webserver.singleton.GenerateFileName (LocalPlayer.playerObject.GetComponent<NetworkIdentity>().netId.ToString ());
+				string filename = Webserver.GenerateFileName (LocalPlayer.playerObject.GetComponent<NetworkIdentity>().netId.ToString ());
 				DownloadHandlerBuffer handler = new DownloadHandlerBuffer ();
 				Webserver.singleton.Upload (filename, m_mostRecentClip, handler);
 				yield return new WaitUntil(() => handler.isDone == true);

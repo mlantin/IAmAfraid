@@ -213,7 +213,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 					if (res.final) {
 						text = "Final: " + alt.transcript;
 						m_mostRecentTranscript = alt.transcript;
-						m_mostRecentFilename = Webserver.singleton.GenerateFileName (netId.ToString ());
+						m_mostRecentFilename = Webserver.GenerateFileName (netId.ToString ());
 						StartCoroutine(handleUpload ());
 					} else {
 						text = "Interim: " + alt.transcript;

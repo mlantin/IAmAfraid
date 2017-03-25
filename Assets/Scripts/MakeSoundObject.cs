@@ -19,7 +19,9 @@ public class MakeSoundObject : NetworkBehaviour {
 
 	[Command]
 	public void CmdSpawnSoundObjectInPlace(string clipfn, Vector3 pos, Quaternion rot) {
-		GameObject soundobj  = (GameObject)Instantiate(m_soundObjectPrefab);	
+		GameObject soundobj  = (GameObject)Instantiate(m_soundObjectPrefab);
+		soundobj.transform.position = pos;
+		soundobj.transform.rotation = rot;
 		NonVerbalActs soundscript = soundobj.GetComponent<NonVerbalActs> ();
 		soundscript.m_serverFileName = clipfn;
 

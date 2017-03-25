@@ -60,6 +60,12 @@ public class WordInfo {
 
 		File.WriteAllText (DATA_FILE_NAME, newJson);
 	}
+		
+	public static void writeFileWithNewWordInfoList(string filename, List<WordInfo> wordInfoList) {
+		string newJson = JsonUtility.ToJson(new WordInfoList(wordInfoList), true);
+
+		File.WriteAllText (filename, newJson);
+	}
 
 	// Removes a word info object from the list and saves the changes
 	public static void removeWordInfoFromFile(WordInfo wordInfoToRemove) {

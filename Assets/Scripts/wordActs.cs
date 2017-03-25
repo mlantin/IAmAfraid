@@ -111,7 +111,7 @@ public class wordActs : NetworkBehaviour
 	public void OnPointerClick (PointerEventData eventData) {
 		//get the coordinates of the trackpad so we know what kind of event we want to trigger
 		if (m_positioned && GvrController.TouchPos.y > .85f) {
-			Destroy (this.gameObject);
+			Network.Destroy (this.gameObject);
 		} 
 	}
 

@@ -36,11 +36,46 @@ public class LoadAndSaveState : NetworkBehaviour {
 			makeaword wordscript = GetComponent<makeaword> ();
 			MakeSoundObject soundscript = GetComponent<MakeSoundObject> ();
 			foreach(WordInfo word in wordlist) {
-				if (word.word != "")
+				Debug.Log ("Word is " + word.word);
+				if (word.word != "") {
+					Debug.Log ("Spawning word " + word.word);
 					wordscript.CmdSpawnWord (word.word, word.scale, word.pos, word.rot, word.clipfn, false);
-				else
+				} else {
+					Debug.Log ("Spawning sound ");
 					soundscript.CmdSpawnSoundObjectInPlace (word.clipfn, word.pos, word.rot);
+				}
 			}
 		}
 	}
+
+	[Command]
+	public void CmdSaveState() {
+		GameObject[] words = GameObject.FindGameObjectsWithTag ("Word");
+		GameObject[] sounds = GameObject.FindGameObjectsWithTag ("Sound");
+
+		wordActs wordscript;
+		List<WordInfo> stateList = new List<WordInfo>();
+		foreach (GameObject obj in words) {
+			wordscript = obj.GetComponent<wordActs> ();
+			stateList.Add(new WordInfo(wordscript.m_wordstr, wordscript.m_serverFileName, wordscript.m_scale,
+				obj.transform.position, obj.transform.rotation));
+		}
+		NonVerbalActs soundscript;
+		foreach (GameObject obj in sounds) {
+			soundscript = obj.GetComponent<NonVerbalActs> ();
+			stateList.Add (new WordInfo ("", soundscript.m_serverFileName, 1.0f,
+				obj.transform.position, obj.transform.rotation));
+		}
+		string filename = Application.persistentDataPath+"/"+Webserver.GenerateFileName ("state")+".json";
+		Debug.Log ("Saving state to " + filename);
+		WordInfo.writeFileWithNewWordInfoList (filename, stateList);
+	}
+
+	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
+	void Update() {
+		if (GvrController.AppButtonUp) {
+			CmdSaveState ();
+		}
+	}
+	#endif
 }

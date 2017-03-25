@@ -60,7 +60,7 @@ public class Webserver : MonoBehaviour {
 		bw.Flush ();
 	}
 
-	public string GenerateFileName(string context)
+	static public string GenerateFileName(string context)
 	{
 		return context + "_" + System.DateTime.Now.ToString("yyyyMMddHHmm") + "_" + System.Guid.NewGuid().ToString("N");
 	}
