@@ -19,8 +19,12 @@ public class makeaword : NetworkBehaviour {
 		wordscript.m_scale = scale;
 		wordscript.m_wordstr = word;
 		wordscript.m_serverFileName = clipfn;
-		if (!owned)	
+		if (!owned) {
+			// Right now it only gets here when it's a preload so we can assume that it is a preload
+			// and set the variable in the gameobject indicating that.
 			wordscript.m_positioned = true;
+			wordscript.m_preloaded = true;
+		}
 
 		if (owned)
 			NetworkServer.SpawnWithClientAuthority (newwordTrans, connectionToClient);

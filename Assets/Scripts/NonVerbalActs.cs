@@ -20,6 +20,11 @@ public class NonVerbalActs : NetworkBehaviour
 	private Vector3 m_pointerDir;
 	private GvrAudioSource m_wordSource;
 
+	// This indicates that the word was preloaded. It's not a SyncVar
+	// so it's only valid on the server which is ok because only
+	// the server needs to know. The variable is used to prevent
+	// audio clip deletion.
+	public bool m_preloaded = false;
 	[SyncVar (hook ="playSound")]
 	bool objectHit = false;
 	[SyncVar]
@@ -93,6 +98,8 @@ public class NonVerbalActs : NetworkBehaviour
 
 	[Command]
 	void CmdDestroySoundObject() {
+		if (!m_preloaded)
+			StartCoroutine(Webserver.singleton.DeleteAudioClip (m_serverFileName));
 		Destroy (gameObject);
 	}
 
@@ -157,7 +164,6 @@ public class NonVerbalActs : NetworkBehaviour
 		Vector3 maxvert;
 		maxvert = mesh.bounds.max;
 		col.radius = Mathf.Max(Mathf.Max(maxvert.x,maxvert.y),maxvert.z)+ .02f;
-		Debug.Log ("The RADIUS is: "+col.radius);
 	}
 }
 	

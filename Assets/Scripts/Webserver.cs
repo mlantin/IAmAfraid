@@ -86,6 +86,7 @@ public class Webserver : MonoBehaviour {
 	}
 
 	public IEnumerator DeleteAudioClip(string fileName) {
+		Debug.Log ("Deleting an audio clip: " + fileName);
 		UnityWebRequest www = UnityWebRequest.Delete ("http://" + m_serverIP + ":" + m_serverPort + "?fn=" + fileName);
 		www.downloadHandler = new DownloadHandlerBuffer();
 		yield return www.Send();

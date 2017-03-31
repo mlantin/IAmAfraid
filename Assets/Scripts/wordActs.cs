@@ -23,6 +23,11 @@ public class wordActs : NetworkBehaviour
 	public Vector3 bbdim = new Vector3(0.0f,0.0f,0.0f);
 	public Text m_debugText = null;
 
+	// This indicates that the word was preloaded. It's not a SyncVar
+	// so it's only valid on the server which is ok because only
+	// the server needs to know. The variable is used to prevent
+	// audio clip deletion.
+	public bool m_preloaded = false;
 	[SyncVar]
 	public bool m_positioned = false;
 	// The hook should only be called once because the word will be set once
@@ -126,6 +131,8 @@ public class wordActs : NetworkBehaviour
 
 	[Command]
 	void CmdDestroyWord() {
+		if (!m_preloaded)
+			StartCoroutine(Webserver.singleton.DeleteAudioClip (m_serverFileName));
 		Destroy (gameObject);
 	}
 
