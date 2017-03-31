@@ -2,7 +2,7 @@
     "wordInfoList": [
         {
             "word": "I'm scared",
-            "clipfn": "1_201703251427_b9eab3f34a42448aa618d3686dc940b7",
+	    "clipfn": "tedx-imscared"
             "scale": 1.0,
             "pos": {
                 "x": 0.8762351274490356,
@@ -18,7 +18,7 @@
         },
         {
             "word": "what's going on",
-            "clipfn": "1_201703251427_173370aea9a341f498d46cc3b5006799",
+            "clipfn": "tedx-whatsgoingon",
             "scale": 1.0,
             "pos": {
                 "x": 0.6384670734405518,
@@ -34,7 +34,7 @@
         },
         {
             "word": "who knows",
-            "clipfn": "1_201703251428_65006e706898471cb4c74fdca520af28",
+            "clipfn": "tedx-whoknows",
             "scale": 1.0,
             "pos": {
                 "x": -0.3399941623210907,
@@ -50,7 +50,7 @@
         },
         {
             "word": "I like it",
-            "clipfn": "1_201703251429_17c5c80ffa374e04b041abd96f0aa6f5",
+            "clipfn": "tedx-ilikeit",
             "scale": 1.0,
             "pos": {
                 "x": -0.10232986509799957,
@@ -66,7 +66,7 @@
         },
         {
             "word": "I don't like it",
-            "clipfn": "1_201703251429_9f02bafa2d05421d967e3e8e2352444e",
+            "clipfn": "tedx-idontlikeit",
             "scale": 1.0,
             "pos": {
                 "x": -0.6434634327888489,
@@ -82,7 +82,7 @@
         },
         {
             "word": "oh whatever",
-            "clipfn": "1_201703251429_c32df024f9704a7da6a92773aafcbd96",
+            "clipfn": "tedx-ohwhatever",
             "scale": 1.0,
             "pos": {
                 "x": -1.3788135051727296,
@@ -98,7 +98,7 @@
         },
         {
             "word": "am I doing this right",
-            "clipfn": "1_201703251430_e2c8a1c8c7ca41029df23cca7e171c2b",
+            "clipfn": "tedx-amidoingthisright",
             "scale": 1.0,
             "pos": {
                 "x": 0.6757317781448364,
@@ -114,7 +114,7 @@
         },
         {
             "word": "no it's you",
-            "clipfn": "1_201703251432_0ae46dd64a164b1088d35eb2f1592a05",
+            "clipfn": "tedx-noitsyou",
             "scale": 1.0,
             "pos": {
                 "x": 1.2867920398712159,
@@ -130,7 +130,7 @@
         },
         {
             "word": "no",
-            "clipfn": "1_201703251433_99972716af7642ecbc0acf866fdc05f6",
+            "clipfn": "tedx-no",
             "scale": 1.0,
             "pos": {
                 "x": 0.28867220878601076,
@@ -146,7 +146,7 @@
         },
         {
             "word": "why did he do that",
-            "clipfn": "1_201703251433_425c72b6f34c475a9fd24cda09c061b8",
+            "clipfn": "tedx-whydidhedothat",
             "scale": 1.0,
             "pos": {
                 "x": 0.6385778188705444,
@@ -162,7 +162,7 @@
         },
         {
             "word": "never again",
-            "clipfn": "1_201703251440_59ca0aa5ce60482b9413ce0a17b78310",
+            "clipfn": "tedx-neveragain",
             "scale": 1.0,
             "pos": {
                 "x": -0.5084421634674072,
@@ -178,7 +178,7 @@
         },
         {
             "word": "it's okay",
-            "clipfn": "1_201703251441_e55f5a5509ab498787e13c9b99e3d453",
+            "clipfn": "tedx-itsokay",
             "scale": 1.0,
             "pos": {
                 "x": -0.895047128200531,
@@ -194,7 +194,7 @@
         },
         {
             "word": "",
-            "clipfn": "4_201703251428_8300ecb27c2446beba400358691e7734",
+            "clipfn": "tedx-sound1",
             "scale": 1.0,
             "pos": {
                 "x": -0.18463543057441712,
@@ -210,7 +210,7 @@
         },
         {
             "word": "",
-            "clipfn": "4_201703251430_81e2a374b2564154b0d2c66968f4db4d",
+            "clipfn": "tedx-sound2",
             "scale": 1.0,
             "pos": {
                 "x": 0.2734505832195282,
@@ -226,7 +226,7 @@
         },
         {
             "word": "",
-            "clipfn": "4_201703251431_cf6dd40be20f49fa9e4cdc007d417df2",
+            "clipfn": "tedx-sound3",
             "scale": 1.0,
             "pos": {
                 "x": 0.06536519527435303,
@@ -242,7 +242,7 @@
         },
         {
             "word": "",
-            "clipfn": "4_201703251434_71298e8d510f47d3b0e4c30d6be64e44",
+            "clipfn": "tedx-sound4",
             "scale": 1.0,
             "pos": {
                 "x": 0.2974439263343811,
@@ -258,7 +258,7 @@
         },
         {
             "word": "",
-            "clipfn": "4_201703251443_a95889d6d40341fdabfb8526570c9d27",
+            "clipfn": "tedx-sound5",
             "scale": 1.0,
             "pos": {
                 "x": -0.16709521412849427,
