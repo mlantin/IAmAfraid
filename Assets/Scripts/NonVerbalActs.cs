@@ -87,8 +87,13 @@ public class NonVerbalActs : NetworkBehaviour
 	public void OnPointerClick (PointerEventData eventData) {
 		//get the coordinates of the trackpad so we know what kind of event we want to trigger
 		if (m_positioned && GvrController.TouchPos.y > .85f) {
-			Network.Destroy (this.gameObject);
+			CmdDestroySoundObject();
 		} 
+	}
+
+	[Command]
+	void CmdDestroySoundObject() {
+		Destroy (gameObject);
 	}
 
 	public void OnPointerDown (PointerEventData eventData) {
