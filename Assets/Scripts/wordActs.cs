@@ -156,9 +156,10 @@ public class wordActs : NetworkBehaviour
 	}
 
 	void playWord(bool hit) {
-		if (hit)
-			m_wordSource.Play();
-		Debug.Log ("play the word");
+		if (hit) {
+			Debug.Log ("play the word");
+			m_wordSource.Play ();
+		}
 	}
 
 	void addLetters(string word) {

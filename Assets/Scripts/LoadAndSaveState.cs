@@ -36,12 +36,9 @@ public class LoadAndSaveState : NetworkBehaviour {
 			makeaword wordscript = GetComponent<makeaword> ();
 			MakeSoundObject soundscript = GetComponent<MakeSoundObject> ();
 			foreach(WordInfo word in wordlist) {
-				Debug.Log ("Word is " + word.word);
 				if (word.word != "") {
-					Debug.Log ("Spawning word " + word.word);
 					wordscript.CmdSpawnWord (word.word, word.scale, word.pos, word.rot, word.clipfn, false);
 				} else {
-					Debug.Log ("Spawning sound ");
 					soundscript.CmdSpawnSoundObjectInPlace (word.clipfn, word.pos, word.rot);
 				}
 			}

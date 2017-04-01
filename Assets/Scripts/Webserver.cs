@@ -68,17 +68,20 @@ public class Webserver : MonoBehaviour {
 	public IEnumerator GetAudioClip(string fileName, System.Action<AudioClip> callback) {
 		using(UnityWebRequest www = UnityWebRequest.GetAudioClip("http://"+m_serverIP+":"+m_serverPort+"?fn=" + fileName, AudioType.WAV)) {
 			yield return www.Send();
+			if (!www.downloadHandler.isDone)
+				yield return new WaitUntil(() => www.downloadHandler.isDone == true);
 
 			if(www.isError) {
 				Debug.Log("Logging error: " + www.error);
 			}
 			else {
-				AudioClip newClip = DownloadHandlerAudioClip.GetContent(www);
-				if (newClip == null) {
+				if (DownloadHandlerAudioClip.GetContent(www) == null) {
 					Debug.Log ("The received audio clip is null");
 				} else {
+					// This next yield appears to be necessary to have the correct number of samples in the AudioClip.
+					yield return null;
 					Debug.Log ("Acquisition of audio clip complete");
-					callback (newClip);
+					callback (DownloadHandlerAudioClip.GetContent(www));
 				}
 				yield return null;
 			}
