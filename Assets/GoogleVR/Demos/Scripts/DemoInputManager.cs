@@ -228,7 +228,7 @@ public class DemoInputManager : MonoBehaviour {
                             (GvrController.State != GvrConnectionState.Connected));
   }
 
-  private void SetVRInputMechanism() {
+  public void SetVRInputMechanism() {
     SetGazeInputActive(!isDaydream);
     SetControllerInputActive(isDaydream);
   }
@@ -250,7 +250,7 @@ public class DemoInputManager : MonoBehaviour {
     }
   }
 
-  private void SetControllerInputActive(bool active) {
+  public void SetControllerInputActive(bool active) {
     if (controllerMain != null) {
       controllerMain.SetActive(active);
     }
