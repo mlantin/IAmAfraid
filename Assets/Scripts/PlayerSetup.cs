@@ -15,6 +15,16 @@ public class PlayerSetup : NetworkBehaviour {
 	void Start () {
 		if (!isLocalPlayer) {
 			gameObject.tag = "RemotePlayer";
+			// disable the camera and the listeners
+			GameObject playercameraObj = gameObject.transform.FindChild ("PlayerCamera").gameObject;
+			Camera playercamera = playercameraObj.GetComponent<Camera>();
+			GvrAudioListener gvrListener = playercameraObj.GetComponent<GvrAudioListener>();
+			AudioListener listener = playercameraObj.GetComponent<AudioListener>();
+			playercamera.enabled = false;
+			gvrListener.enabled = false;
+			listener.enabled = false;
+
+
 //			if (isServer) {
 //				GameObject maincamera = GameObject.FindGameObjectWithTag ("MainCamera");
 //				maincamera.transform.parent = gameObject.transform;
@@ -27,16 +37,12 @@ public class PlayerSetup : NetworkBehaviour {
 		// tag the local player so we can look for it later in other objects
 		gameObject.tag = "Player";
 
-		// Create the player hierarchy. The TrackedPlayer object is the parent of the MainCamera object, which will
-		// become the parent of the instantiated player prefab.
-		GameObject maincamera = GameObject.FindGameObjectWithTag("MainCamera");
-		GameObject trackedplayer = maincamera.transform.parent.gameObject;
-		trackedplayer.transform.position = gameObject.transform.position;
-		gameObject.transform.parent = trackedplayer.transform;
-		gameObject.transform.localPosition = Vector3.zero;
-		// Make only the gamer object child of MainCamera
-		GameObject gamer = gameObject.transform.FindChild("Gamer").gameObject;
-		gamer.transform.parent = maincamera.transform;
+		//Make sure the MainCamera is the one for our local player
+		Camera currentMainCamera = Camera.main;
+		Camera playercamera = gameObject.transform.FindChild ("PlayerCamera").gameObject.GetComponent<Camera> ();
+		playercamera.tag = "MainCamera";
+		currentMainCamera.enabled = false;
+		playercamera.enabled = true;
 
 
 		GameObject controllerPointer = gameObject.transform.FindChild ("GvrControllerPointer").gameObject;
