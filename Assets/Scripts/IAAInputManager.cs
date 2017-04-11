@@ -298,6 +298,7 @@ public class IAAInputManager : MonoBehaviour {
 		if (!active) {
 			return;
 		}
+		Debug.Log ("Set controller input active yo");
 		GvrBasePointer pointer = controllerPointer.GetComponentInChildren<GvrBasePointer>(true);
 		if (pointer != null) {
 			GvrPointerManager.Pointer = pointer;

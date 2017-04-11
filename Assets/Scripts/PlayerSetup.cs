@@ -32,16 +32,27 @@ public class PlayerSetup : NetworkBehaviour {
 		GameObject maincamera = GameObject.FindGameObjectWithTag("MainCamera");
 		GameObject trackedplayer = maincamera.transform.parent.gameObject;
 		trackedplayer.transform.position = gameObject.transform.position;
-		gameObject.transform.parent = maincamera.transform;
+		gameObject.transform.parent = trackedplayer.transform;
 		gameObject.transform.localPosition = Vector3.zero;
-		//if (!isServer) {
-			// We are on a daydream so make sure we are the active GVRController
-			// Get the input manager script
-			IAAInputManager inputscript = m_InputManager.GetComponent<IAAInputManager>();
-			GameObject controller = gameObject.transform.FindChild ("GvrControllerPointer").gameObject;
-			inputscript.controllerPointer = controller;
+		// Make only the gamer object child of MainCamera
+		GameObject gamer = gameObject.transform.FindChild("Gamer").gameObject;
+		gamer.transform.parent = maincamera.transform;
+
+
+		GameObject controllerPointer = gameObject.transform.FindChild ("GvrControllerPointer").gameObject;
+		IAAInputManager inputscript = m_InputManager.GetComponent<IAAInputManager>();
+		inputscript.controllerPointer = controllerPointer;
 		inputscript.whatAreWe ();
-			inputscript.SetVRInputMechanism ();
+		inputscript.SetVRInputMechanism ();
+
+		// Add the GvrArmModelOffset scripts to the controller and laser
+		GameObject controller = controllerPointer.transform.FindChild("Controller").gameObject;
+		GvrArmModelOffsets controllerscript = controller.AddComponent<GvrArmModelOffsets> ();
+		controllerscript.joint = GvrArmModelOffsets.Joint.Wrist;
+		GameObject laser = controllerPointer.transform.FindChild ("Laser").gameObject;
+		GvrArmModelOffsets laserscript = laser.AddComponent<GvrArmModelOffsets> ();
+		laserscript.joint = GvrArmModelOffsets.Joint.Pointer;
+
 //		inputscript.SetControllerInputActive (true);
 		//}
 	}
