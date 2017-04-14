@@ -59,13 +59,6 @@ public class PlayerSetup : NetworkBehaviour {
 		GvrArmModelOffsets laserscript = laser.AddComponent<GvrArmModelOffsets> ();
 		laserscript.joint = GvrArmModelOffsets.Joint.Pointer;
 
-//		inputscript.SetControllerInputActive (true);
-		//}
 	}
-
-//	public override void OnStopClient() {
-//		// Take back the reticle
-//		GameObject reticle = GameObject.Find("Reticle");
-//		GetComponent<AuthorityManager> ().CmdRemoveObjectAuthority (reticle.GetComponent<NetworkIdentity> ().netId);
-//	}
+		
 }
