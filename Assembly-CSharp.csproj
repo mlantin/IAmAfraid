@@ -153,6 +153,7 @@
      <Compile Include="Assets\Scripts\Holojam\Protocol\Vector3.cs" />
      <Compile Include="Assets\Scripts\Holojam\Protocol\Vector4.cs" />
      <Compile Include="Assets\Scripts\IAAInputManager.cs" />
+     <Compile Include="Assets\Scripts\LaserRender.cs" />
      <Compile Include="Assets\Scripts\LoadAndSaveState.cs" />
      <Compile Include="Assets\Scripts\LocalPlayer.cs" />
      <Compile Include="Assets\Scripts\MakeSoundObject.cs" />

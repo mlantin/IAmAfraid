@@ -18,17 +18,16 @@ public class PlayerSetup : NetworkBehaviour {
 			// disable the camera and the listeners
 			GameObject playercameraObj = gameObject.transform.FindChild ("PlayerCamera").gameObject;
 			Camera playercamera = playercameraObj.GetComponent<Camera>();
-			GvrAudioListener gvrListener = playercameraObj.GetComponent<GvrAudioListener>();
-			AudioListener listener = playercameraObj.GetComponent<AudioListener>();
 			playercamera.enabled = false;
-			gvrListener.enabled = false;
-			listener.enabled = false;
 
-
-//			if (isServer) {
-//				GameObject maincamera = GameObject.FindGameObjectWithTag ("MainCamera");
-//				maincamera.transform.parent = gameObject.transform;
-//			}
+			//Add the laser drawing script
+			GameObject controllerPointer = gameObject.transform.FindChild ("GvrControllerPointer").gameObject;
+			if (controllerPointer != null)
+				Debug.Log ("Found the controller pointer");
+			GameObject laser = controllerPointer.transform.FindChild ("Laser").gameObject;
+			LaserRender laserScript = laser.AddComponent<LaserRender> ();
+			GameObject reticle = laser.transform.FindChild ("Reticle").gameObject;
+			laserScript.reticle = reticle;
 		}
 	}
 
