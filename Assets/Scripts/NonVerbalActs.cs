@@ -50,7 +50,7 @@ public class NonVerbalActs : NetworkBehaviour
 		#endif
 	}
 
-	public override void OnStartClient() {
+	void Start() {
 		randomizePaperBall ();
 		fetchAudio (m_serverFileName);
 	}

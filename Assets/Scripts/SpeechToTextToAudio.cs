@@ -41,10 +41,11 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 	{
 		singleton = this;
 
-		m_wordmakerScript = LocalPlayer.playerObject.GetComponent<makeaword>();
-		m_textField = m_textcanvas.GetComponent<Text> ();
-		LogSystem.InstallDefaultReactors();
-
+		if (!isServer) {
+			m_wordmakerScript = LocalPlayer.playerObject.GetComponent<makeaword> ();
+			m_textField = m_textcanvas.GetComponent<Text> ();
+			LogSystem.InstallDefaultReactors ();
+		}
 //		RequestPermissions ();
 //		Active = true;
 	}

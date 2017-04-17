@@ -58,7 +58,7 @@ public class wordActs : NetworkBehaviour
 		m_xspace = extent.x/2.5f;
 	}
 
-	public override void OnStartClient() {
+	void Start() {
 		addLetters (m_wordstr);
 		fetchAudio (m_serverFileName);
 	}

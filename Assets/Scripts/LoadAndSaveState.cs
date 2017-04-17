@@ -6,12 +6,14 @@ using UnityEngine.Networking;
 
 public class LoadAndSaveState : NetworkBehaviour {
 
+	static public bool Loaded = false;
 	public bool loadInitialState = false;
 	public string stateFile = "sampleData.json";
 
 	// Use this for initialization
-	public override void OnStartLocalPlayer () {
-		if (isServer && loadInitialState) {
+	public override void OnStartServer () {
+		Debug.Log ("In start...wanting to load thing");
+		if (!Loaded && loadInitialState) {
 			string jsonText = "";
 			#if !UNITY_ANDROID || UNITY_EDITOR
 			try
@@ -37,11 +39,12 @@ public class LoadAndSaveState : NetworkBehaviour {
 			MakeSoundObject soundscript = GetComponent<MakeSoundObject> ();
 			foreach(WordInfo word in wordlist) {
 				if (word.word != "") {
-					wordscript.CmdSpawnWord (word.word, word.scale, word.pos, word.rot, word.clipfn, false);
+					wordscript.spawnWord (word.word, word.scale, word.pos, word.rot, word.clipfn, false);
 				} else {
-					soundscript.CmdSpawnSoundObjectInPlace (word.clipfn, word.pos, word.rot);
+					soundscript.spawnSoundObjectInPlace (word.clipfn, word.pos, word.rot);
 				}
 			}
+			Loaded = true;
 		}
 	}
 

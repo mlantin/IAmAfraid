@@ -9,6 +9,10 @@ public class makeaword : NetworkBehaviour {
 
 	[Command]
 	public void CmdSpawnWord(string word, float scale, Vector3 pos, Quaternion rot, string clipfn, bool owned) {
+		spawnWord (word, scale, pos, rot, clipfn, owned);
+	}
+
+	public void spawnWord(string word, float scale, Vector3 pos, Quaternion rot, string clipfn, bool owned) {
 		Debug.Log ("Spawning");
 
 		GameObject newwordTrans  = (GameObject)Instantiate(wordPrefab);		
@@ -31,5 +35,4 @@ public class makeaword : NetworkBehaviour {
 		else
 			NetworkServer.Spawn (newwordTrans);
 	}
-		
 }

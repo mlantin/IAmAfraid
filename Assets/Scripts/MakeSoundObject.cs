@@ -19,6 +19,10 @@ public class MakeSoundObject : NetworkBehaviour {
 
 	[Command]
 	public void CmdSpawnSoundObjectInPlace(string clipfn, Vector3 pos, Quaternion rot) {
+		spawnSoundObjectInPlace (clipfn, pos, rot);
+	}
+
+	public void spawnSoundObjectInPlace(string clipfn, Vector3 pos, Quaternion rot) {
 		// Right now this only gets called when it's a preload so we can assume that it is a preload
 		// and set the variable in the gameobject indicating that.
 		GameObject soundobj  = (GameObject)Instantiate(m_soundObjectPrefab);

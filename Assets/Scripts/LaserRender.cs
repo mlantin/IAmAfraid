@@ -35,7 +35,7 @@ public class LaserRender : MonoBehaviour {
 		lineRenderer.SetPosition (1, endpoint);
 
 		// Adjust transparency
-		float alpha = GvrArmModel.Instance.alphaValue;
+		float alpha = 1.0f;
 		lineRenderer.SetColors(Color.Lerp(Color.clear, laserColor, alpha), Color.clear);
 	}
 }

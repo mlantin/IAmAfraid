@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-// Copyright 2016 Google Inc. All rights reserved.
+﻿// Copyright 2016 Google Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +21,7 @@ using System;
 public class IAAInputManager : MonoBehaviour {
 	// Cardboard / Daydream switching does not apply to pre-native integration versions
 	// of Unity, or platforms other than Android, since those are Cardboard-only.
-	#if UNITY_HAS_GOOGLEVR && UNITY_ANDROID
+	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 	private const string MESSAGE_CANVAS_NAME = "MessageCanvas";
 	private const string MESSAGE_TEXT_NAME = "MessageText";
 	private const string LASER_GAMEOBJECT_NAME = "Laser";
@@ -159,13 +155,13 @@ public class IAAInputManager : MonoBehaviour {
 	public static bool playerSettingsHasDaydream() {
 		string[] playerSettingsVrSdks = UnityEngine.VR.VRSettings.supportedDevices;
 		return Array.Exists<string>(playerSettingsVrSdks,
-			element => element.Equals(DemoInputManager.DAYDREAM_DEVICE_NAME));
+			element => element.Equals(IAAInputManager.DAYDREAM_DEVICE_NAME));
 	}
 
 	public static bool playerSettingsHasCardboard() {
 		string[] playerSettingsVrSdks = UnityEngine.VR.VRSettings.supportedDevices;
 		return Array.Exists<string>(playerSettingsVrSdks,
-			element => element.Equals(DemoInputManager.CARDBOARD_DEVICE_NAME));
+			element => element.Equals(IAAInputManager.CARDBOARD_DEVICE_NAME));
 	}
 
 	#if UNITY_EDITOR

@@ -50,6 +50,7 @@ public class PlayerSetup : NetworkBehaviour {
 		playerCameraObj.AddComponent<GvrAudioListener> ();
 		playerCameraObj.AddComponent<GvrPointerPhysicsRaycaster> ();
 
+		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 		GameObject controllerPointer = gameObject.transform.FindChild ("GvrControllerPointer").gameObject;
 		IAAInputManager inputscript = m_InputManager.GetComponent<IAAInputManager>();
 		inputscript.controllerPointer = controllerPointer;
@@ -68,6 +69,7 @@ public class PlayerSetup : NetworkBehaviour {
 		GvrLaserPointer laserPtrScript = laser.AddComponent<GvrLaserPointer> ();
 		GameObject reticle = laser.transform.FindChild ("Reticle").gameObject;
 		laserPtrScript.reticle = reticle;
+		#endif
 	}
 		
 }
