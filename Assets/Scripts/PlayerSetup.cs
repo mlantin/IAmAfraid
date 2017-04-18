@@ -6,6 +6,11 @@ using UnityEngine.Networking;
 public class PlayerSetup : NetworkBehaviour {
 
 	public GameObject m_InputManager;
+	public bool m_cycleCameras = true;
+
+	private WaitForSeconds m_waitforit = new WaitForSeconds(10);
+	static private List<Camera> m_playerCameras = new List<Camera> ();
+	static private int m_nextCamera = 0;
 
 	void Awake() {
 		m_InputManager = GameObject.Find ("IAAInputManager");
@@ -22,13 +27,18 @@ public class PlayerSetup : NetworkBehaviour {
 
 			//Add the laser drawing script
 			GameObject controllerPointer = gameObject.transform.FindChild ("GvrControllerPointer").gameObject;
-			if (controllerPointer != null)
-				Debug.Log ("Found the controller pointer");
 			GameObject laser = controllerPointer.transform.FindChild ("Laser").gameObject;
 			LaserRender laserScript = laser.AddComponent<LaserRender> ();
 			GameObject reticle = laser.transform.FindChild ("Reticle").gameObject;
 			laserScript.reticle = reticle;
 		}
+
+	}
+
+	public override void OnStartServer() {
+		GameObject playercameraObj = gameObject.transform.FindChild ("PlayerCamera").gameObject;
+		Camera playercamera = playercameraObj.GetComponent<Camera>();
+		m_playerCameras.Add (playercamera);
 	}
 
 	public override void OnStartLocalPlayer() {
@@ -45,6 +55,11 @@ public class PlayerSetup : NetworkBehaviour {
 			currentMainCamera.enabled = false;
 		playercamera.enabled = true;
 
+		// Set the position of the server player to be the eye of god.
+		if (isServer) {
+			gameObject.transform.position = new Vector3 (0, 3, -.5f);
+			gameObject.transform.Rotate (35, 0, 0);
+		}
 		// Add the audiolistener, GvrAudioListener, and GvrPointerPhysicsRaycaster scripts to this object
 		playerCameraObj.AddComponent<AudioListener>();
 		playerCameraObj.AddComponent<GvrAudioListener> ();
@@ -70,6 +85,44 @@ public class PlayerSetup : NetworkBehaviour {
 		GameObject reticle = laser.transform.FindChild ("Reticle").gameObject;
 		laserPtrScript.reticle = reticle;
 		#endif
+
+		if (isServer) {
+			// Make the avatar invisible
+			gameObject.transform.Find("PlayerCamera/Gamer").gameObject.SetActive(false);
+			if (m_cycleCameras)
+				StartCoroutine (cycleThroughCameras());
+		}
 	}
-		
+
+	public override void OnNetworkDestroy() {
+		if (isServer) {
+			Camera playerCamera = gameObject.transform.FindChild ("PlayerCamera").gameObject.GetComponent<Camera> ();
+			if (Camera.main == playerCamera) {
+				switchCamera (m_playerCameras [m_nextCamera]);
+			}
+			m_playerCameras.Remove (playerCamera);
+		}
+	}
+
+	IEnumerator cycleThroughCameras() {
+		while (true) {
+			if (m_playerCameras.Count == 0)
+				yield return m_waitforit;
+			switchCamera (m_playerCameras [m_nextCamera]);
+			m_nextCamera = (m_nextCamera + 1) % m_playerCameras.Count;
+			yield return m_waitforit;
+		}
+	}
+
+	void switchCamera(Camera camera) {
+		if (Camera.main != camera) {
+			Camera currentMainCamera = Camera.main;
+			camera.tag = "MainCamera";
+			if (currentMainCamera != null) {
+				currentMainCamera.tag = "Untagged";
+				currentMainCamera.enabled = false;
+			}
+			camera.enabled = true;
+		}
+	}
 }

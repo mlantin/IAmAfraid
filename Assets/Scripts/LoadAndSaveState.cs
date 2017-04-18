@@ -12,7 +12,6 @@ public class LoadAndSaveState : NetworkBehaviour {
 
 	// Use this for initialization
 	public override void OnStartServer () {
-		Debug.Log ("In start...wanting to load thing");
 		if (!Loaded && loadInitialState) {
 			string jsonText = "";
 			#if !UNITY_ANDROID || UNITY_EDITOR
