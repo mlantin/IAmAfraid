@@ -57,6 +57,7 @@ public class PlayerSetup : NetworkBehaviour {
 
 		// Set the position of the server player to be the eye of god.
 		if (isServer) {
+//			gameObject.transform.position = new Vector3 (0, 1.6f, 0);
 			gameObject.transform.position = new Vector3 (0, 3, -.5f);
 			gameObject.transform.Rotate (35, 0, 0);
 		}
@@ -89,6 +90,7 @@ public class PlayerSetup : NetworkBehaviour {
 		if (isServer) {
 			// Make the avatar invisible
 			gameObject.transform.Find("PlayerCamera/Gamer").gameObject.SetActive(false);
+			gameObject.transform.Find ("GvrControllerPointer/Controller/ddcontroller").gameObject.SetActive (false);
 			if (m_cycleCameras)
 				StartCoroutine (cycleThroughCameras());
 		}
@@ -99,6 +101,8 @@ public class PlayerSetup : NetworkBehaviour {
 			Camera playerCamera = gameObject.transform.FindChild ("PlayerCamera").gameObject.GetComponent<Camera> ();
 			if (Camera.main == playerCamera) {
 				switchCamera (m_playerCameras [m_nextCamera]);
+			} else if (m_nextCamera == (m_playerCameras.Count - 1)) {
+				m_nextCamera = 0;	
 			}
 			m_playerCameras.Remove (playerCamera);
 		}

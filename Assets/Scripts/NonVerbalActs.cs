@@ -44,7 +44,7 @@ public class NonVerbalActs : NetworkBehaviour
 				+GvrController.ArmModel.pointerPosition + m_relpos;
 			transform.rotation = GvrController.ArmModel.pointerRotation;
 			if (GvrController.ClickButtonUp) {
-				StartCoroutine(setPositionedState(true));
+				setPositionedState(true);
 			}
 		}
 		#endif
@@ -55,14 +55,13 @@ public class NonVerbalActs : NetworkBehaviour
 		fetchAudio (m_serverFileName);
 	}
 
-	IEnumerator setPositionedState(bool state) {
-		if (!hasAuthority)
+	void setPositionedState(bool state) {
+		if (!hasAuthority) {
 			LocalPlayer.getAuthority (netId);
-		yield return new WaitUntil(() => hasAuthority == true);
+		}
 		CmdSetPositioned (state);
 
 		if (state == true) {
-			yield return null;
 			LocalPlayer.removeAuthority (netId);
 		}
 	}
@@ -82,48 +81,59 @@ public class NonVerbalActs : NetworkBehaviour
 	}
 
 	public void OnPointerEnter (PointerEventData eventData) {
-		StartCoroutine (setObjectHitState (true));
+		if (m_positioned)
+			setObjectHitState (true);
 	}
 
 	public void OnPointerExit(PointerEventData eventData){
-		StartCoroutine (setObjectHitState (false));
+		if (m_positioned)
+			setObjectHitState (false);
 	}
 
 	public void OnPointerClick (PointerEventData eventData) {
 		//get the coordinates of the trackpad so we know what kind of event we want to trigger
 		if (m_positioned && GvrController.TouchPos.y > .85f) {
-			CmdDestroySoundObject();
+			destroySoundObject();
 		} 
+	}
+
+	void destroySoundObject() {
+		if (!hasAuthority) {
+			LocalPlayer.getAuthority (netId);
+		}
+		CmdDestroySoundObject ();
 	}
 
 	[Command]
 	void CmdDestroySoundObject() {
-		if (!m_preloaded)
-			StartCoroutine(Webserver.singleton.DeleteAudioClip (m_serverFileName));
-		Destroy (gameObject);
+		NetworkServer.Destroy (gameObject);
+	}
+
+	public override void OnNetworkDestroy() {
+		Debug.Log ("EXTERMINATE!");
+		if (isServer) {
+			Debug.Log ("Exterminating");
+			if (!m_preloaded)
+				Webserver.singleton.DeleteAudioClipSync (m_serverFileName);
+		}
 	}
 
 	public void OnPointerDown (PointerEventData eventData) {
 		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
 			m_distanceFromPointer = eventData.pointerCurrentRaycast.distance;
 			//m_DebugText.text = m_distanceFromPointer.ToString () + " " + eventData.pointerCurrentRaycast.distance.ToString ();
-			StartCoroutine(setPositionedState(false));
+			setPositionedState(false);
 		}
 	}
 	#endif
 
-	IEnumerator setObjectHitState(bool state) {
-		if (!hasAuthority)
+	void setObjectHitState(bool state) {
+		if (!hasAuthority) {
 			LocalPlayer.getAuthority (netId);
-		yield return new WaitUntil(() => hasAuthority == true);
-		CmdSetObjectHit (state);
-
-		// I'm doing this so that the player retains authority while they are on a paper ball
-		// But don't pull the rug out if we're currently positioning the word
-		if (state == false && m_positioned) {
-			yield return null;
-			LocalPlayer.removeAuthority (netId);
 		}
+		CmdSetObjectHit (state);
+		if (hasAuthority)
+			LocalPlayer.removeAuthority (netId);
 	}
 
 	[Command]

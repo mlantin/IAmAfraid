@@ -73,20 +73,19 @@ public class wordActs : NetworkBehaviour
 			transform.position = pos;
 			transform.rotation = GvrController.ArmModel.pointerRotation;
 			if (GvrController.ClickButtonUp) {
-				StartCoroutine(setPositionedState(true));
+				setPositionedState(true);
 			}
 		}
 		#endif
 	}
 
-	IEnumerator setPositionedState(bool state) {
-		if (!hasAuthority)
+	void setPositionedState(bool state) {
+		if (!hasAuthority) {
 			LocalPlayer.getAuthority (netId);
-		yield return new WaitUntil(() => hasAuthority == true);
+		}
 		CmdSetPositioned (state);
 
 		if (state == true) {
-			yield return null;
 			LocalPlayer.removeAuthority (netId);
 		}
 	}
@@ -106,17 +105,19 @@ public class wordActs : NetworkBehaviour
 	}
 
 	public void OnPointerEnter (PointerEventData eventData) {
-		StartCoroutine(setWordHitState(true));
+		if (m_positioned)
+			setWordHitState(true);
 	}
 
 	public void OnPointerExit(PointerEventData eventData){
-		StartCoroutine(setWordHitState(false));
+		if (m_positioned)
+			setWordHitState(false);
 	}
 
 	public void OnPointerClick (PointerEventData eventData) {
 		//get the coordinates of the trackpad so we know what kind of event we want to trigger
 		if (m_positioned && GvrController.TouchPos.y > .85f) {
-			CmdDestroyWord();
+			destroyWord();
 		} 
 	}
 
@@ -124,10 +125,19 @@ public class wordActs : NetworkBehaviour
 		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
 			m_laserdif = eventData.pointerCurrentRaycast.worldPosition - (GvrController.ArmModel.pointerRotation * Vector3.forward * m_distanceToPointer+m_relpos);
 			// take control again
-			StartCoroutine(setPositionedState(false));
+			setPositionedState(false);
 		}
 	}
 	#endif
+
+	void destroyWord() {
+		if (!hasAuthority) {
+			LocalPlayer.getAuthority (netId);
+		}
+		CmdDestroyWord ();
+		if (hasAuthority)
+			LocalPlayer.removeAuthority (netId);
+	}
 
 	[Command]
 	void CmdDestroyWord() {
@@ -136,18 +146,14 @@ public class wordActs : NetworkBehaviour
 		Destroy (gameObject);
 	}
 
-	IEnumerator setWordHitState(bool state) {
-		if (!hasAuthority)
+	void setWordHitState(bool state) {
+		if (!hasAuthority) {
 			LocalPlayer.getAuthority (netId);
-		yield return new WaitUntil(() => hasAuthority == true);
+		}
 		CmdSetWordHit (state);
 
-		// I'm doing this so that the player retains authority while they are on a word
-		// But don't pull the rug out if we're currently positioning the word
-		if (state == false && m_positioned) {
-			yield return null;
+		if (hasAuthority)
 			LocalPlayer.removeAuthority (netId);
-		}
 	}
 
 	[Command]
