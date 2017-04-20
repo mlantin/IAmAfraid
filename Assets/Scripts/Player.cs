@@ -34,7 +34,6 @@ public class Player : NetworkBehaviour {
 			onToggleLocal.Invoke (false);
 		else
 			onToggleRemote.Invoke(false);
-		
 	
 	}
 
