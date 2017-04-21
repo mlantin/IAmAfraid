@@ -73,7 +73,8 @@ public class wordActs : NetworkBehaviour
 			transform.position = pos;
 			transform.rotation = GvrController.ArmModel.pointerRotation;
 			if (GvrController.ClickButtonUp) {
-				setPositionedState(true);
+				//setPositionedState(true);
+				LocalPlayer.singleton.CmdSetWordPositioned(netId, true);
 			}
 		}
 		#endif
@@ -106,64 +107,45 @@ public class wordActs : NetworkBehaviour
 
 	public void OnPointerEnter (PointerEventData eventData) {
 		if (m_positioned)
-			setWordHitState(true);
+			LocalPlayer.singleton.CmdSetWordHitState (netId,true);
 	}
 
 	public void OnPointerExit(PointerEventData eventData){
 		if (m_positioned)
-			setWordHitState(false);
+			LocalPlayer.singleton.CmdSetWordHitState (netId, false);
 	}
 
 	public void OnPointerClick (PointerEventData eventData) {
 		//get the coordinates of the trackpad so we know what kind of event we want to trigger
 		if (m_positioned && GvrController.TouchPos.y > .85f) {
-			destroyWord();
+			LocalPlayer.singleton.CmdDestroyObject(netId);
 		} 
 	}
 
 	public void OnPointerDown (PointerEventData eventData) {
 		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
 			m_laserdif = eventData.pointerCurrentRaycast.worldPosition - (GvrController.ArmModel.pointerRotation * Vector3.forward * m_distanceToPointer+m_relpos);
-			// take control again
-			setPositionedState(false);
+			//setPositionedState(false);
+			LocalPlayer.singleton.CmdSetWordPositioned(netId,false);
 		}
 	}
 	#endif
 
-	void destroyWord() {
-		if (!hasAuthority) {
-			LocalPlayer.getAuthority (netId);
+	public override void OnNetworkDestroy() {
+		Debug.Log ("EXTERMINATE!");
+		if (isServer) {
+			Debug.Log ("Exterminating");
+			if (!m_preloaded)
+				Webserver.singleton.DeleteAudioClipSync (m_serverFileName);
 		}
-		CmdDestroyWord ();
-		if (hasAuthority)
-			LocalPlayer.removeAuthority (netId);
 	}
 
-	[Command]
-	void CmdDestroyWord() {
-		if (!m_preloaded)
-			StartCoroutine(Webserver.singleton.DeleteAudioClip (m_serverFileName));
-		Destroy (gameObject);
-	}
-
-	void setWordHitState(bool state) {
-		if (!hasAuthority) {
-			LocalPlayer.getAuthority (netId);
-		}
-		CmdSetWordHit (state);
-
-		if (hasAuthority)
-			LocalPlayer.removeAuthority (netId);
-	}
-
-	[Command]
-	void CmdSetWordHit(bool state) {
+	public void setHit(bool state) {
 		wordHit = state;
 	}
 
 	void playWord(bool hit) {
 		if (hit) {
-			Debug.Log ("play the word");
 			m_wordSource.Play ();
 		}
 	}

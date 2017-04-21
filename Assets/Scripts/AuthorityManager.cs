@@ -9,7 +9,11 @@ public class AuthorityManager : NetworkBehaviour {
 	public void CmdAssignObjectAuthority(NetworkInstanceId netInstanceId)
 	{
 		// Assign authority of this objects network instance id to the client
-		NetworkServer.objects[netInstanceId].AssignClientAuthority(connectionToClient);
+		bool success = NetworkServer.objects[netInstanceId].AssignClientAuthority(connectionToClient);
+		if (success)
+			Debug.Log ("Successfully assigned authority to " + netInstanceId);
+		else
+			Debug.Log ("could not assign authority");
 	}
 
 	[Command]

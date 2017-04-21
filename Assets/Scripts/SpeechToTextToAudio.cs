@@ -56,30 +56,20 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 			transform.RotateAround (transform.position, Vector3.up, 3);
 		}
 		if (Input.GetKeyDown (KeyCode.Space))
-			StartCoroutine(setRotateState (true));
+			LocalPlayer.singleton.CmdSetWatsonRotateCube (netId, true);
 		else if (Input.GetKeyUp (KeyCode.Space))
-			StartCoroutine(setRotateState (false));
+			LocalPlayer.singleton.CmdSetWatsonRotateCube (netId, false);
+	}
+
+	// Only called by LocalPlayer proxy command
+	public void setRotating(bool state) {
+		m_isRotating = state;
 	}
 
 	public AudioClip mostRecentClip {
 		get { return m_mostRecentClip; }
 	}
-
-	IEnumerator setRotateState(bool state) {
-		if (!hasAuthority)
-			LocalPlayer.getAuthority (netId);
-		yield return new WaitUntil(() => hasAuthority == true);
-		CmdSetRotateState (state);
-
-		if (state == false)
-			LocalPlayer.removeAuthority (netId);
-	}
-
-	[Command]
-	void CmdSetRotateState(bool state) {
-		m_isRotating = state;
-	}
-
+		
 	public bool Active
 	{
 		get { return m_SpeechToText.IsListening; }
@@ -126,7 +116,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 		{
 			UnityObjectUtil.StartDestroyQueue();
 			m_RecordingRoutine = Runnable.Run(RecordingHandler2());
-			StartCoroutine(setRotateState(true));
+			LocalPlayer.singleton.CmdSetWatsonRotateCube (netId, true);
 		}
 	}
 
@@ -138,7 +128,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 			Microphone.End(m_MicrophoneID);
 			Runnable.Stop(m_RecordingRoutine);
 			m_RecordingRoutine = 0;
-			StartCoroutine(setRotateState(false));
+			LocalPlayer.singleton.CmdSetWatsonRotateCube (netId, false);
 		}
 	}
 

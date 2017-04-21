@@ -44,7 +44,8 @@ public class NonVerbalActs : NetworkBehaviour
 				+GvrController.ArmModel.pointerPosition + m_relpos;
 			transform.rotation = GvrController.ArmModel.pointerRotation;
 			if (GvrController.ClickButtonUp) {
-				setPositionedState(true);
+				LocalPlayer.singleton.CmdSetObjectPositioned(netId,true);
+				//setPositionedState(true);
 			}
 		}
 		#endif
@@ -82,33 +83,21 @@ public class NonVerbalActs : NetworkBehaviour
 
 	public void OnPointerEnter (PointerEventData eventData) {
 		if (m_positioned)
-			setObjectHitState (true);
+			LocalPlayer.singleton.CmdSetObjectHitState(netId,true);
 	}
 
 	public void OnPointerExit(PointerEventData eventData){
 		if (m_positioned)
-			setObjectHitState (false);
+			LocalPlayer.singleton.CmdSetObjectHitState(netId,false);
 	}
 
 	public void OnPointerClick (PointerEventData eventData) {
 		//get the coordinates of the trackpad so we know what kind of event we want to trigger
 		if (m_positioned && GvrController.TouchPos.y > .85f) {
-			destroySoundObject();
+			LocalPlayer.singleton.CmdDestroyObject (netId);
 		} 
 	}
-
-	void destroySoundObject() {
-		if (!hasAuthority) {
-			LocalPlayer.getAuthority (netId);
-		}
-		CmdDestroySoundObject ();
-	}
-
-	[Command]
-	void CmdDestroySoundObject() {
-		NetworkServer.Destroy (gameObject);
-	}
-
+		
 	public override void OnNetworkDestroy() {
 		Debug.Log ("EXTERMINATE!");
 		if (isServer) {
@@ -122,29 +111,20 @@ public class NonVerbalActs : NetworkBehaviour
 		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
 			m_distanceFromPointer = eventData.pointerCurrentRaycast.distance;
 			//m_DebugText.text = m_distanceFromPointer.ToString () + " " + eventData.pointerCurrentRaycast.distance.ToString ();
-			setPositionedState(false);
+			//setPositionedState(false);
+			LocalPlayer.singleton.CmdSetObjectPositioned(netId,false);
 		}
 	}
 	#endif
 
-	void setObjectHitState(bool state) {
-		if (!hasAuthority) {
-			LocalPlayer.getAuthority (netId);
-		}
-		CmdSetObjectHit (state);
-		if (hasAuthority)
-			LocalPlayer.removeAuthority (netId);
-	}
-
-	[Command]
-	void CmdSetObjectHit(bool state) {
+	// This is only called from the LocalPlayer proxy server command
+	public void setHit(bool state) {
 		objectHit = state;
 	}
 
 	void playSound(bool hit) {
 		if (hit)
 			m_wordSource.Play();
-		Debug.Log ("play the sound");
 	}
 
 	void fetchAudio(string filename) {
