@@ -15,9 +15,17 @@ public class wordActs : NetworkBehaviour
 	private float m_distanceFromPointer = 1.0f;
 	private GvrAudioSource m_wordSource;
 
-	GameObject m_laser = null;
 	private Quaternion m_rotq;
 	private bool m_moving = false;
+	GameObject m_laser = null;
+
+	GameObject laser {
+		get {
+			if (m_laser == null) 
+				m_laser = LocalPlayer.playerObject.transform.FindChild ("GvrControllerPointer/Laser").gameObject;
+			return m_laser;
+		}
+	}
 
 	private float m_xspace = 0;
 
@@ -70,13 +78,13 @@ public class wordActs : NetworkBehaviour
 		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 		if (isClient && ((!m_positioned && hasAuthority) || (m_moving))) {
 			if (!m_moving) {
-				transform.position = m_laser.transform.position + m_laser.transform.forward;
+				transform.position = laser.transform.position + laser.transform.forward;
 			} else {
 				// We have picked a word and we're moving it...
-				Vector3 newdir = m_rotq*m_laser.transform.forward;
-				transform.position = m_laser.transform.position+newdir*m_distanceFromPointer;
+				Vector3 newdir = m_rotq*laser.transform.forward;
+				transform.position = laser.transform.position+newdir*m_distanceFromPointer;
 			}
-			transform.rotation = m_laser.transform.rotation;
+			transform.rotation = laser.transform.rotation;
 			if (GvrController.ClickButtonUp) {
 				m_positioned = true;
 				m_moving = false;
@@ -108,7 +116,7 @@ public class wordActs : NetworkBehaviour
 		Vector3 reticleLocal;
 		reticleInWord = eventData.pointerCurrentRaycast.worldPosition;
 		reticleLocal = transform.InverseTransformPoint (reticleInWord);
-		//m_debugText.text = "x: " + reticleLocal.x / bbdim.x + " y: " + reticleLocal.y/bbdim.y;
+		Debug.Log ("x: " + (reticleLocal.x / bbdim.x + 0.5f) + " y: " + (reticleLocal.y / bbdim.y+.5f));
 	}
 
 	public void OnPointerEnter (PointerEventData eventData) {
@@ -130,10 +138,8 @@ public class wordActs : NetworkBehaviour
 
 	public void OnPointerDown (PointerEventData eventData) {
 		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
-			if (m_laser == null)
-				m_laser = LocalPlayer.playerObject.transform.FindChild ("GvrControllerPointer/Laser").gameObject;
-			Vector3 intersectionLaser = gameObject.transform.position - m_laser.transform.position;
-			m_rotq = Quaternion.FromToRotation (m_laser.transform.forward, intersectionLaser);
+			Vector3 intersectionLaser = gameObject.transform.position - laser.transform.position;
+			m_rotq = Quaternion.FromToRotation (laser.transform.forward, intersectionLaser);
 			m_distanceFromPointer = intersectionLaser.magnitude;
 			m_positioned = false;
 			m_moving = true;
@@ -147,7 +153,7 @@ public class wordActs : NetworkBehaviour
 		if (isServer) {
 			Debug.Log ("Exterminating");
 			if (!m_preloaded)
-				Webserver.singleton.DeleteAudioClipSync (m_serverFileName);
+				Webserver.singleton.DeleteAudioClipNoCheck (m_serverFileName);
 		}
 	}
 

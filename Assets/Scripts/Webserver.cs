@@ -105,21 +105,11 @@ public class Webserver : MonoBehaviour {
 		}
 	}
 
-	public void DeleteAudioClipSync(string fileName) {
+	public void DeleteAudioClipNoCheck(string fileName) {
 		Debug.Log ("Deleting an audio clip: " + fileName);
 		UnityWebRequest www = UnityWebRequest.Delete ("http://" + m_serverIP + ":" + m_serverPort + "?fn=" + fileName);
 		www.downloadHandler = new DownloadHandlerBuffer();
 		www.Send ();
-		if (www.isError) {
-			Debug.Log (www.error);
-		} else {
-			string result = DownloadHandlerBuffer.GetContent (www);
-			if (result == null) {
-				Debug.Log ("Deletion confirmation is null");
-			} else {
-				Debug.Log(result.ToString());
-			}
-		}
 	}
 
 }
