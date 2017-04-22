@@ -12,10 +12,12 @@ public class wordActs : NetworkBehaviour
 #endif
 {
 
-	private static Vector3 m_relpos = new Vector3(0.0f,1.6f,0.0f);
-	private static Vector3 m_laserdif = new Vector3(0f,0f,0f);
-	private float m_distanceToPointer = 1.0f;
+	private float m_distanceFromPointer = 1.0f;
 	private GvrAudioSource m_wordSource;
+
+	GameObject m_laser = null;
+	private Quaternion m_rotq;
+	private bool m_moving = false;
 
 	private float m_xspace = 0;
 
@@ -66,14 +68,18 @@ public class wordActs : NetworkBehaviour
 	// Update is called once per frame
 	void Update () {
 		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-		if (isClient && !m_positioned && hasAuthority) {
-			Vector3 pos = GvrController.ArmModel.pointerRotation * Vector3.forward*m_distanceToPointer + 
-				GvrController.ArmModel.pointerPosition + m_relpos + m_laserdif;
-//			pos.x -= 0.5f * transform.localScale.x * bbdim.x;
-			transform.position = pos;
-			transform.rotation = GvrController.ArmModel.pointerRotation;
+		if (isClient && ((!m_positioned && hasAuthority) || (m_moving))) {
+			if (!m_moving) {
+				transform.position = m_laser.transform.position + m_laser.transform.forward;
+			} else {
+				// We have picked a word and we're moving it...
+				Vector3 newdir = m_rotq*m_laser.transform.forward;
+				transform.position = m_laser.transform.position+newdir*m_distanceFromPointer;
+			}
+			transform.rotation = m_laser.transform.rotation;
 			if (GvrController.ClickButtonUp) {
-				//setPositionedState(true);
+				m_positioned = true;
+				m_moving = false;
 				LocalPlayer.singleton.CmdSetWordPositioned(netId, true);
 			}
 		}
@@ -124,8 +130,13 @@ public class wordActs : NetworkBehaviour
 
 	public void OnPointerDown (PointerEventData eventData) {
 		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
-			m_laserdif = eventData.pointerCurrentRaycast.worldPosition - (GvrController.ArmModel.pointerRotation * Vector3.forward * m_distanceToPointer+m_relpos);
-			//setPositionedState(false);
+			if (m_laser == null)
+				m_laser = LocalPlayer.playerObject.transform.FindChild ("GvrControllerPointer/Laser").gameObject;
+			Vector3 intersectionLaser = gameObject.transform.position - m_laser.transform.position;
+			m_rotq = Quaternion.FromToRotation (m_laser.transform.forward, intersectionLaser);
+			m_distanceFromPointer = intersectionLaser.magnitude;
+			m_positioned = false;
+			m_moving = true;
 			LocalPlayer.singleton.CmdSetWordPositioned(netId,false);
 		}
 	}
