@@ -1,0 +1,214 @@
+fileFormatVersion: 2
+guid: fb87610754cbe0845a15ee45ceb49d88
+timeCreated: 1493052888
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: crystals10Main
+    100004: crystals10Main1
+    100006: crystals10Main2
+    100008: crystals10Main3
+    100010: crystals11Main
+    100012: crystals11Main1
+    100014: crystals12Main
+    100016: crystals13Main
+    100018: crystals14Main
+    100020: crystals15Main
+    100022: crystals16Main
+    100024: crystals17Main
+    100026: crystals18Main
+    100028: crystals1Main
+    100030: crystals2Main
+    100032: crystals3Main
+    100034: crystals4Main
+    100036: crystals5Main
+    100038: crystals6Main
+    100040: crystals7Main
+    100042: crystals8Main
+    100044: crystals8Main1
+    100046: crystals8Main2
+    100048: crystals8Main3
+    100050: crystals9Main
+    100052: crystals9Main1
+    100054: roots1Main
+    400000: //RootNode
+    400002: crystals10Main
+    400004: crystals10Main1
+    400006: crystals10Main2
+    400008: crystals10Main3
+    400010: crystals11Main
+    400012: crystals11Main1
+    400014: crystals12Main
+    400016: crystals13Main
+    400018: crystals14Main
+    400020: crystals15Main
+    400022: crystals16Main
+    400024: crystals17Main
+    400026: crystals18Main
+    400028: crystals1Main
+    400030: crystals2Main
+    400032: crystals3Main
+    400034: crystals4Main
+    400036: crystals5Main
+    400038: crystals6Main
+    400040: crystals7Main
+    400042: crystals8Main
+    400044: crystals8Main1
+    400046: crystals8Main2
+    400048: crystals8Main3
+    400050: crystals9Main
+    400052: crystals9Main1
+    400054: roots1Main
+    2300000: crystals10Main
+    2300002: crystals10Main1
+    2300004: crystals10Main2
+    2300006: crystals10Main3
+    2300008: crystals11Main
+    2300010: crystals11Main1
+    2300012: crystals12Main
+    2300014: crystals13Main
+    2300016: crystals14Main
+    2300018: crystals15Main
+    2300020: crystals16Main
+    2300022: crystals17Main
+    2300024: crystals18Main
+    2300026: crystals1Main
+    2300028: crystals2Main
+    2300030: crystals3Main
+    2300032: crystals4Main
+    2300034: crystals5Main
+    2300036: crystals6Main
+    2300038: crystals7Main
+    2300040: crystals8Main
+    2300042: crystals8Main1
+    2300044: crystals8Main2
+    2300046: crystals8Main3
+    2300048: crystals9Main
+    2300050: crystals9Main1
+    2300052: roots1Main
+    3300000: crystals10Main
+    3300002: crystals10Main1
+    3300004: crystals10Main2
+    3300006: crystals10Main3
+    3300008: crystals11Main
+    3300010: crystals11Main1
+    3300012: crystals12Main
+    3300014: crystals13Main
+    3300016: crystals14Main
+    3300018: crystals15Main
+    3300020: crystals16Main
+    3300022: crystals17Main
+    3300024: crystals18Main
+    3300026: crystals1Main
+    3300028: crystals2Main
+    3300030: crystals3Main
+    3300032: crystals4Main
+    3300034: crystals5Main
+    3300036: crystals6Main
+    3300038: crystals7Main
+    3300040: crystals8Main
+    3300042: crystals8Main1
+    3300044: crystals8Main2
+    3300046: crystals8Main3
+    3300048: crystals9Main
+    3300050: crystals9Main1
+    3300052: roots1Main
+    4300000: roots1Main
+    4300002: crystals17Main
+    4300004: crystals8Main
+    4300006: crystals10Main
+    4300008: crystals18Main
+    4300010: crystals8Main1
+    4300012: crystals1Main
+    4300014: crystals14Main
+    4300016: crystals15Main
+    4300018: crystals10Main1
+    4300020: crystals9Main
+    4300022: crystals5Main
+    4300024: crystals11Main
+    4300026: crystals16Main
+    4300028: crystals13Main
+    4300030: crystals2Main
+    4300032: crystals3Main
+    4300034: crystals12Main
+    4300036: crystals8Main2
+    4300038: crystals10Main2
+    4300040: crystals10Main3
+    4300042: crystals4Main
+    4300044: crystals8Main3
+    4300046: crystals9Main1
+    4300048: crystals11Main1
+    4300050: crystals6Main
+    4300052: crystals7Main
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
