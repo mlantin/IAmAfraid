@@ -5,6 +5,11 @@ using UnityEngine.Networking;
 
 public class PlayerSetup : NetworkBehaviour {
 
+	private int upPort = 9575;
+	private int locPort = 9591;
+	private string playerOrigin = "Player";
+	private DataPublisher publisher;
+
 	public GameObject m_InputManager;
 
 	void Awake() {
@@ -35,6 +40,8 @@ public class PlayerSetup : NetworkBehaviour {
 
 		// tag the local player so we can look for it later in other objects
 		gameObject.tag = "Player";
+
+		publisher = new DataPublisher ("127.0.0.1", upPort, locPort);
 
 		//Make sure the MainCamera is the one for our local player
 		Camera currentMainCamera = Camera.main;
@@ -70,6 +77,11 @@ public class PlayerSetup : NetworkBehaviour {
 		GameObject reticle = laser.transform.FindChild ("Reticle").gameObject;
 		laserPtrScript.reticle = reticle;
 		#endif
+	}
+
+	void Update(){
+		if (isLocalPlayer)
+			publisher.relayData (playerOrigin);
 	}
 		
 }

@@ -1,14 +1,9 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/flatTest.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/PlayerSetup.cs">
     <Files>
-      <File FileName="Assets/Scripts/NetworkSetup.cs" Line="13" Column="23" />
-      <File FileName="Assets/GoogleVR/Scripts/Controller/GvrControllerVisualManager.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/flatTest.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Player.cs" Line="38" Column="3" />
-      <File FileName="Assets/Scripts/SpeechToTextToAudio.cs" Line="48" Column="4" />
-      <File FileName="Assets/Scripts/LocalPlayer.cs" Line="10" Column="2" />
-      <File FileName="Assets/Scripts/Holojam/Protocol/Vector4.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/DataPublisher.cs" Line="25" Column="35" />
+      <File FileName="Assets/Scripts/PlayerSetup.cs" Line="84" Column="39" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

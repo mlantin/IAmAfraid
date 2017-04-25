@@ -140,6 +140,7 @@
      <Compile Include="Assets\GoogleVR\Scripts\Utilities\GvrUIHelpers.cs" />
      <Compile Include="Assets\GoogleVR\Scripts\Video\GvrVideoPlayerTexture.cs" />
      <Compile Include="Assets\Scripts\AuthorityManager.cs" />
+     <Compile Include="Assets\Scripts\DataPublisher.cs" />
      <Compile Include="Assets\Scripts\FlatBuffers\ByteBuffer.cs" />
      <Compile Include="Assets\Scripts\FlatBuffers\FlatBufferBuilder.cs" />
      <Compile Include="Assets\Scripts\FlatBuffers\FlatBufferConstants.cs" />
@@ -161,10 +162,12 @@
      <Compile Include="Assets\Scripts\NetworkSetup.cs" />
      <Compile Include="Assets\Scripts\NonVerbalActs.cs" />
      <Compile Include="Assets\Scripts\NonVerbalRecord.cs" />
+     <Compile Include="Assets\Scripts\NuggetDispatch.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\PlayerSetup.cs" />
      <Compile Include="Assets\Scripts\ReticleManager.cs" />
      <Compile Include="Assets\Scripts\SpeechToTextToAudio.cs" />
+     <Compile Include="Assets\Scripts\Subscriber.cs" />
      <Compile Include="Assets\Scripts\Webserver.cs" />
      <Compile Include="Assets\Scripts\WordInfo.cs" />
      <Compile Include="Assets\Scripts\flatTest.cs" />
