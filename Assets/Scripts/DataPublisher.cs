@@ -32,10 +32,11 @@ public class DataPublisher : MonoBehaviour {
 	public int m_localPort = 9575;
 	public int m_scaleFactor = 1000;
 
-	private IPEndPoint m_remoteEndpoint;
+	private IPEndPoint m_endpoint;
 	private UdpClient m_client;
 
 	private Dictionary<string, UnityEngine.Vector3> m_vec3Dict;
+
 
 	public bool mocapActive {
 		get {
@@ -46,10 +47,17 @@ public class DataPublisher : MonoBehaviour {
 				if (value == true) {
 					if (m_client == null)
 						createUDPClient ();
+				} else {
+					if (m_multicast)
+						m_client.DropMulticastGroup (IPAddress.Parse (m_multicastIP));
 				}
 			}
 			m_mocapActive = value;
 		}
+	}
+
+	public static void activateMocap(bool val) {
+		singleton.mocapActive = val;
 	}
 
 	public void Start(){
@@ -61,25 +69,25 @@ public class DataPublisher : MonoBehaviour {
 
 	private void createUDPClient() {
 		try {
-		if (m_multicast) {
-			m_client = new UdpClient ();
+			if (m_multicast) {
+				m_client = new UdpClient ();
 
-			m_client.ExclusiveAddressUse = false;
-			IPEndPoint localEp = new IPEndPoint (IPAddress.Any, m_upstreamPort);
+				m_client.ExclusiveAddressUse = false;
+				m_endpoint = new IPEndPoint (IPAddress.Any, m_upstreamPort);
 
-			m_client.Client.SetSocketOption (SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-			m_client.ExclusiveAddressUse = false;
+				m_client.Client.SetSocketOption (SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+				m_client.ExclusiveAddressUse = false;
+					
+				m_client.Client.Bind (m_endpoint);
 
-			m_client.Client.Bind (localEp);
-
-			IPAddress multicastaddress = IPAddress.Parse (m_multicastIP);
-			m_client.JoinMulticastGroup (multicastaddress);
-		} else {
-			m_client = new UdpClient (m_localPort);
-			//Creates an IPEndPoint to record the IP Address and port number of another machine.
-			m_remoteEndpoint = new IPEndPoint (IPAddress.Parse (m_upstreamIP), m_upstreamPort);
-		}
-		Debug.Log ("A UDP client was created");
+				IPAddress multicastaddress = IPAddress.Parse (m_multicastIP);
+				m_client.JoinMulticastGroup (multicastaddress);
+			} else {
+				m_client = new UdpClient (m_localPort);
+				//Creates an IPEndPoint to record the IP Address and port number of another machine.
+				m_endpoint = new IPEndPoint (IPAddress.Parse (m_upstreamIP), m_upstreamPort);
+			}
+			Debug.Log ("A UDP client was created");
 		} catch (Exception e) {
 			Debug.Log ("UDP Exception: " + e.ToString());
 		}
@@ -96,9 +104,12 @@ public class DataPublisher : MonoBehaviour {
 			{                           // queued in the network buffer.
 				byte[] data = new byte[1];
 				// this kludge to get the last packet
+				int numpackets = 0;
 				while (m_client.Available > 0) {
-					data = m_client.Receive(ref this.m_remoteEndpoint);
+					numpackets++;
+					data = m_client.Receive(ref m_endpoint);
 				}
+				Debug.Log("Got "+numpackets+" packets");
 				var buf = new ByteBuffer(data);
 
 				// Get an accessor to the root object inside the buffer.

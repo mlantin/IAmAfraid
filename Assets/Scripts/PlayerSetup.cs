@@ -5,11 +5,8 @@ using UnityEngine.Networking;
 using HighlightingSystem;
 
 public class PlayerSetup : NetworkBehaviour {
-	private int upPort = 9575;
-	private int locPort = 9591;
 	private string playerOrigin = "PIXEL1";
 	private string playerOriginTwo = "PlayerTwo";
-	private DataPublisher publisher;
 
 	public GameObject m_InputManager;
 	public bool m_cycleCameras = true;
@@ -49,8 +46,6 @@ public class PlayerSetup : NetworkBehaviour {
 
 	public override void OnStartLocalPlayer() {
 
-//		publisher = new DataPublisher ("127.0.0.1", upPort, locPort);
-
 		// tag the local player so we can look for it later in other objects
 		gameObject.tag = "Player";
 
@@ -64,10 +59,14 @@ public class PlayerSetup : NetworkBehaviour {
 		playercamera.enabled = true;
 
 		// Set the position of the server player to be the eye of god.
+		// Also disable tracking
 		if (isServer) {
 //			gameObject.transform.position = new Vector3 (0, 1.6f, 0);
 			gameObject.transform.position = new Vector3 (0, 3, -.5f);
 			gameObject.transform.Rotate (35, 0, 0);
+			HolojamClient holoscript = gameObject.GetComponent<HolojamClient> ();
+			holoscript.m_track = false;
+			DataPublisher.activateMocap (false);
 		}
 		// Add the Highlighter, audiolistener, GvrAudioListener, and GvrPointerPhysicsRaycaster scripts to this object
 		HighlightingRenderer hlrender = playerCameraObj.AddComponent<HighlightingRenderer>();
