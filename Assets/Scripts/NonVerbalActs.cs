@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Networking;
+using HighlightingSystem;
 
 public class NonVerbalActs : NetworkBehaviour
 #if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
@@ -14,9 +15,11 @@ public class NonVerbalActs : NetworkBehaviour
 	[SyncVar]
 	public string m_serverFileName = "";
 	public Text m_DebugText;
+	private Highlighter m_highlight;
 
 	private float m_distanceFromPointer = 1.0f;
 	private GvrAudioSource m_wordSource;
+	 
 	GameObject m_laser = null;
 
 	GameObject laser {
@@ -43,6 +46,7 @@ public class NonVerbalActs : NetworkBehaviour
 	// Use this for initialization
 	void Awake () {
 		m_wordSource = GetComponent<GvrAudioSource> ();
+		m_highlight = GetComponent<Highlighter> ();
 	}
 
 	void Update () {
@@ -98,13 +102,17 @@ public class NonVerbalActs : NetworkBehaviour
 	}
 
 	public void OnPointerEnter (PointerEventData eventData) {
-		if (m_positioned)
-			LocalPlayer.singleton.CmdSetObjectHitState(netId,true);
+		if (m_positioned) {
+			LocalPlayer.singleton.CmdSetObjectHitState (netId, true);
+			m_highlight.ConstantOnImmediate ();
+		}
 	}
 
 	public void OnPointerExit(PointerEventData eventData){
-		if (m_positioned)
-			LocalPlayer.singleton.CmdSetObjectHitState(netId,false);
+		if (m_positioned) {
+			LocalPlayer.singleton.CmdSetObjectHitState (netId, false);
+			m_highlight.ConstantOffImmediate ();
+		}
 	}
 
 	public void OnPointerClick (PointerEventData eventData) {

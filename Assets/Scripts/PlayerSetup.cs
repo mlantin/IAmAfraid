@@ -2,8 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using HighlightingSystem;
 
 public class PlayerSetup : NetworkBehaviour {
+	private int upPort = 9575;
+	private int locPort = 9591;
+	private string playerOrigin = "PIXEL1";
+	private string playerOriginTwo = "PlayerTwo";
+	private DataPublisher publisher;
 
 	public GameObject m_InputManager;
 	public bool m_cycleCameras = true;
@@ -43,6 +49,8 @@ public class PlayerSetup : NetworkBehaviour {
 
 	public override void OnStartLocalPlayer() {
 
+//		publisher = new DataPublisher ("127.0.0.1", upPort, locPort);
+
 		// tag the local player so we can look for it later in other objects
 		gameObject.tag = "Player";
 
@@ -61,7 +69,11 @@ public class PlayerSetup : NetworkBehaviour {
 			gameObject.transform.position = new Vector3 (0, 3, -.5f);
 			gameObject.transform.Rotate (35, 0, 0);
 		}
-		// Add the audiolistener, GvrAudioListener, and GvrPointerPhysicsRaycaster scripts to this object
+		// Add the Highlighter, audiolistener, GvrAudioListener, and GvrPointerPhysicsRaycaster scripts to this object
+		HighlightingRenderer hlrender = playerCameraObj.AddComponent<HighlightingRenderer>();
+		bool result = hlrender.LoadPreset ("Speed");
+		if (result)
+			Debug.Log ("set it to Speed");
 		playerCameraObj.AddComponent<AudioListener>();
 		playerCameraObj.AddComponent<GvrAudioListener> ();
 		playerCameraObj.AddComponent<GvrPointerPhysicsRaycaster> ();
@@ -128,5 +140,10 @@ public class PlayerSetup : NetworkBehaviour {
 			}
 			camera.enabled = true;
 		}
+	}
+
+	void Update() {
+//		if (isLocalPlayer)
+//			publisher.relayData (playerOrigin);
 	}
 }

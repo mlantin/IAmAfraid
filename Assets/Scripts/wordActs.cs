@@ -132,6 +132,7 @@ public class wordActs : NetworkBehaviour
 	public void OnPointerClick (PointerEventData eventData) {
 		//get the coordinates of the trackpad so we know what kind of event we want to trigger
 		if (m_positioned && GvrController.TouchPos.y > .85f) {
+			separateLetters ();
 			LocalPlayer.singleton.CmdDestroyObject(netId);
 		} 
 	}
@@ -221,6 +222,23 @@ public class wordActs : NetworkBehaviour
 			m_wordSource.clip = SpeechToTextToAudio.singleton.mostRecentClip;
 		} else {
 			StartCoroutine(Webserver.singleton.GetAudioClip (clipfn, (newclip) => { m_wordSource.clip = newclip;}));
+		}
+	}
+
+	void separateLetters(){
+		// First add a Rigid Body component to the letters
+		GameObject letters = gameObject.transform.FindChild("Letters").gameObject;
+		BoxCollider collider;
+		Rigidbody rb;
+		Vector3 rbf = new Vector3 ();
+		foreach (Transform letter in letters.transform) {
+			rb = letter.gameObject.AddComponent<Rigidbody> ();
+			letter.gameObject.AddComponent<BoxCollider> ();
+			rbf.x = Random.Range (-.1f, .1f);
+			rbf.y = Random.Range (-1, 0);
+			rbf.z = Random.Range (-.1f, .1f);
+			rb.AddForce (rbf, ForceMode.VelocityChange);
+			letter.parent = letter.parent.parent.parent;
 		}
 	}
 }
