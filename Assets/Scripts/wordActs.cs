@@ -163,6 +163,7 @@ public class wordActs : NetworkBehaviour
 	}
 
 	void playWord(bool hit) {
+		wordHit = hit;
 		if (hit) {
 			m_wordSource.Play ();
 		}

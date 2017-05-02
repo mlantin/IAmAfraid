@@ -149,6 +149,7 @@ public class NonVerbalActs : NetworkBehaviour
 	}
 
 	void playSound(bool hit) {
+		objectHit = hit;
 		if (hit)
 			m_wordSource.Play();
 	}

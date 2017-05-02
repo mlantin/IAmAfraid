@@ -5,9 +5,6 @@ using UnityEngine.Networking;
 using HighlightingSystem;
 
 public class PlayerSetup : NetworkBehaviour {
-	private string playerOrigin = "PIXEL1";
-	private string playerOriginTwo = "PlayerTwo";
-
 	public GameObject m_InputManager;
 	public bool m_cycleCameras = true;
 
@@ -66,7 +63,7 @@ public class PlayerSetup : NetworkBehaviour {
 			gameObject.transform.Rotate (35, 0, 0);
 			HolojamClient holoscript = gameObject.GetComponent<HolojamClient> ();
 			holoscript.m_track = false;
-			DataPublisher.activateMocap (false);
+			//DataPublisher.activateMocap (false);
 		}
 		// Add the Highlighter, audiolistener, GvrAudioListener, and GvrPointerPhysicsRaycaster scripts to this object
 		HighlightingRenderer hlrender = playerCameraObj.AddComponent<HighlightingRenderer>();
