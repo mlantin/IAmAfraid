@@ -59,6 +59,15 @@
      <Compile Include="Assets\GoogleVR\Legacy\Editor\GvrMenu.cs" />
      <Compile Include="Assets\GoogleVR\Legacy\Editor\GvrViewerEditor.cs" />
      <Compile Include="Assets\GoogleVR\Legacy\Editor\StereoControllerEditor.cs" />
+     <Compile Include="Assets\Holojam\Demo\Scripts\Examples\Editor\ActorAvatarEditor.cs" />
+     <Compile Include="Assets\Holojam\Network\Editor\ClientEditor.cs" />
+     <Compile Include="Assets\Holojam\Network\Editor\NotifierEditor.cs" />
+     <Compile Include="Assets\Holojam\Network\Editor\PingEditor.cs" />
+     <Compile Include="Assets\Holojam\Network\Editor\ViewDrawer.cs" />
+     <Compile Include="Assets\Holojam\Tools\Editor\ActorEditor.cs" />
+     <Compile Include="Assets\Holojam\Tools\Editor\BuildManagerEditor.cs" />
+     <Compile Include="Assets\Holojam\Tools\Editor\ConfigurationEditor.cs" />
+     <Compile Include="Assets\Holojam\Utility\Editor\HolojamUnityEditor.cs" />
      <Compile Include="Assets\Watson\Scripts\Editor\Build.cs" />
      <Compile Include="Assets\Watson\Scripts\Editor\ConfigEditor.cs" />
      <Compile Include="Assets\Watson\Scripts\Editor\DrawerHelper.cs" />
@@ -94,6 +103,7 @@
      <None Include="Assets\Watson\ThirdParty\TouchScript\Shaders\DebugDepthTest.shader" />
      <None Include="Assets\GoogleVR\Distortion\GvrDistortion.cginc" />
      <None Include="Assets\Plugins\Android\proguard-gvr.txt" />
+     <None Include="Assets\Holojam\SampleConfig.xml" />
      <None Include="Assets\GoogleVR\Demos\Shaders\VideoDemo\VideoDemoInsideShader.shader" />
      <None Include="Assets\GoogleVR\Shaders\GvrUIOverlayFont.shader" />
      <None Include="Assets\GoogleVR\Legacy\Resources\UnlitTexture.shader" />
@@ -182,6 +192,12 @@
  </Reference>
  <Reference Include="UnityEditor.OSXStandalone.Extensions">
  <HintPath>/Applications/Unity/Unity.app/Contents/PlaybackEngines/macstandalonesupport/UnityEditor.OSXStandalone.Extensions.dll</HintPath>
+ </Reference>
+ <Reference Include="Holojam-Core">
+ <HintPath>/Users/mlantin/Documents/Research/VR/Unity/daydream/IAmAfraid/Assets/Holojam/Holojam-Core.dll</HintPath>
+ </Reference>
+ <Reference Include="FlatBuffers">
+ <HintPath>/Users/mlantin/Documents/Research/VR/Unity/daydream/IAmAfraid/Assets/Holojam/Plugins/FlatBuffers.dll</HintPath>
  </Reference>
  <Reference Include="Google.ProtocolBuffers">
  <HintPath>/Users/mlantin/Documents/Research/VR/Unity/daydream/IAmAfraid/Assets/Plugins/Google.ProtocolBuffers.dll</HintPath>

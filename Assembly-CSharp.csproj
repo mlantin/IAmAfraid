@@ -139,6 +139,27 @@
      <Compile Include="Assets\GoogleVR\Scripts\Utilities\GvrIntent.cs" />
      <Compile Include="Assets\GoogleVR\Scripts\Utilities\GvrUIHelpers.cs" />
      <Compile Include="Assets\GoogleVR\Scripts\Video\GvrVideoPlayerTexture.cs" />
+     <Compile Include="Assets\Holojam\Demo\Scripts\Examples\ActorAvatar.cs" />
+     <Compile Include="Assets\Holojam\Demo\Scripts\Examples\Spectator.cs" />
+     <Compile Include="Assets\Holojam\Demo\Scripts\Examples\SynchronizableComponent.cs" />
+     <Compile Include="Assets\Holojam\Demo\Scripts\Examples\Templates\ControllerTemplate.cs" />
+     <Compile Include="Assets\Holojam\Demo\Scripts\Examples\Templates\SynchronizableTemplate.cs" />
+     <Compile Include="Assets\Holojam\Demo\Scripts\Examples\TrackableComponent.cs" />
+     <Compile Include="Assets\Holojam\Demo\Scripts\Rainbow.cs" />
+     <Compile Include="Assets\Holojam\Network\EventIO.cs" />
+     <Compile Include="Assets\Holojam\Network\EventInput.cs" />
+     <Compile Include="Assets\Holojam\Network\EventListener.cs" />
+     <Compile Include="Assets\Holojam\Network\EventPusher.cs" />
+     <Compile Include="Assets\Holojam\Network\IEvent.cs" />
+     <Compile Include="Assets\Holojam\Network\Ping.cs" />
+     <Compile Include="Assets\Holojam\Tools\ActorTransformRelay.cs" />
+     <Compile Include="Assets\Holojam\Tools\Configuration.cs" />
+     <Compile Include="Assets\Holojam\Tools\FlakeDebugger.cs" />
+     <Compile Include="Assets\Holojam\Tools\InfoPanel.cs" />
+     <Compile Include="Assets\Holojam\Tools\Relay.cs" />
+     <Compile Include="Assets\Holojam\Tools\Synchronizable.cs" />
+     <Compile Include="Assets\Holojam\Tools\SynchronizableTrackable.cs" />
+     <Compile Include="Assets\Holojam\Utility\HolojamUnity.cs" />
      <Compile Include="Assets\Scripts\AuthorityManager.cs" />
      <Compile Include="Assets\Scripts\DataPublisher.cs" />
      <Compile Include="Assets\Scripts\FlatBuffers\ByteBuffer.cs" />
@@ -166,6 +187,7 @@
      <Compile Include="Assets\Scripts\PlayerSetup.cs" />
      <Compile Include="Assets\Scripts\ReticleManager.cs" />
      <Compile Include="Assets\Scripts\SpeechToTextToAudio.cs" />
+     <Compile Include="Assets\Scripts\ViconTrackable.cs" />
      <Compile Include="Assets\Scripts\Webserver.cs" />
      <Compile Include="Assets\Scripts\WordInfo.cs" />
      <Compile Include="Assets\Scripts\flatTest.cs" />
@@ -496,6 +518,7 @@
      <None Include="Assets\Watson\ThirdParty\TouchScript\Shaders\DebugDepthTest.shader" />
      <None Include="Assets\GoogleVR\Distortion\GvrDistortion.cginc" />
      <None Include="Assets\Plugins\Android\proguard-gvr.txt" />
+     <None Include="Assets\Holojam\SampleConfig.xml" />
      <None Include="Assets\GoogleVR\Demos\Shaders\VideoDemo\VideoDemoInsideShader.shader" />
      <None Include="Assets\GoogleVR\Shaders\GvrUIOverlayFont.shader" />
      <None Include="Assets\GoogleVR\Legacy\Resources\UnlitTexture.shader" />
@@ -548,6 +571,12 @@
  </Reference>
  <Reference Include="UnityEngine.VR">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll</HintPath>
+ </Reference>
+ <Reference Include="Holojam-Core">
+ <HintPath>/Users/mlantin/Documents/Research/VR/Unity/daydream/IAmAfraid/Assets/Holojam/Holojam-Core.dll</HintPath>
+ </Reference>
+ <Reference Include="FlatBuffers">
+ <HintPath>/Users/mlantin/Documents/Research/VR/Unity/daydream/IAmAfraid/Assets/Holojam/Plugins/FlatBuffers.dll</HintPath>
  </Reference>
  <Reference Include="Google.ProtocolBuffers">
  <HintPath>/Users/mlantin/Documents/Research/VR/Unity/daydream/IAmAfraid/Assets/Plugins/Google.ProtocolBuffers.dll</HintPath>
