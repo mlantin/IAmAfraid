@@ -132,7 +132,8 @@ public class wordActs : NetworkBehaviour
 	public void OnPointerClick (PointerEventData eventData) {
 		//get the coordinates of the trackpad so we know what kind of event we want to trigger
 		if (m_positioned && GvrController.TouchPos.y > .85f) {
-			separateLetters ();
+			//LocalPlayer.singleton.CmdSeparateLetters (netId);
+
 			LocalPlayer.singleton.CmdDestroyObject(netId);
 		} 
 	}
@@ -150,6 +151,7 @@ public class wordActs : NetworkBehaviour
 	#endif
 
 	public override void OnNetworkDestroy() {
+		separateLetters ();
 		Debug.Log ("EXTERMINATE!");
 		if (isServer) {
 			Debug.Log ("Exterminating");
@@ -226,20 +228,28 @@ public class wordActs : NetworkBehaviour
 		}
 	}
 
-	void separateLetters(){
+	public void separateLetters(){
+		Debug.Log ("Separating letters");
 		// First add a Rigid Body component to the letters
 		GameObject letters = gameObject.transform.FindChild("Letters").gameObject;
 		BoxCollider collider;
 		Rigidbody rb;
+		PhysicMaterial letterbounce = new PhysicMaterial ();
+		letterbounce.bounciness = .5f;
 		Vector3 rbf = new Vector3 ();
 		foreach (Transform letter in letters.transform) {
 			rb = letter.gameObject.AddComponent<Rigidbody> ();
-			letter.gameObject.AddComponent<BoxCollider> ();
-			rbf.x = Random.Range (-.1f, .1f);
-			rbf.y = Random.Range (-1, 0);
-			rbf.z = Random.Range (-.1f, .1f);
+			collider = letter.gameObject.AddComponent<BoxCollider> ();
+			collider.material = letterbounce;
+			rbf.x = Random.Range (-.3f, .3f);
+			rbf.y = Random.Range (-3, 3);
+			rbf.z = Random.Range (-.3f, .3f);
 			rb.AddForce (rbf, ForceMode.VelocityChange);
-			letter.parent = letter.parent.parent.parent;
+			TimedDestroy timerscript = letter.gameObject.AddComponent<TimedDestroy> ();
+			timerscript.m_destroyTime = Random.Range (8f, 12f);
+			timerscript.m_shrinkTime = 1f;
+			//letter.parent = letter.parent.parent.parent;
 		}
+		letters.transform.DetachChildren ();
 	}
 }

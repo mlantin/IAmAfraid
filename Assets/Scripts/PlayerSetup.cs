@@ -61,9 +61,6 @@ public class PlayerSetup : NetworkBehaviour {
 //			gameObject.transform.position = new Vector3 (0, 1.6f, 0);
 			gameObject.transform.position = new Vector3 (0, 3, -.5f);
 			gameObject.transform.Rotate (35, 0, 0);
-			HolojamClient holoscript = gameObject.GetComponent<HolojamClient> ();
-			holoscript.m_track = false;
-			//DataPublisher.activateMocap (false);
 		}
 		// Add the Highlighter, audiolistener, GvrAudioListener, and GvrPointerPhysicsRaycaster scripts to this object
 		HighlightingRenderer hlrender = playerCameraObj.AddComponent<HighlightingRenderer>();

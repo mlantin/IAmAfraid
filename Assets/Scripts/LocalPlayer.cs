@@ -87,6 +87,16 @@ public class LocalPlayer : NetworkBehaviour {
 			netid.RemoveClientAuthority (connectionToClient);
 	}
 
+//	[Command]
+//	public void CmdSeparateLetters(NetworkInstanceId objid) {
+//		NetworkIdentity netid = NetworkServer.objects [objid];
+//		GameObject obj = netid.gameObject;
+//		wordActs acts = obj.GetComponent<wordActs> ();
+//		Debug.Log ("I'm going to separate letters now");
+//		acts.RpcSeparateLetters ();
+//		NetworkServer.Destroy (NetworkServer.objects [objid].gameObject);
+//	}
+
 	[Command]
 	public void CmdSetWatsonRotateCube(NetworkInstanceId objid, bool state) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;

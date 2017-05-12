@@ -187,6 +187,7 @@
      <Compile Include="Assets\Scripts\PlayerSetup.cs" />
      <Compile Include="Assets\Scripts\ReticleManager.cs" />
      <Compile Include="Assets\Scripts\SpeechToTextToAudio.cs" />
+     <Compile Include="Assets\Scripts\TimedDestroy.cs" />
      <Compile Include="Assets\Scripts\ViconTrackable.cs" />
      <Compile Include="Assets\Scripts\Webserver.cs" />
      <Compile Include="Assets\Scripts\WordInfo.cs" />

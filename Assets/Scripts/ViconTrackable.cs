@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class ViconTrackable : Holojam.Tools.Trackable {
 
+	Vector3 viconPos = new Vector3 ();
+	Quaternion viconRot = new Quaternion();
+
 	// As an example, expose all the Trackable properties in the inspector.
 	// In practice, you probably want to control some or all of these manually in code.
 
@@ -22,10 +25,14 @@ public class ViconTrackable : Holojam.Tools.Trackable {
 	public override string Scope { get { return scope; } }
 
 	protected override void UpdateTracking() {
-		Quaternion rot = RawRotation;
-		rot.Set (rot.x, rot.y, -rot.z, -rot.z);
-		RawRotation = rot;
-		base.UpdateTracking ();
+		if (UpdatedThisFrame) {
+			viconPos = TrackedPosition;
+			viconRot = TrackedRotation;
+			viconPos.Set (viconPos.x, viconPos.y, -viconPos.z);
+			viconRot.Set (viconRot.x, viconRot.y, -viconRot.z, -viconRot.w);
+			transform.position = viconPos;
+			transform.rotation = viconRot;
+		}
 	}
 
 
