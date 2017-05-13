@@ -57,6 +57,7 @@ public class LocalPlayer : NetworkBehaviour {
 			destroyscript.RpcActivate ();
 	}
 
+	// Non Verbal activities
 	[Command]
 	public void CmdSetObjectPositioned(NetworkInstanceId objid, bool state) {
 		NetworkIdentity netid = NetworkServer.objects [objid];
@@ -81,6 +82,14 @@ public class LocalPlayer : NetworkBehaviour {
 	}
 
 	[Command]
+	public void CmdToggleObjectLoopingState(NetworkInstanceId objid) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		NonVerbalActs acts = obj.GetComponent<NonVerbalActs> ();
+		acts.toggleLooping ();
+	}
+
+	// Word activities
+	[Command]
 	public void CmdSetWordHitState(NetworkInstanceId objid, bool state) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
 		wordActs acts = obj.GetComponent<wordActs> ();
@@ -97,6 +106,13 @@ public class LocalPlayer : NetworkBehaviour {
 			netid.AssignClientAuthority (connectionToClient);
 		else
 			netid.RemoveClientAuthority (connectionToClient);
+	}
+
+	[Command]
+	public void CmdToggleWordLoopingState(NetworkInstanceId objid) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		wordActs acts = obj.GetComponent<wordActs> ();
+		acts.toggleLooping ();
 	}
 
 //	[Command]

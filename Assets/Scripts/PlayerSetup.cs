@@ -36,9 +36,13 @@ public class PlayerSetup : NetworkBehaviour {
 	}
 
 	public override void OnStartServer() {
-		GameObject playercameraObj = gameObject.transform.FindChild ("PlayerCamera").gameObject;
-		Camera playercamera = playercameraObj.GetComponent<Camera>();
+		GameObject playerCameraObj = gameObject.transform.FindChild ("PlayerCamera").gameObject;
+		Camera playercamera = playerCameraObj.GetComponent<Camera>();
 		m_playerCameras.Add (playercamera);
+
+		// add the highlighter
+		HighlightingRenderer hlrender = playerCameraObj.AddComponent<HighlightingRenderer>();
+		hlrender.LoadPreset ("Speed");
 	}
 
 	public override void OnStartLocalPlayer() {
@@ -63,10 +67,11 @@ public class PlayerSetup : NetworkBehaviour {
 			gameObject.transform.Rotate (35, 0, 0);
 		}
 		// Add the Highlighter, audiolistener, GvrAudioListener, and GvrPointerPhysicsRaycaster scripts to this object
-		HighlightingRenderer hlrender = playerCameraObj.AddComponent<HighlightingRenderer>();
-		bool result = hlrender.LoadPreset ("Speed");
-		if (result)
-			Debug.Log ("set it to Speed");
+		if (!isServer) {
+			HighlightingRenderer hlrender = playerCameraObj.AddComponent<HighlightingRenderer> ();
+			hlrender.LoadPreset ("Speed");
+		}
+
 		playerCameraObj.AddComponent<AudioListener>();
 		playerCameraObj.AddComponent<GvrAudioListener> ();
 		playerCameraObj.AddComponent<GvrPointerPhysicsRaycaster> ();

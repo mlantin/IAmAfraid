@@ -41,8 +41,9 @@ public class TimedDestroy : NetworkBehaviour {
 				else if (!m_networked)
 					Destroy (gameObject);
 			} else {
-				float pct = currentLerpTime / m_shrinkTime;
-				transform.localScale = Vector3.Lerp (startingScale, targetScale, pct);
+				float t = currentLerpTime / m_shrinkTime;
+				t = t * t * (3f - 2f * t);
+				transform.localScale = Vector3.Lerp (startingScale, targetScale, t);
 			}
 		}
 	}

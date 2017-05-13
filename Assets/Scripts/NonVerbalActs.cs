@@ -39,14 +39,18 @@ public class NonVerbalActs : NetworkBehaviour
 	// audio clip deletion.
 	public bool m_preloaded = false;
 	[SyncVar (hook ="playSound")]
-	bool objectHit = false;
+	private bool objectHit = false;
 	[SyncVar]
 	public bool m_positioned = false;
+	[SyncVar (hook = "setLooping")]
+	private bool m_looping = false;
 
 	// Use this for initialization
 	void Awake () {
 		m_wordSource = GetComponent<GvrAudioSource> ();
 		m_highlight = GetComponent<Highlighter> ();
+		Color col = new Color (204, 102, 255); // a purple
+		m_highlight.ConstantParams (col);
 	}
 
 	void Update () {
@@ -104,22 +108,24 @@ public class NonVerbalActs : NetworkBehaviour
 	public void OnPointerEnter (PointerEventData eventData) {
 		if (m_positioned) {
 			LocalPlayer.singleton.CmdSetObjectHitState (netId, true);
-			m_highlight.ConstantOnImmediate ();
 		}
 	}
 
 	public void OnPointerExit(PointerEventData eventData){
 		if (m_positioned) {
 			LocalPlayer.singleton.CmdSetObjectHitState (netId, false);
-			m_highlight.ConstantOffImmediate ();
 		}
 	}
 
 	public void OnPointerClick (PointerEventData eventData) {
+		if (!m_positioned)
+			return;
 		//get the coordinates of the trackpad so we know what kind of event we want to trigger
-		if (m_positioned && GvrController.TouchPos.y > .85f) {
+		if (GvrController.TouchPos.y > .85f) {
 			LocalPlayer.singleton.CmdActivateTimedDestroy (netId);
-		} 
+		} else if (GvrController.TouchPos.x > .85f) {
+			LocalPlayer.singleton.CmdToggleObjectLoopingState (netId);
+		}
 	}
 		
 	public override void OnNetworkDestroy() {
@@ -148,9 +154,14 @@ public class NonVerbalActs : NetworkBehaviour
 		objectHit = state;
 	}
 
+	// This is only called from the LocalPlayer proxy server command
+	public void toggleLooping() {
+		m_looping = !m_looping;
+	}
+
 	void playSound(bool hit) {
 		objectHit = hit;
-		if (hit)
+		if (hit && !m_looping)
 			m_wordSource.Play();
 	}
 
@@ -181,6 +192,17 @@ public class NonVerbalActs : NetworkBehaviour
 		Vector3 maxvert;
 		maxvert = mesh.bounds.max;
 		col.radius = Mathf.Max(Mathf.Max(maxvert.x,maxvert.y),maxvert.z)+ .02f;
+	}
+
+	void setLooping(bool val) {
+		m_looping = val;
+		m_wordSource.loop = m_looping;
+
+		if (m_looping) {
+			m_highlight.ConstantOnImmediate ();
+		} else {
+			m_highlight.ConstantOffImmediate ();
+		}
 	}
 }
 	
