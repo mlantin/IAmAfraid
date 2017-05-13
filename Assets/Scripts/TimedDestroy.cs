@@ -1,11 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Networking;
 using UnityEngine;
 
-public class TimedDestroy : MonoBehaviour {
+public class TimedDestroy : NetworkBehaviour {
 
 	public float m_destroyTime = 120f;
-	public float m_shrinkTime = 5f;
+	public float m_shrinkTime = .3f;
+	// Set this is the destroy will happen on the server
+	public bool m_networked = false;
 
 	bool shrink = false;
 	float currentLerpTime = 0;
@@ -14,16 +17,29 @@ public class TimedDestroy : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		startingScale = transform.localScale;
+	}
+
+	public void activate() {
 		StartCoroutine (delayDestroy ());
 	}
-	
+
+	[ClientRpc]
+	public void RpcActivate(){
+		StartCoroutine (delayDestroy ());
+	}
+
 	// Update is called once per frame
 	void Update () {
 		if (shrink) {
 			bool destroy = false;
 			currentLerpTime += Time.deltaTime;
 			if (currentLerpTime > m_shrinkTime) {
-				Destroy (this.gameObject);
+				if (m_networked && isServer) {
+					Debug.Log ("On the server and destroying");
+					LocalPlayer.singleton.CmdDestroyObject (netId);
+				}
+				else if (!m_networked)
+					Destroy (gameObject);
 			} else {
 				float pct = currentLerpTime / m_shrinkTime;
 				transform.localScale = Vector3.Lerp (startingScale, targetScale, pct);
@@ -34,8 +50,6 @@ public class TimedDestroy : MonoBehaviour {
 	IEnumerator delayDestroy() {
 		yield return new WaitForSeconds(m_destroyTime);
 		shrink = true;
-		BoxCollider collider = gameObject.GetComponent<BoxCollider> ();
-		collider.attachedRigidbody.constraints = RigidbodyConstraints.FreezeAll;
 	}
 
 }

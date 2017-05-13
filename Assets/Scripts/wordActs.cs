@@ -235,7 +235,7 @@ public class wordActs : NetworkBehaviour
 		BoxCollider collider;
 		Rigidbody rb;
 		PhysicMaterial letterbounce = new PhysicMaterial ();
-		letterbounce.bounciness = .5f;
+		letterbounce.bounciness = .7f;
 		Vector3 rbf = new Vector3 ();
 		foreach (Transform letter in letters.transform) {
 			rb = letter.gameObject.AddComponent<Rigidbody> ();
@@ -247,7 +247,7 @@ public class wordActs : NetworkBehaviour
 			rb.AddForce (rbf, ForceMode.VelocityChange);
 			TimedDestroy timerscript = letter.gameObject.AddComponent<TimedDestroy> ();
 			timerscript.m_destroyTime = Random.Range (8f, 12f);
-			timerscript.m_shrinkTime = 1f;
+			timerscript.activate ();
 			//letter.parent = letter.parent.parent.parent;
 		}
 		letters.transform.DetachChildren ();

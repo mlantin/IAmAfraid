@@ -49,6 +49,15 @@ public class LocalPlayer : NetworkBehaviour {
 	}
 
 	[Command]
+	public void CmdActivateTimedDestroy(NetworkInstanceId objid) {
+		NetworkIdentity netid = NetworkServer.objects [objid];
+		GameObject obj = netid.gameObject;
+		TimedDestroy destroyscript = obj.GetComponent<TimedDestroy> ();
+		if (destroyscript)
+			destroyscript.RpcActivate ();
+	}
+
+	[Command]
 	public void CmdSetObjectPositioned(NetworkInstanceId objid, bool state) {
 		NetworkIdentity netid = NetworkServer.objects [objid];
 		GameObject obj = netid.gameObject;
@@ -63,9 +72,12 @@ public class LocalPlayer : NetworkBehaviour {
 
 	[Command]
 	public void CmdSetObjectHitState(NetworkInstanceId objid, bool state){
-		GameObject obj = NetworkServer.objects [objid].gameObject;
-		NonVerbalActs acts = obj.GetComponent<NonVerbalActs> ();
-		acts.setHit (state);
+		try {
+			GameObject obj = NetworkServer.objects [objid].gameObject;
+			NonVerbalActs acts = obj.GetComponent<NonVerbalActs> ();
+			acts.setHit (state);
+		} catch (KeyNotFoundException e){
+		}
 	}
 
 	[Command]

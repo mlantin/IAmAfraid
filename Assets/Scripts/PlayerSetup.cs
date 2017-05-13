@@ -100,7 +100,7 @@ public class PlayerSetup : NetworkBehaviour {
 				StartCoroutine (cycleThroughCameras());
 		}
 	}
-
+		
 	public override void OnNetworkDestroy() {
 		if (isServer) {
 			Camera playerCamera = gameObject.transform.FindChild ("PlayerCamera").gameObject.GetComponent<Camera> ();
