@@ -7,7 +7,9 @@ public class NonVerbalSequencer : NetworkBehaviour {
 	
 	// this will alternate between looping and not looping, starting with looping.
 	// So the first value in the list is the amount of seconds to wait until the sound loop is turned off
-	List<float> times = new List<float>();
+	// There is a local list of times and a list that will be synced to the server. This is so the list only
+	// gets sent once to the server once the drawing is done.
+	List<float> times = new List<float> ();
 	float currentTime = 0;
 	int nextTime;
 	float timeAtLastAdd;
@@ -32,14 +34,25 @@ public class NonVerbalSequencer : NetworkBehaviour {
 	public void stopSequencer() {
 		active = false;
 		playstate = false;
-		LocalPlayer.singleton.CmdSetObjectHitState (netId, playstate);
 	}
-
+		
 	public void startNewSequence() {
 		stopSequencer ();
 		times.Clear ();
 		currentTime = 0;
 		timeAtLastAdd = Time.unscaledTime;
+	}
+
+	public void endSequence() {
+		if (!isServer)
+			LocalPlayer.singleton.CmdSetObjectSequenceTimes (netId, times.ToArray ());
+	}
+		
+	public void syncTimes(float[] ts) {
+		times.Clear ();
+		for (int i = 0; i < ts.Length; i++) {
+			times.Add (ts [i]);
+		}
 	}
 
 	public void addTime() {
@@ -50,7 +63,7 @@ public class NonVerbalSequencer : NetworkBehaviour {
 	}
 
 	public void FixedUpdate() {
-		if (!active || times.Count <= 1)
+		if (!isServer || !active || times.Count <= 1)
 			return;
 		currentTime += Time.fixedUnscaledDeltaTime;
 		if (currentTime > times [nextTime]) {
@@ -64,6 +77,5 @@ public class NonVerbalSequencer : NetworkBehaviour {
 				LocalPlayer.singleton.CmdSetObjectHitState (netId, playstate);
 			}
 		}
-
 	}
 }

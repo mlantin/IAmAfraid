@@ -93,14 +93,22 @@ public class NonVerbalActs : NetworkBehaviour
 				if (!m_presshold && m_presstime > m_holdtime) {
 					m_presshold = true;
 					if (GvrController.TouchPos.x > .85f) {
+						if (m_looping)
+							LocalPlayer.singleton.CmdToggleObjectLoopingState(netId);
 						LocalPlayer.singleton.CmdSetObjectDrawingSequence(netId,true);
+						LocalPlayer.singleton.CmdSetObjectHitState (netId, false);
+						LocalPlayer.singleton.CmdSetObjectHitState (netId, true);
 						m_sequencer.startNewSequence();
 					}
 				}
 			} else if (GvrController.ClickButtonUp) {
 				if (GvrController.TouchPos.x > .85f) {
 					if (m_drawingSequence) {
+						m_sequencer.addTime();
+						m_sequencer.endSequence();
 						LocalPlayer.singleton.CmdSetObjectDrawingSequence(netId,false);
+						if (!m_looping)
+							LocalPlayer.singleton.CmdToggleObjectLoopingState(netId);
 					} else if (m_target) {
 						LocalPlayer.singleton.CmdToggleObjectLoopingState (netId);
 						Debug.Log("Toggle sequencer");
@@ -146,7 +154,8 @@ public class NonVerbalActs : NetworkBehaviour
 	public void OnPointerEnter (PointerEventData eventData) {
 		if (m_positioned) {
 			m_target = true;
-			LocalPlayer.singleton.CmdSetObjectHitState (netId, true);
+			if (!m_looping)
+				LocalPlayer.singleton.CmdSetObjectHitState (netId, true);
 			if (m_drawingSequence) {
 				m_sequencer.addTime ();
 				Debug.Log ("Add a point to the sequence");
@@ -157,7 +166,8 @@ public class NonVerbalActs : NetworkBehaviour
 	public void OnPointerExit(PointerEventData eventData){
 		if (m_positioned) {
 			m_target = false;
-			LocalPlayer.singleton.CmdSetObjectHitState (netId, false);
+			if (!m_looping)
+				LocalPlayer.singleton.CmdSetObjectHitState (netId, false);
 			if (m_drawingSequence) {
 				m_sequencer.addTime ();
 				Debug.Log ("Add a point to the sequence");
@@ -207,11 +217,7 @@ public class NonVerbalActs : NetworkBehaviour
 
 	// This is only called from the LocalPlayer proxy server command
 	public void setDrawingSequence(bool val) {
-		if (m_drawingSequence != val) {
-			m_drawingSequence = val;
-			if (!m_drawingSequence)
-				m_looping = true;
-		}
+		m_drawingSequence = val;
 	}
 
 	void playSound(bool hit) {
@@ -260,11 +266,13 @@ public class NonVerbalActs : NetworkBehaviour
 		if (m_looping) {
 //			m_wordSource.Play ();
 			m_highlight.ConstantOnImmediate ();
-			m_sequencer.startSequencer ();
+//			m_sequencer.startSequencer ();
+			LocalPlayer.singleton.CmdObjectStartSequencer(netId);
 		} else {
 //			m_wordSource.Stop ();
 			m_highlight.ConstantOffImmediate ();
-			m_sequencer.stopSequencer ();
+//			m_sequencer.stopSequencer ();
+			LocalPlayer.singleton.CmdObjectStopSequencer(netId);
 		}
 	}
 

@@ -99,6 +99,27 @@ public class LocalPlayer : NetworkBehaviour {
 		acts.setDrawingSequence (val);
 	}
 
+	[Command]
+	public void CmdSetObjectSequenceTimes(NetworkInstanceId objid, float[] ts) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		NonVerbalSequencer seq = obj.GetComponent<NonVerbalSequencer> ();
+		seq.syncTimes (ts);
+	}
+
+	[Command]
+	public void CmdObjectStartSequencer(NetworkInstanceId objid) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		NonVerbalSequencer seq = obj.GetComponent<NonVerbalSequencer> ();
+		seq.startSequencer ();
+	}
+
+	[Command]
+	public void CmdObjectStopSequencer(NetworkInstanceId objid) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		NonVerbalSequencer seq = obj.GetComponent<NonVerbalSequencer> ();
+		seq.stopSequencer ();
+	}
+
 	// Word activities
 	[Command]
 	public void CmdSetWordHitState(NetworkInstanceId objid, bool state) {
