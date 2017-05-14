@@ -184,6 +184,7 @@
      <Compile Include="Assets\Scripts\NetworkSetup.cs" />
      <Compile Include="Assets\Scripts\NonVerbalActs.cs" />
      <Compile Include="Assets\Scripts\NonVerbalRecord.cs" />
+     <Compile Include="Assets\Scripts\NonVerbalSequencer.cs" />
      <Compile Include="Assets\Scripts\PlayerSetup.cs" />
      <Compile Include="Assets\Scripts\ReticleManager.cs" />
      <Compile Include="Assets\Scripts\SpeechToTextToAudio.cs" />

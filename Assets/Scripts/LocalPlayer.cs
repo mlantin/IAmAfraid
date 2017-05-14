@@ -9,6 +9,10 @@ public class LocalPlayer : NetworkBehaviour {
 	static private AuthorityManager m_manager = null;
 	static public LocalPlayer singleton;
 
+	// other actions can't take place while we're drawing a sequence on any of the objects or words
+	public bool m_drawingsequence = false;
+
+
 	public override void OnStartLocalPlayer() {
 		singleton = this;
 		m_playerObject = gameObject;

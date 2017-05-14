@@ -11,14 +11,16 @@ public class NonVerbalActs : NetworkBehaviour
 , IGvrPointerHoverHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IPointerDownHandler
 #endif
 {
+	
+	bool m_drawingSequence = false;
 
 	[SyncVar]
 	public string m_serverFileName = "";
 	public Text m_DebugText;
-	private Highlighter m_highlight;
+	Highlighter m_highlight;
 
-	private float m_distanceFromPointer = 1.0f;
-	private GvrAudioSource m_wordSource;
+	float m_distanceFromPointer = 1.0f;
+	GvrAudioSource m_wordSource;
 	 
 	GameObject m_laser = null;
 
@@ -30,8 +32,8 @@ public class NonVerbalActs : NetworkBehaviour
 		}
 	}
 
-	private Quaternion m_rotq;
-	private bool m_moving = false;
+	Quaternion m_rotq;
+	bool m_moving = false;
 
 	// This indicates that the word was preloaded. It's not a SyncVar
 	// so it's only valid on the server which is ok because only
@@ -43,11 +45,13 @@ public class NonVerbalActs : NetworkBehaviour
 	[SyncVar]
 	public bool m_positioned = false;
 	[SyncVar (hook = "setLooping")]
-	private bool m_looping = false;
+	bool m_looping = false;
+
 
 	// Use this for initialization
 	void Awake () {
 		m_wordSource = GetComponent<GvrAudioSource> ();
+		m_wordSource.loop = true;
 		m_highlight = GetComponent<Highlighter> ();
 		Color col = new Color (204, 102, 255); // a purple
 		m_highlight.ConstantParams (col);
@@ -161,8 +165,13 @@ public class NonVerbalActs : NetworkBehaviour
 
 	void playSound(bool hit) {
 		objectHit = hit;
-		if (hit && !m_looping)
-			m_wordSource.Play();
+		if (m_looping)
+			return;
+		if (hit) {
+			m_wordSource.Play ();
+		} else {
+			m_wordSource.Stop ();
+		}
 	}
 
 	void fetchAudio(string filename) {
@@ -194,15 +203,17 @@ public class NonVerbalActs : NetworkBehaviour
 		col.radius = Mathf.Max(Mathf.Max(maxvert.x,maxvert.y),maxvert.z)+ .02f;
 	}
 
-	void setLooping(bool val) {
+	public void setLooping(bool val) {
 		m_looping = val;
-		m_wordSource.loop = m_looping;
 
 		if (m_looping) {
+			m_wordSource.Play ();
 			m_highlight.ConstantOnImmediate ();
 		} else {
+			m_wordSource.Stop ();
 			m_highlight.ConstantOffImmediate ();
 		}
 	}
 }
+
 	
