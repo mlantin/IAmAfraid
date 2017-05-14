@@ -11,13 +11,18 @@ public class NonVerbalActs : NetworkBehaviour
 , IGvrPointerHoverHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IPointerDownHandler
 #endif
 {
-	
-	bool m_drawingSequence = false;
+
+	// This is to set a timer when a person clicks. If we linger long enough 
+	// we call it a press&hold.
+	float m_presstime = 0;
+	bool m_presshold = true;
+	const float m_holdtime = .5f; // seconds until we call it a press&hold.
 
 	[SyncVar]
 	public string m_serverFileName = "";
 	public Text m_DebugText;
 	Highlighter m_highlight;
+	NonVerbalSequencer m_sequencer;
 
 	float m_distanceFromPointer = 1.0f;
 	GvrAudioSource m_wordSource;
@@ -34,6 +39,7 @@ public class NonVerbalActs : NetworkBehaviour
 
 	Quaternion m_rotq;
 	bool m_moving = false;
+	bool m_target = false; // Whether the reticle is on this object
 
 	// This indicates that the word was preloaded. It's not a SyncVar
 	// so it's only valid on the server which is ok because only
@@ -46,7 +52,8 @@ public class NonVerbalActs : NetworkBehaviour
 	public bool m_positioned = false;
 	[SyncVar (hook = "setLooping")]
 	bool m_looping = false;
-
+	[SyncVar (hook = "setDrawing")]
+	bool m_drawingSequence = false;
 
 	// Use this for initialization
 	void Awake () {
@@ -55,13 +62,15 @@ public class NonVerbalActs : NetworkBehaviour
 		m_highlight = GetComponent<Highlighter> ();
 		Color col = new Color (204, 102, 255); // a purple
 		m_highlight.ConstantParams (col);
+
+		m_sequencer = GetComponent<NonVerbalSequencer> ();
 	}
 
 	void Update () {
 		if (isServer)
 			return;
 		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-		if (isClient && ((!m_positioned && hasAuthority) || (m_moving))) {
+		if ((!m_positioned && hasAuthority) || (m_moving)) {
 			if (!m_moving) {
 				transform.position = laser.transform.position + laser.transform.forward;
 			} else {
@@ -75,7 +84,32 @@ public class NonVerbalActs : NetworkBehaviour
 				m_moving = false;
 				LocalPlayer.singleton.CmdSetObjectPositioned(netId,true);
 			}
+		} else if (m_positioned && !m_moving) {
+			if (m_target && GvrController.ClickButtonDown) {
+				m_presstime = 0;
+				m_presshold = false;
+			} else if (m_target && GvrController.ClickButton) {
+				m_presstime += Time.deltaTime;
+				if (!m_presshold && m_presstime > m_holdtime) {
+					m_presshold = true;
+					if (GvrController.TouchPos.x > .85f) {
+						LocalPlayer.singleton.CmdSetObjectDrawingSequence(netId,true);
+						m_sequencer.startNewSequence();
+					}
+				}
+			} else if (GvrController.ClickButtonUp) {
+				if (GvrController.TouchPos.x > .85f) {
+					if (m_drawingSequence) {
+						LocalPlayer.singleton.CmdSetObjectDrawingSequence(netId,false);
+					} else if (m_target) {
+						LocalPlayer.singleton.CmdToggleObjectLoopingState (netId);
+						Debug.Log("Toggle sequencer");
+					}
+				}
+				m_presshold = false;
+			}
 		}
+
 		#endif
 	}
 
@@ -111,13 +145,23 @@ public class NonVerbalActs : NetworkBehaviour
 
 	public void OnPointerEnter (PointerEventData eventData) {
 		if (m_positioned) {
+			m_target = true;
 			LocalPlayer.singleton.CmdSetObjectHitState (netId, true);
+			if (m_drawingSequence) {
+				m_sequencer.addTime ();
+				Debug.Log ("Add a point to the sequence");
+			}
 		}
 	}
 
 	public void OnPointerExit(PointerEventData eventData){
 		if (m_positioned) {
+			m_target = false;
 			LocalPlayer.singleton.CmdSetObjectHitState (netId, false);
+			if (m_drawingSequence) {
+				m_sequencer.addTime ();
+				Debug.Log ("Add a point to the sequence");
+			}
 		}
 	}
 
@@ -127,8 +171,6 @@ public class NonVerbalActs : NetworkBehaviour
 		//get the coordinates of the trackpad so we know what kind of event we want to trigger
 		if (GvrController.TouchPos.y > .85f) {
 			LocalPlayer.singleton.CmdActivateTimedDestroy (netId);
-		} else if (GvrController.TouchPos.x > .85f) {
-			LocalPlayer.singleton.CmdToggleObjectLoopingState (netId);
 		}
 	}
 		
@@ -163,10 +205,19 @@ public class NonVerbalActs : NetworkBehaviour
 		m_looping = !m_looping;
 	}
 
+	// This is only called from the LocalPlayer proxy server command
+	public void setDrawingSequence(bool val) {
+		if (m_drawingSequence != val) {
+			m_drawingSequence = val;
+			if (!m_drawingSequence)
+				m_looping = true;
+		}
+	}
+
 	void playSound(bool hit) {
 		objectHit = hit;
-		if (m_looping)
-			return;
+//		if (m_looping)
+//			return;
 		if (hit) {
 			m_wordSource.Play ();
 		} else {
@@ -207,11 +258,22 @@ public class NonVerbalActs : NetworkBehaviour
 		m_looping = val;
 
 		if (m_looping) {
-			m_wordSource.Play ();
+//			m_wordSource.Play ();
 			m_highlight.ConstantOnImmediate ();
+			m_sequencer.startSequencer ();
 		} else {
-			m_wordSource.Stop ();
+//			m_wordSource.Stop ();
 			m_highlight.ConstantOffImmediate ();
+			m_sequencer.stopSequencer ();
+		}
+	}
+
+	public void setDrawing(bool val) {
+		m_drawingSequence = val;
+		if (m_drawingSequence) {
+			m_highlight.FlashingOn ();
+		} else {
+			m_highlight.FlashingOff ();
 		}
 	}
 }

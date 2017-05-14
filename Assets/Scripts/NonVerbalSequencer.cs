@@ -5,7 +5,6 @@ using UnityEngine.Networking;
 
 public class NonVerbalSequencer : NetworkBehaviour {
 	
-	NonVerbalActs obj;
 	// this will alternate between looping and not looping, starting with looping.
 	// So the first value in the list is the amount of seconds to wait until the sound loop is turned off
 	List<float> times = new List<float>();
@@ -13,29 +12,33 @@ public class NonVerbalSequencer : NetworkBehaviour {
 	int nextTime;
 	float timeAtLastAdd;
 	bool active = false;
+	bool playstate = false; // whether the sound is playing or not
 
 	// Use this for initialization
 	void Start () {
-		obj = gameObject.GetComponent<NonVerbalActs> ();
+		active = false;
 	}
 		
 	public void startSequencer() {
 		if (times.Count > 0) {
 			active = true;
 			currentTime = 0;
-			obj.setLooping (true);
 			nextTime = 0;
+			playstate = true;
+			LocalPlayer.singleton.CmdSetObjectHitState (netId, playstate);
 		}
 	}
 
 	public void stopSequencer() {
 		active = false;
+		playstate = false;
+		LocalPlayer.singleton.CmdSetObjectHitState (netId, playstate);
 	}
 
 	public void startNewSequence() {
+		stopSequencer ();
 		times.Clear ();
 		currentTime = 0;
-		active = false;
 		timeAtLastAdd = Time.unscaledTime;
 	}
 
@@ -47,14 +50,19 @@ public class NonVerbalSequencer : NetworkBehaviour {
 	}
 
 	public void FixedUpdate() {
-		if (!active)
+		if (!active || times.Count <= 1)
 			return;
 		currentTime += Time.fixedUnscaledDeltaTime;
 		if (currentTime > times [nextTime]) {
-			if (nextTime == 0)
-				obj.setLooping (false);
-			LocalPlayer.singleton.CmdToggleObjectLoopingState (netId);
+			currentTime = 0;
+			playstate = !playstate;
+			LocalPlayer.singleton.CmdSetObjectHitState (netId, playstate);
 			nextTime++;
+			if (nextTime == times.Count) {
+				nextTime = 0;
+				playstate = true;
+				LocalPlayer.singleton.CmdSetObjectHitState (netId, playstate);
+			}
 		}
 
 	}

@@ -92,6 +92,13 @@ public class LocalPlayer : NetworkBehaviour {
 		acts.toggleLooping ();
 	}
 
+	[Command]
+	public void CmdSetObjectDrawingSequence(NetworkInstanceId objid, bool val) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		NonVerbalActs acts = obj.GetComponent<NonVerbalActs> ();
+		acts.setDrawingSequence (val);
+	}
+
 	// Word activities
 	[Command]
 	public void CmdSetWordHitState(NetworkInstanceId objid, bool state) {
