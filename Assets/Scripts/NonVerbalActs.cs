@@ -28,12 +28,21 @@ public class NonVerbalActs : NetworkBehaviour
 	GvrAudioSource m_wordSource;
 	 
 	GameObject m_laser = null;
+	GameObject m_reticle = null;
 
 	GameObject laser {
 		get {
 			if (m_laser == null) 
 				m_laser = LocalPlayer.playerObject.transform.FindChild ("GvrControllerPointer/Laser").gameObject;
 			return m_laser;
+		}
+	}
+
+	GameObject reticle {
+		get {
+			if (m_reticle == null)
+				m_reticle = LocalPlayer.playerObject.transform.FindChild ("GvrControllerPointer/Laser/Reticle").gameObject;
+			return m_reticle;
 		}
 	}
 
@@ -119,6 +128,12 @@ public class NonVerbalActs : NetworkBehaviour
 		}
 
 		#endif
+	}
+
+	void FixedUpdate() {
+		if (m_drawingSequence) {
+			m_sequencer.addPos (gameObject.transform.InverseTransformPoint (reticle.transform.position));
+		}
 	}
 
 	void Start() {
@@ -264,12 +279,12 @@ public class NonVerbalActs : NetworkBehaviour
 		m_looping = val;
 
 		if (m_looping) {
-//			m_wordSource.Play ();
+			m_sequencer.activatePath ();
 			m_highlight.ConstantOnImmediate ();
 //			m_sequencer.startSequencer ();
 			LocalPlayer.singleton.CmdObjectStartSequencer(netId);
 		} else {
-//			m_wordSource.Stop ();
+			m_sequencer.deactivatePath ();
 			m_highlight.ConstantOffImmediate ();
 //			m_sequencer.stopSequencer ();
 			LocalPlayer.singleton.CmdObjectStopSequencer(netId);
