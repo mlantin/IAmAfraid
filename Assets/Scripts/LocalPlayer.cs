@@ -12,10 +12,18 @@ public class LocalPlayer : NetworkBehaviour {
 	// other actions can't take place while we're drawing a sequence on any of the objects or words
 	public bool m_drawingsequence = false;
 
+	ViconActor m_tracker = null;
 
 	public override void OnStartLocalPlayer() {
 		singleton = this;
 		m_playerObject = gameObject;
+		m_tracker = gameObject.GetComponent<ViconActor> ();
+	}
+
+	public void Update() {
+		// Listen for recentering events and tell the tracker
+		if (m_tracker != null && m_tracker.track && GvrController.Recentered)
+			m_tracker.rotCorrected = false;
 	}
 
 	static public GameObject playerObject {

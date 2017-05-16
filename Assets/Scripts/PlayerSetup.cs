@@ -7,6 +7,8 @@ using HighlightingSystem;
 public class PlayerSetup : NetworkBehaviour {
 	public GameObject m_InputManager;
 	public bool m_cycleCameras = true;
+	[SyncVar]
+	public bool m_observer = false;
 
 	private WaitForSeconds m_waitforit = new WaitForSeconds(10);
 	static private List<Camera> m_playerCameras = new List<Camera> ();
@@ -32,7 +34,14 @@ public class PlayerSetup : NetworkBehaviour {
 			GameObject reticle = laser.transform.FindChild ("Reticle").gameObject;
 			laserScript.reticle = reticle;
 		}
-
+		if (m_observer) {
+			// Make the avatar invisible
+			gameObject.transform.Find ("PlayerCamera/Gamer").gameObject.SetActive (false);
+			gameObject.transform.Find ("GvrControllerPointer/Controller/ddcontroller").gameObject.SetActive (false);
+			// Disable tracking
+			ViconActor tracking = gameObject.GetComponent<ViconActor> ();
+			tracking.track = false;
+		}
 	}
 
 	public override void OnStartServer() {
@@ -65,6 +74,8 @@ public class PlayerSetup : NetworkBehaviour {
 //			gameObject.transform.position = new Vector3 (0, 1.6f, 0);
 			gameObject.transform.position = new Vector3 (0, 3, -.5f);
 			gameObject.transform.Rotate (35, 0, 0);
+			ViconActor tracking = gameObject.GetComponent<ViconActor> ();
+			tracking.track = false;
 		}
 		// Add the Highlighter, audiolistener, GvrAudioListener, and GvrPointerPhysicsRaycaster scripts to this object
 		if (!isServer) {
@@ -98,6 +109,7 @@ public class PlayerSetup : NetworkBehaviour {
 		#endif
 
 		if (isServer) {
+			m_observer = true;
 			// Make the avatar invisible
 			gameObject.transform.Find("PlayerCamera/Gamer").gameObject.SetActive(false);
 			gameObject.transform.Find ("GvrControllerPointer/Controller/ddcontroller").gameObject.SetActive (false);
