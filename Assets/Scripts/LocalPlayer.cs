@@ -9,9 +9,21 @@ public class LocalPlayer : NetworkBehaviour {
 	static private AuthorityManager m_manager = null;
 	static public LocalPlayer singleton;
 
+	// other actions can't take place while we're drawing a sequence on any of the objects or words
+	public bool m_drawingsequence = false;
+
+	ViconActor m_tracker = null;
+
 	public override void OnStartLocalPlayer() {
 		singleton = this;
 		m_playerObject = gameObject;
+		m_tracker = gameObject.GetComponent<ViconActor> ();
+	}
+
+	public void Update() {
+		// Listen for recentering events and tell the tracker
+		if (m_tracker != null && m_tracker.track && GvrController.Recentered)
+			m_tracker.rotCorrected = false;
 	}
 
 	static public GameObject playerObject {
@@ -49,6 +61,16 @@ public class LocalPlayer : NetworkBehaviour {
 	}
 
 	[Command]
+	public void CmdActivateTimedDestroy(NetworkInstanceId objid) {
+		NetworkIdentity netid = NetworkServer.objects [objid];
+		GameObject obj = netid.gameObject;
+		TimedDestroy destroyscript = obj.GetComponent<TimedDestroy> ();
+		if (destroyscript)
+			destroyscript.RpcActivate ();
+	}
+
+	// Non Verbal activities
+	[Command]
 	public void CmdSetObjectPositioned(NetworkInstanceId objid, bool state) {
 		NetworkIdentity netid = NetworkServer.objects [objid];
 		GameObject obj = netid.gameObject;
@@ -63,11 +85,50 @@ public class LocalPlayer : NetworkBehaviour {
 
 	[Command]
 	public void CmdSetObjectHitState(NetworkInstanceId objid, bool state){
-		GameObject obj = NetworkServer.objects [objid].gameObject;
-		NonVerbalActs acts = obj.GetComponent<NonVerbalActs> ();
-		acts.setHit (state);
+		try {
+			GameObject obj = NetworkServer.objects [objid].gameObject;
+			NonVerbalActs acts = obj.GetComponent<NonVerbalActs> ();
+			acts.setHit (state);
+		} catch (KeyNotFoundException e){
+		}
 	}
 
+	[Command]
+	public void CmdToggleObjectLoopingState(NetworkInstanceId objid) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		NonVerbalActs acts = obj.GetComponent<NonVerbalActs> ();
+		acts.toggleLooping ();
+	}
+
+	[Command]
+	public void CmdSetObjectDrawingSequence(NetworkInstanceId objid, bool val) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		NonVerbalActs acts = obj.GetComponent<NonVerbalActs> ();
+		acts.setDrawingSequence (val);
+	}
+
+	[Command]
+	public void CmdSetObjectSequenceTimes(NetworkInstanceId objid, float[] ts) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		NonVerbalSequencer seq = obj.GetComponent<NonVerbalSequencer> ();
+		seq.syncTimes (ts);
+	}
+
+	[Command]
+	public void CmdObjectStartSequencer(NetworkInstanceId objid) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		NonVerbalSequencer seq = obj.GetComponent<NonVerbalSequencer> ();
+		seq.startSequencer ();
+	}
+
+	[Command]
+	public void CmdObjectStopSequencer(NetworkInstanceId objid) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		NonVerbalSequencer seq = obj.GetComponent<NonVerbalSequencer> ();
+		seq.stopSequencer ();
+	}
+
+	// Word activities
 	[Command]
 	public void CmdSetWordHitState(NetworkInstanceId objid, bool state) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
@@ -85,6 +146,13 @@ public class LocalPlayer : NetworkBehaviour {
 			netid.AssignClientAuthority (connectionToClient);
 		else
 			netid.RemoveClientAuthority (connectionToClient);
+	}
+
+	[Command]
+	public void CmdToggleWordLoopingState(NetworkInstanceId objid) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		wordActs acts = obj.GetComponent<wordActs> ();
+		acts.toggleLooping ();
 	}
 
 //	[Command]

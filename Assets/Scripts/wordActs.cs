@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using HighlightingSystem;
 
 
 public class wordActs : NetworkBehaviour
@@ -14,6 +15,7 @@ public class wordActs : NetworkBehaviour
 
 	private float m_distanceFromPointer = 1.0f;
 	private GvrAudioSource m_wordSource;
+	private Highlighter m_highlight;
 
 	private Quaternion m_rotq;
 	private bool m_moving = false;
@@ -50,6 +52,8 @@ public class wordActs : NetworkBehaviour
 
 	[SyncVar (hook ="playWord")]
 	bool wordHit = false;
+	[SyncVar (hook ="setLooping")]
+	bool m_looping = false;
 
 	// Use this for initialization
 	void Awake () {
@@ -66,6 +70,10 @@ public class wordActs : NetworkBehaviour
 			}
 		}
 		m_xspace = extent.x/2.5f;
+
+		m_highlight = GetComponent<Highlighter> ();
+		Color col = new Color (204, 102, 255); // a purple
+		m_highlight.ConstantParams (col);
 	}
 
 	void Start() {
@@ -130,12 +138,13 @@ public class wordActs : NetworkBehaviour
 	}
 
 	public void OnPointerClick (PointerEventData eventData) {
+		if (!m_positioned)
+			return;
 		//get the coordinates of the trackpad so we know what kind of event we want to trigger
-		if (m_positioned && GvrController.TouchPos.y > .85f) {
-			//LocalPlayer.singleton.CmdSeparateLetters (netId);
-
-			LocalPlayer.singleton.CmdDestroyObject(netId);
-		} 
+		if (GvrController.TouchPos.y > .85f)
+			LocalPlayer.singleton.CmdDestroyObject (netId);
+		else if (GvrController.TouchPos.x > .85f)
+			LocalPlayer.singleton.CmdToggleWordLoopingState (netId);
 	}
 
 	public void OnPointerDown (PointerEventData eventData) {
@@ -160,15 +169,28 @@ public class wordActs : NetworkBehaviour
 		}
 	}
 
+	public void toggleLooping() {
+		m_looping = !m_looping;
+	}
+
 	public void setHit(bool state) {
 		wordHit = state;
 	}
 
 	void playWord(bool hit) {
 		wordHit = hit;
-		if (hit) {
+		if (hit && !m_looping) {
 			m_wordSource.Play ();
 		}
+	}
+
+	void setLooping(bool loop) {
+		m_looping = loop;
+		m_wordSource.loop = m_looping;
+		if (m_looping)
+			m_highlight.ConstantOnImmediate ();
+		else
+			m_highlight.ConstantOffImmediate ();
 	}
 
 	void addLetters(string word) {
@@ -235,7 +257,7 @@ public class wordActs : NetworkBehaviour
 		BoxCollider collider;
 		Rigidbody rb;
 		PhysicMaterial letterbounce = new PhysicMaterial ();
-		letterbounce.bounciness = .5f;
+		letterbounce.bounciness = .7f;
 		Vector3 rbf = new Vector3 ();
 		foreach (Transform letter in letters.transform) {
 			rb = letter.gameObject.AddComponent<Rigidbody> ();
@@ -247,7 +269,7 @@ public class wordActs : NetworkBehaviour
 			rb.AddForce (rbf, ForceMode.VelocityChange);
 			TimedDestroy timerscript = letter.gameObject.AddComponent<TimedDestroy> ();
 			timerscript.m_destroyTime = Random.Range (8f, 12f);
-			timerscript.m_shrinkTime = 1f;
+			timerscript.activate ();
 			//letter.parent = letter.parent.parent.parent;
 		}
 		letters.transform.DetachChildren ();

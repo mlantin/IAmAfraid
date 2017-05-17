@@ -12,15 +12,23 @@ public class NonVerbalActs : NetworkBehaviour
 #endif
 {
 
+	// This is to set a timer when a person clicks. If we linger long enough 
+	// we call it a press&hold.
+	float m_presstime = 0;
+	bool m_presshold = true;
+	const float m_holdtime = .5f; // seconds until we call it a press&hold.
+
 	[SyncVar]
 	public string m_serverFileName = "";
 	public Text m_DebugText;
-	private Highlighter m_highlight;
+	Highlighter m_highlight;
+	NonVerbalSequencer m_sequencer;
 
-	private float m_distanceFromPointer = 1.0f;
-	private GvrAudioSource m_wordSource;
+	float m_distanceFromPointer = 1.0f;
+	GvrAudioSource m_wordSource;
 	 
 	GameObject m_laser = null;
+	GameObject m_reticle = null;
 
 	GameObject laser {
 		get {
@@ -30,8 +38,17 @@ public class NonVerbalActs : NetworkBehaviour
 		}
 	}
 
-	private Quaternion m_rotq;
-	private bool m_moving = false;
+	GameObject reticle {
+		get {
+			if (m_reticle == null)
+				m_reticle = LocalPlayer.playerObject.transform.FindChild ("GvrControllerPointer/Laser/Reticle").gameObject;
+			return m_reticle;
+		}
+	}
+
+	Quaternion m_rotq;
+	bool m_moving = false;
+	bool m_target = false; // Whether the reticle is on this object
 
 	// This indicates that the word was preloaded. It's not a SyncVar
 	// so it's only valid on the server which is ok because only
@@ -39,21 +56,30 @@ public class NonVerbalActs : NetworkBehaviour
 	// audio clip deletion.
 	public bool m_preloaded = false;
 	[SyncVar (hook ="playSound")]
-	bool objectHit = false;
+	private bool objectHit = false;
 	[SyncVar]
 	public bool m_positioned = false;
+	[SyncVar (hook = "setLooping")]
+	bool m_looping = false;
+	[SyncVar (hook = "setDrawing")]
+	bool m_drawingSequence = false;
 
 	// Use this for initialization
 	void Awake () {
 		m_wordSource = GetComponent<GvrAudioSource> ();
+		m_wordSource.loop = true;
 		m_highlight = GetComponent<Highlighter> ();
+		Color col = new Color (204, 102, 255); // a purple
+		m_highlight.ConstantParams (col);
+
+		m_sequencer = GetComponent<NonVerbalSequencer> ();
 	}
 
 	void Update () {
 		if (isServer)
 			return;
 		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-		if (isClient && ((!m_positioned && hasAuthority) || (m_moving))) {
+		if ((!m_positioned && hasAuthority) || (m_moving)) {
 			if (!m_moving) {
 				transform.position = laser.transform.position + laser.transform.forward;
 			} else {
@@ -67,8 +93,47 @@ public class NonVerbalActs : NetworkBehaviour
 				m_moving = false;
 				LocalPlayer.singleton.CmdSetObjectPositioned(netId,true);
 			}
+		} else if (m_positioned && !m_moving) {
+			if (m_target && GvrController.ClickButtonDown) {
+				m_presstime = 0;
+				m_presshold = false;
+			} else if (m_target && GvrController.ClickButton) {
+				m_presstime += Time.deltaTime;
+				if (!m_presshold && m_presstime > m_holdtime) {
+					m_presshold = true;
+					if (GvrController.TouchPos.x > .85f) {
+						if (m_looping)
+							LocalPlayer.singleton.CmdToggleObjectLoopingState(netId);
+						LocalPlayer.singleton.CmdSetObjectDrawingSequence(netId,true);
+						LocalPlayer.singleton.CmdSetObjectHitState (netId, false);
+						LocalPlayer.singleton.CmdSetObjectHitState (netId, true);
+						m_sequencer.startNewSequence();
+					}
+				}
+			} else if (GvrController.ClickButtonUp) {
+				if (GvrController.TouchPos.x > .85f) {
+					if (m_drawingSequence) {
+						m_sequencer.addTime();
+						m_sequencer.endSequence();
+						LocalPlayer.singleton.CmdSetObjectDrawingSequence(netId,false);
+						if (!m_looping)
+							LocalPlayer.singleton.CmdToggleObjectLoopingState(netId);
+					} else if (m_target) {
+						LocalPlayer.singleton.CmdToggleObjectLoopingState (netId);
+						Debug.Log("Toggle sequencer");
+					}
+				}
+				m_presshold = false;
+			}
 		}
+
 		#endif
+	}
+
+	void FixedUpdate() {
+		if (m_drawingSequence) {
+			m_sequencer.addPos (gameObject.transform.InverseTransformPoint (reticle.transform.position));
+		}
 	}
 
 	void Start() {
@@ -103,23 +168,35 @@ public class NonVerbalActs : NetworkBehaviour
 
 	public void OnPointerEnter (PointerEventData eventData) {
 		if (m_positioned) {
-			LocalPlayer.singleton.CmdSetObjectHitState (netId, true);
-			m_highlight.ConstantOnImmediate ();
+			m_target = true;
+			if (!m_looping)
+				LocalPlayer.singleton.CmdSetObjectHitState (netId, true);
+			if (m_drawingSequence) {
+				m_sequencer.addTime ();
+				Debug.Log ("Add a point to the sequence");
+			}
 		}
 	}
 
 	public void OnPointerExit(PointerEventData eventData){
 		if (m_positioned) {
-			LocalPlayer.singleton.CmdSetObjectHitState (netId, false);
-			m_highlight.ConstantOffImmediate ();
+			m_target = false;
+			if (!m_looping)
+				LocalPlayer.singleton.CmdSetObjectHitState (netId, false);
+			if (m_drawingSequence) {
+				m_sequencer.addTime ();
+				Debug.Log ("Add a point to the sequence");
+			}
 		}
 	}
 
 	public void OnPointerClick (PointerEventData eventData) {
+		if (!m_positioned)
+			return;
 		//get the coordinates of the trackpad so we know what kind of event we want to trigger
-		if (m_positioned && GvrController.TouchPos.y > .85f) {
-			LocalPlayer.singleton.CmdDestroyObject (netId);
-		} 
+		if (GvrController.TouchPos.y > .85f) {
+			LocalPlayer.singleton.CmdActivateTimedDestroy (netId);
+		}
 	}
 		
 	public override void OnNetworkDestroy() {
@@ -148,10 +225,25 @@ public class NonVerbalActs : NetworkBehaviour
 		objectHit = state;
 	}
 
+	// This is only called from the LocalPlayer proxy server command
+	public void toggleLooping() {
+		m_looping = !m_looping;
+	}
+
+	// This is only called from the LocalPlayer proxy server command
+	public void setDrawingSequence(bool val) {
+		m_drawingSequence = val;
+	}
+
 	void playSound(bool hit) {
 		objectHit = hit;
-		if (hit)
-			m_wordSource.Play();
+//		if (m_looping)
+//			return;
+		if (hit) {
+			m_wordSource.Play ();
+		} else {
+			m_wordSource.Stop ();
+		}
 	}
 
 	void fetchAudio(string filename) {
@@ -182,5 +274,31 @@ public class NonVerbalActs : NetworkBehaviour
 		maxvert = mesh.bounds.max;
 		col.radius = Mathf.Max(Mathf.Max(maxvert.x,maxvert.y),maxvert.z)+ .02f;
 	}
+
+	public void setLooping(bool val) {
+		m_looping = val;
+
+		if (m_looping) {
+			m_sequencer.activatePath ();
+			m_highlight.ConstantOnImmediate ();
+//			m_sequencer.startSequencer ();
+			LocalPlayer.singleton.CmdObjectStartSequencer(netId);
+		} else {
+			m_sequencer.deactivatePath ();
+			m_highlight.ConstantOffImmediate ();
+//			m_sequencer.stopSequencer ();
+			LocalPlayer.singleton.CmdObjectStopSequencer(netId);
+		}
+	}
+
+	public void setDrawing(bool val) {
+		m_drawingSequence = val;
+		if (m_drawingSequence) {
+			m_highlight.FlashingOn ();
+		} else {
+			m_highlight.FlashingOff ();
+		}
+	}
 }
+
 	
