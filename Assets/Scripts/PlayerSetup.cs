@@ -74,13 +74,12 @@ public class PlayerSetup : NetworkBehaviour {
 //			gameObject.transform.position = new Vector3 (0, 1.6f, 0);
 			gameObject.transform.position = new Vector3 (0, 3, -.5f);
 			gameObject.transform.Rotate (35, 0, 0);
-			ViconActor tracking = gameObject.GetComponent<ViconActor> ();
-			tracking.track = false;
-		}
+		} else {
 		// Add the Highlighter, audiolistener, GvrAudioListener, and GvrPointerPhysicsRaycaster scripts to this object
-		if (!isServer) {
 			HighlightingRenderer hlrender = playerCameraObj.AddComponent<HighlightingRenderer> ();
 			hlrender.LoadPreset ("Speed");
+			ViconActor tracking = gameObject.GetComponent<ViconActor> ();
+			tracking.track = true;
 		}
 
 		playerCameraObj.AddComponent<AudioListener>();

@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
+
 
 public class NetworkSetup : MonoBehaviour {
 
@@ -16,5 +19,7 @@ public class NetworkSetup : MonoBehaviour {
 		#endif
 	}
 	
+	public void setHostMode(PointerEventData eventData) {
+	}
 
 }

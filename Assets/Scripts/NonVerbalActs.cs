@@ -63,6 +63,7 @@ public class NonVerbalActs : NetworkBehaviour
 	bool m_looping = false;
 	[SyncVar (hook = "setDrawing")]
 	bool m_drawingSequence = false;
+	Vector3 m_pathNormal = new Vector3(); // we'll set this to be the vector from the object to the camera.
 
 	// Use this for initialization
 	void Awake () {
@@ -132,6 +133,8 @@ public class NonVerbalActs : NetworkBehaviour
 
 	void FixedUpdate() {
 		if (m_drawingSequence) {
+			
+
 			m_sequencer.addPos (gameObject.transform.InverseTransformPoint (reticle.transform.position));
 		}
 	}

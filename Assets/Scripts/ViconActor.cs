@@ -53,6 +53,10 @@ public class ViconActor : Holojam.Tools.Trackable {
 		rotDiff = playerCamera.transform.localRotation*viconRot;
 		Debug.Log ("Rotdiff: " + rotDiff);
 		transform.rotation = rotDiff;
+		// ignore the x and z axes
+		Vector3 angles = transform.rotation.eulerAngles;
+		angles.x = angles.z = 0;
+		transform.eulerAngles = angles;
 		rotCorrected = true;
 	}
 

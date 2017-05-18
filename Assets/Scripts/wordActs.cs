@@ -54,6 +54,7 @@ public class wordActs : NetworkBehaviour
 	bool wordHit = false;
 	[SyncVar (hook ="setLooping")]
 	bool m_looping = false;
+	bool m_drawingLoop = false;
 
 	// Use this for initialization
 	void Awake () {

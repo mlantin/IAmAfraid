@@ -42,7 +42,8 @@ public class TimedDestroy : NetworkBehaviour {
 					Destroy (gameObject);
 			} else {
 				float t = currentLerpTime / m_shrinkTime;
-				t = t * t * (3f - 2f * t);
+				//t = t * t * (3f - 2f * t);
+				t=t*t*t * (t * (6f*t - 15f) + 10f);
 				transform.localScale = Vector3.Lerp (startingScale, targetScale, t);
 			}
 		}
