@@ -79,7 +79,12 @@ public class PlayerSetup : NetworkBehaviour {
 			HighlightingRenderer hlrender = playerCameraObj.AddComponent<HighlightingRenderer> ();
 			hlrender.LoadPreset ("Speed");
 			ViconActor tracking = gameObject.GetComponent<ViconActor> ();
-			tracking.track = true;
+			if (LocalPlayer.singleton.playerTracked) {
+				tracking.track = true;
+				tracking.SetLabel(LocalPlayer.singleton.mocapName);
+			} else {
+				tracking.track = false;
+			}
 		}
 
 		playerCameraObj.AddComponent<AudioListener>();

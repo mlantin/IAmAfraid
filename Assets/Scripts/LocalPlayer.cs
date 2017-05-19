@@ -8,11 +8,15 @@ public class LocalPlayer : NetworkBehaviour {
 	static private GameObject m_playerObject = null;
 	static private AuthorityManager m_manager = null;
 	static public LocalPlayer singleton;
+	static private string[] mocapNames = { "PIXEL1", "PIXEL2", "PIXEL3" };
+	bool m_observer = false;
 
 	// other actions can't take place while we're drawing a sequence on any of the objects or words
 	public bool m_drawingsequence = false;
 
 	ViconActor m_tracker = null;
+	int m_mocapnameIndex;
+	bool m_playerTracked = false;
 
 	public override void OnStartLocalPlayer() {
 		singleton = this;
@@ -21,9 +25,35 @@ public class LocalPlayer : NetworkBehaviour {
 	}
 
 	public void Update() {
+		#if UNITY_ANDROID
 		// Listen for recentering events and tell the tracker
 		if (m_tracker != null && m_tracker.track && GvrController.Recentered)
 			m_tracker.rotCorrected = false;
+		#endif
+	}
+
+	public int mocapNameIndex {
+		get {
+			return m_mocapnameIndex;
+		}
+		set {
+			m_mocapnameIndex = value;
+		}
+	}
+
+	public string mocapName {
+		get {
+			return mocapNames [m_mocapnameIndex];
+		}
+	}
+
+	public bool playerTracked {
+		get {
+			return m_playerTracked;
+		}
+		set {
+			m_playerTracked = value;
+		}
 	}
 
 	static public GameObject playerObject {
@@ -34,6 +64,15 @@ public class LocalPlayer : NetworkBehaviour {
 				m_playerObject = GameObject.FindGameObjectWithTag ("Player");
 				return m_playerObject;
 			}
+		}
+	}
+
+	public bool observer {
+		set {
+			m_observer = value;
+		}
+		get {
+			return m_observer;
 		}
 	}
 

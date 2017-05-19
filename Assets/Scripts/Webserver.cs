@@ -15,7 +15,15 @@ public class Webserver : MonoBehaviour {
 	void Start () {
 		singleton = this;
 	}
-	
+
+	public void setServerIP(string ip){
+		m_serverIP = ip;
+	}
+
+	public void setServerPort(string port) {
+		m_serverPort = port;
+	}
+
 	public  bool Upload(string filename, AudioClip clip, DownloadHandler handler) {
 		float[] audioData = new float[clip.samples];
 		clip.GetData (audioData, 0);
