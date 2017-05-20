@@ -92,7 +92,7 @@ namespace TouchScript.Behaviors.Visualizer
 
         private int defaultSize = 64;
         private RectTransform rect;
-        private ObjectPool<TouchProxyBase> pool;
+        private TouchScript.Utils.ObjectPool<TouchProxyBase> pool;
         private Dictionary<int, TouchProxyBase> proxies = new Dictionary<int, TouchProxyBase>(10);
 
         #endregion
@@ -101,7 +101,7 @@ namespace TouchScript.Behaviors.Visualizer
 
         private void Awake()
         {
-            pool = new ObjectPool<TouchProxyBase>(10, instantiateProxy, null, clearProxy);
+			pool = new TouchScript.Utils.ObjectPool<TouchProxyBase>(10, instantiateProxy, null, clearProxy);
             rect = transform as RectTransform;
             if (rect == null)
             {

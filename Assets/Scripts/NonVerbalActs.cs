@@ -33,7 +33,7 @@ public class NonVerbalActs : NetworkBehaviour
 	GameObject laser {
 		get {
 			if (m_laser == null) 
-				m_laser = LocalPlayer.playerObject.transform.FindChild ("GvrControllerPointer/Laser").gameObject;
+				m_laser = LocalPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser").gameObject;
 			return m_laser;
 		}
 	}
@@ -41,7 +41,7 @@ public class NonVerbalActs : NetworkBehaviour
 	GameObject reticle {
 		get {
 			if (m_reticle == null)
-				m_reticle = LocalPlayer.playerObject.transform.FindChild ("GvrControllerPointer/Laser/Reticle").gameObject;
+				m_reticle = LocalPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser/Reticle").gameObject;
 			return m_reticle;
 		}
 	}
@@ -77,8 +77,8 @@ public class NonVerbalActs : NetworkBehaviour
 	}
 
 	void Update () {
-		if (isServer)
-			return;
+//		if (isServer)
+//			return;
 		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 		if ((!m_positioned && hasAuthority) || (m_moving)) {
 			if (!m_moving) {

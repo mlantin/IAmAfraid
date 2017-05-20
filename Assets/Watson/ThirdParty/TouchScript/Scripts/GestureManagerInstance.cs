@@ -66,13 +66,13 @@ namespace TouchScript
         private Dictionary<Gesture, List<TouchPoint>> gestureTouches = new Dictionary<Gesture, List<TouchPoint>>(10);
         private List<Gesture> activeGestures = new List<Gesture>(20);
 
-        private static ObjectPool<List<Gesture>> gestureListPool = new ObjectPool<List<Gesture>>(10,
+        private static TouchScript.Utils.ObjectPool<List<Gesture>> gestureListPool = new TouchScript.Utils.ObjectPool<List<Gesture>>(10,
             () => new List<Gesture>(20), null, (l) => l.Clear());
 
-        private static ObjectPool<List<TouchPoint>> touchListPool = new ObjectPool<List<TouchPoint>>(20,
+        private static TouchScript.Utils.ObjectPool<List<TouchPoint>> touchListPool = new TouchScript.Utils.ObjectPool<List<TouchPoint>>(20,
             () => new List<TouchPoint>(10), null, (l) => l.Clear());
 
-        private static ObjectPool<List<Transform>> transformListPool = new ObjectPool<List<Transform>>(10,
+        private static TouchScript.Utils.ObjectPool<List<Transform>> transformListPool = new TouchScript.Utils.ObjectPool<List<Transform>>(10,
             () => new List<Transform>(10), null, (l) => l.Clear());
 
         #endregion

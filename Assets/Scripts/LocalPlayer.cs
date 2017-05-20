@@ -18,10 +18,12 @@ public class LocalPlayer : NetworkBehaviour {
 	int m_mocapnameIndex;
 	bool m_playerTracked = false;
 
-	public override void OnStartLocalPlayer() {
+	void Start() {
 		singleton = this;
-		m_playerObject = gameObject;
-		m_tracker = gameObject.GetComponent<ViconActor> ();
+	}
+
+	public override void OnStartLocalPlayer() {
+		m_tracker = playerObject.GetComponent<ViconActor> ();
 	}
 
 	public void Update() {

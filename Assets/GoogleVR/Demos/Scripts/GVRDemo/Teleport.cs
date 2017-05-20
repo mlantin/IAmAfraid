@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using UnityEngine;
+
 using System.Collections;
 
 [RequireComponent(typeof(Collider))]
@@ -27,13 +28,6 @@ public class Teleport : MonoBehaviour {
     SetGazedAt(false);
   }
 
-  void LateUpdate() {
-    GvrViewer.Instance.UpdateState();
-    if (GvrViewer.Instance.BackButtonPressed) {
-      Application.Quit();
-    }
-  }
-
   public void SetGazedAt(bool gazedAt) {
     if (inactiveMaterial != null && gazedAtMaterial != null) {
       GetComponent<Renderer>().material = gazedAt ? gazedAtMaterial : inactiveMaterial;
@@ -44,6 +38,18 @@ public class Teleport : MonoBehaviour {
 
   public void Reset() {
     transform.localPosition = startingPosition;
+  }
+
+  public void Recenter() {
+#if !UNITY_EDITOR
+    GvrCardboardHelpers.Recenter();
+#else
+    GvrEditorEmulator emulator = FindObjectOfType<GvrEditorEmulator>();
+    if (emulator == null) {
+      return;
+    }
+    emulator.Recenter();
+#endif  // !UNITY_EDITOR
   }
 
   public void TeleportRandomly() {

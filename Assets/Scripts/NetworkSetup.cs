@@ -13,6 +13,7 @@ public class NetworkSetup : MonoBehaviour {
 	public GameObject m_inputManager;
 	public GameObject m_holojam;
 
+	bool m_networkstarted = false;
 	bool m_host = false;
 
 	// Use this for initialization
@@ -58,20 +59,25 @@ public class NetworkSetup : MonoBehaviour {
 
 	IEnumerator LoadDevice(string newDevice)
 	{
+		m_networkstarted = false;
 		VRSettings.LoadDeviceByName(newDevice);
+		m_inputManager.SetActive (true);
 		yield return null;
 		VRSettings.enabled = true;
-		m_inputManager.SetActive (true);
-		m_inputCanvas.enabled = false;
 		yield return new WaitUntil (() => VRSettings.isDeviceActive == true);
-		if (m_host) { // We are starting in host mode
-			Debug.Log ("Host Mode");
-			NetworkManager.singleton.StartHost();
-		} else {
-			Debug.Log ("Client Mode with host id " + NetworkManager.singleton.networkAddress);
-			NetworkManager.singleton.StartClient();
-		}
-
 	}
 
+	void OnApplicationPause (bool paused)  {
+		if (!paused && !m_networkstarted && VRSettings.enabled) {
+			m_inputCanvas.enabled = false;
+			Debug.Log ("I'm not paused!");
+			if (m_host) { // We are starting in host mode
+				Debug.Log ("Host Mode");
+				NetworkManager.singleton.StartHost ();
+			} else {
+				Debug.Log ("Client Mode with host id " + NetworkManager.singleton.networkAddress);
+				NetworkManager.singleton.StartClient ();
+			}
+		}
+	}
 }

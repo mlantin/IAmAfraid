@@ -20,18 +20,19 @@ public class PlayerSetup : NetworkBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		Debug.Log ("In Start");
 		if (!isLocalPlayer) {
 			gameObject.tag = "RemotePlayer";
 			// disable the camera and the listeners
-			GameObject playercameraObj = gameObject.transform.FindChild ("PlayerCamera").gameObject;
+			GameObject playercameraObj = gameObject.transform.Find ("PlayerCamera").gameObject;
 			Camera playercamera = playercameraObj.GetComponent<Camera>();
 			playercamera.enabled = false;
 
 			//Add the laser drawing script
-			GameObject controllerPointer = gameObject.transform.FindChild ("GvrControllerPointer").gameObject;
-			GameObject laser = controllerPointer.transform.FindChild ("Laser").gameObject;
+			GameObject controllerPointer = gameObject.transform.Find ("GvrControllerPointer").gameObject;
+			GameObject laser = controllerPointer.transform.Find ("Laser").gameObject;
 			LaserRender laserScript = laser.AddComponent<LaserRender> ();
-			GameObject reticle = laser.transform.FindChild ("Reticle").gameObject;
+			GameObject reticle = laser.transform.Find ("Reticle").gameObject;
 			laserScript.reticle = reticle;
 		}
 		if (m_observer) {
@@ -45,7 +46,9 @@ public class PlayerSetup : NetworkBehaviour {
 	}
 
 	public override void OnStartServer() {
-		GameObject playerCameraObj = gameObject.transform.FindChild ("PlayerCamera").gameObject;
+		Debug.Log ("in OnStartServer");
+
+		GameObject playerCameraObj = gameObject.transform.Find ("PlayerCamera").gameObject;
 		Camera playercamera = playerCameraObj.GetComponent<Camera>();
 		m_playerCameras.Add (playercamera);
 
@@ -55,13 +58,13 @@ public class PlayerSetup : NetworkBehaviour {
 	}
 
 	public override void OnStartLocalPlayer() {
-
+		Debug.Log ("In OnStartLocalPlayer");
 		// tag the local player so we can look for it later in other objects
 		gameObject.tag = "Player";
 
 		//Make sure the MainCamera is the one for our local player
 		Camera currentMainCamera = Camera.main;
-		GameObject playerCameraObj = gameObject.transform.FindChild ("PlayerCamera").gameObject;
+		GameObject playerCameraObj = gameObject.transform.Find ("PlayerCamera").gameObject;
 		Camera playercamera = playerCameraObj.GetComponent<Camera> ();
 		playercamera.tag = "MainCamera";
 		if (currentMainCamera != null)
@@ -70,14 +73,17 @@ public class PlayerSetup : NetworkBehaviour {
 
 		// Set the position of the server player to be the eye of god.
 		// Also disable tracking
-		if (isServer) {
+		if (isServer && LocalPlayer.singleton.observer) {
 //			gameObject.transform.position = new Vector3 (0, 1.6f, 0);
 			gameObject.transform.position = new Vector3 (0, 3, -.5f);
 			gameObject.transform.Rotate (35, 0, 0);
 		} else {
 		// Add the Highlighter, audiolistener, GvrAudioListener, and GvrPointerPhysicsRaycaster scripts to this object
-			HighlightingRenderer hlrender = playerCameraObj.AddComponent<HighlightingRenderer> ();
-			hlrender.LoadPreset ("Speed");
+			HighlightingRenderer hlrender = playerCameraObj.GetComponent<HighlightingRenderer>();
+			if (hlrender == null) {
+				hlrender = playerCameraObj.AddComponent<HighlightingRenderer> ();
+				hlrender.LoadPreset ("Speed");
+			}
 			ViconActor tracking = gameObject.GetComponent<ViconActor> ();
 			if (LocalPlayer.singleton.playerTracked) {
 				tracking.track = true;
@@ -92,27 +98,27 @@ public class PlayerSetup : NetworkBehaviour {
 		playerCameraObj.AddComponent<GvrPointerPhysicsRaycaster> ();
 
 		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-		GameObject controllerPointer = gameObject.transform.FindChild ("GvrControllerPointer").gameObject;
+		GameObject controllerPointer = gameObject.transform.Find ("GvrControllerPointer").gameObject;
 		IAAInputManager inputscript = m_InputManager.GetComponent<IAAInputManager>();
 		inputscript.controllerPointer = controllerPointer;
 		inputscript.whatAreWe ();
 		inputscript.SetVRInputMechanism ();
 
 		// Add the GvrArmModelOffset scripts to the controller and laser
-		GameObject controller = controllerPointer.transform.FindChild("Controller").gameObject;
+		GameObject controller = controllerPointer.transform.Find("Controller").gameObject;
 		GvrArmModelOffsets controllerscript = controller.AddComponent<GvrArmModelOffsets> ();
 		controllerscript.joint = GvrArmModelOffsets.Joint.Wrist;
-		GameObject laser = controllerPointer.transform.FindChild ("Laser").gameObject;
+		GameObject laser = controllerPointer.transform.Find ("Laser").gameObject;
 		GvrArmModelOffsets laserscript = laser.AddComponent<GvrArmModelOffsets> ();
 		laserscript.joint = GvrArmModelOffsets.Joint.Pointer;
 
 		// Add the GvrLaserPointer script to the laser object
 		GvrLaserPointer laserPtrScript = laser.AddComponent<GvrLaserPointer> ();
-		GameObject reticle = laser.transform.FindChild ("Reticle").gameObject;
+		GameObject reticle = laser.transform.Find ("Reticle").gameObject;
 		laserPtrScript.reticle = reticle;
 		#endif
 
-		if (isServer) {
+		if (isServer && LocalPlayer.singleton.observer) {
 			m_observer = true;
 			// Make the avatar invisible
 			gameObject.transform.Find("PlayerCamera/Gamer").gameObject.SetActive(false);
@@ -123,8 +129,8 @@ public class PlayerSetup : NetworkBehaviour {
 	}
 		
 	public override void OnNetworkDestroy() {
-		if (isServer) {
-			Camera playerCamera = gameObject.transform.FindChild ("PlayerCamera").gameObject.GetComponent<Camera> ();
+		if (isServer && LocalPlayer.singleton.observer) {
+			Camera playerCamera = gameObject.transform.Find ("PlayerCamera").gameObject.GetComponent<Camera> ();
 			if (Camera.main == playerCamera) {
 				switchCamera (m_playerCameras [m_nextCamera]);
 			} else if (m_nextCamera == (m_playerCameras.Count - 1)) {

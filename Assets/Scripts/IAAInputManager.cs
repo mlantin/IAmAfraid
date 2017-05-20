@@ -83,7 +83,7 @@ public class IAAInputManager : MonoBehaviour {
 		if (playerSettingsHasDaydream() || playerSettingsHasCardboard()) {
 			// The list is populated with valid VR SDK(s), pick the first one.
 			gvrEmulatedPlatformType =
-				(UnityEngine.VR.VRSettings.supportedDevices[0] == DAYDREAM_DEVICE_NAME) ?
+				(UnityEngine.VR.VRSettings.supportedDevices[1] == DAYDREAM_DEVICE_NAME) ?
 				EmulatedPlatformType.Daydream :
 				EmulatedPlatformType.Cardboard;
 		}
@@ -275,13 +275,14 @@ public class IAAInputManager : MonoBehaviour {
 			return;
 		}
 
-		GvrBasePointer pointer = reticlePointer.GetComponent<GvrBasePointer>();
+		GvrReticlePointer pointer =
+			reticlePointer.GetComponent<GvrReticlePointer>();
 		if (pointer != null) {
-			GvrPointerManager.Pointer = pointer;
+			pointer.SetAsMainPointer();
 		}
 	}
 
-	public void SetControllerInputActive(bool active) {
+	private void SetControllerInputActive(bool active) {
 		if (controllerMain != null) {
 			controllerMain.SetActive(active);
 		}
@@ -294,10 +295,10 @@ public class IAAInputManager : MonoBehaviour {
 		if (!active) {
 			return;
 		}
-		Debug.Log ("Set controller input active yo");
-		GvrBasePointer pointer = controllerPointer.GetComponentInChildren<GvrBasePointer>(true);
+		GvrLaserPointer pointer =
+			controllerPointer.GetComponentInChildren<GvrLaserPointer>(true);
 		if (pointer != null) {
-			GvrPointerManager.Pointer = pointer;
+			pointer.SetAsMainPointer();
 		}
 	}
 

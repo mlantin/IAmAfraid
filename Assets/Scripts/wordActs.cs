@@ -24,7 +24,7 @@ public class wordActs : NetworkBehaviour
 	GameObject laser {
 		get {
 			if (m_laser == null) 
-				m_laser = LocalPlayer.playerObject.transform.FindChild ("GvrControllerPointer/Laser").gameObject;
+				m_laser = LocalPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser").gameObject;
 			return m_laser;
 		}
 	}
@@ -254,7 +254,7 @@ public class wordActs : NetworkBehaviour
 	public void separateLetters(){
 		Debug.Log ("Separating letters");
 		// First add a Rigid Body component to the letters
-		GameObject letters = gameObject.transform.FindChild("Letters").gameObject;
+		GameObject letters = gameObject.transform.Find("Letters").gameObject;
 		BoxCollider collider;
 		Rigidbody rb;
 		PhysicMaterial letterbounce = new PhysicMaterial ();

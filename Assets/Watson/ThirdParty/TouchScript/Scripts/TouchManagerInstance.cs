@@ -208,13 +208,13 @@ namespace TouchScript
         private HashSet<int> touchesEnded = new HashSet<int>();
         private HashSet<int> touchesCancelled = new HashSet<int>();
 
-        private static ObjectPool<TouchPoint> touchPointPool = new ObjectPool<TouchPoint>(10, null, null,
+        private static TouchScript.Utils.ObjectPool<TouchPoint> touchPointPool = new TouchScript.Utils.ObjectPool<TouchPoint>(10, null, null,
             (t) => t.INTERNAL_Reset());
 
-        private static ObjectPool<List<TouchPoint>> touchPointListPool = new ObjectPool<List<TouchPoint>>(2,
+        private static TouchScript.Utils.ObjectPool<List<TouchPoint>> touchPointListPool = new TouchScript.Utils.ObjectPool<List<TouchPoint>>(2,
             () => new List<TouchPoint>(10), null, (l) => l.Clear());
 
-        private static ObjectPool<List<int>> intListPool = new ObjectPool<List<int>>(3, () => new List<int>(10), null,
+        private static TouchScript.Utils.ObjectPool<List<int>> intListPool = new TouchScript.Utils.ObjectPool<List<int>>(3, () => new List<int>(10), null,
             (l) => l.Clear());
 
         private int nextTouchId = 0;
