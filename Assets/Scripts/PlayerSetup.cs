@@ -73,7 +73,8 @@ public class PlayerSetup : NetworkBehaviour {
 
 		// Set the position of the server player to be the eye of god.
 		// Also disable tracking
-		if (isServer && LocalPlayer.singleton.observer) {
+		if (isServer && LocalPlayerOptions.singleton.observer) {
+			m_observer = true;
 //			gameObject.transform.position = new Vector3 (0, 1.6f, 0);
 			gameObject.transform.position = new Vector3 (0, 3, -.5f);
 			gameObject.transform.Rotate (35, 0, 0);
@@ -85,9 +86,9 @@ public class PlayerSetup : NetworkBehaviour {
 				hlrender.LoadPreset ("Speed");
 			}
 			ViconActor tracking = gameObject.GetComponent<ViconActor> ();
-			if (LocalPlayer.singleton.playerTracked) {
+			if (LocalPlayerOptions.singleton.trackLocalPlayer) {
 				tracking.track = true;
-				tracking.SetLabel(LocalPlayer.singleton.mocapName);
+				tracking.SetLabel(LocalPlayerOptions.singleton.mocapName);
 			} else {
 				tracking.track = false;
 			}
@@ -118,8 +119,7 @@ public class PlayerSetup : NetworkBehaviour {
 		laserPtrScript.reticle = reticle;
 		#endif
 
-		if (isServer && LocalPlayer.singleton.observer) {
-			m_observer = true;
+		if (isServer && m_observer) {
 			// Make the avatar invisible
 			gameObject.transform.Find("PlayerCamera/Gamer").gameObject.SetActive(false);
 			gameObject.transform.Find ("GvrControllerPointer/Controller/ddcontroller").gameObject.SetActive (false);
@@ -129,7 +129,7 @@ public class PlayerSetup : NetworkBehaviour {
 	}
 		
 	public override void OnNetworkDestroy() {
-		if (isServer && LocalPlayer.singleton.observer) {
+		if (isServer && m_observer) {
 			Camera playerCamera = gameObject.transform.Find ("PlayerCamera").gameObject.GetComponent<Camera> ();
 			if (Camera.main == playerCamera) {
 				switchCamera (m_playerCameras [m_nextCamera]);

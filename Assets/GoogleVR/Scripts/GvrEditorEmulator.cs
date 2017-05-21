@@ -38,6 +38,15 @@ public class GvrEditorEmulator : MonoBehaviour {
   [Tooltip("Camera to track")]
   public Camera m_camera;
 
+	public Camera trackedCamera {
+		get {
+			if (m_camera == null)
+				return Camera.main;
+			else
+				return m_camera;
+		}
+	}
+
 #if UNITY_EDITOR && UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_IOS)
   void Start()
   {
@@ -55,6 +64,8 @@ public class GvrEditorEmulator : MonoBehaviour {
 
   void Update()
   {
+		if (!trackedCamera)
+			return;
     if (GvrController.Recentered)
     {
       Recenter();
@@ -81,12 +92,12 @@ public class GvrEditorEmulator : MonoBehaviour {
       m_mouseZ = Mathf.Lerp(m_mouseZ, 0, Time.deltaTime / (Time.deltaTime + 0.1f));
     }
     rot = Quaternion.Euler(m_mouseY, m_mouseX, m_mouseZ);
-    var neck = (rot * m_neckOffset - m_neckOffset.y * Vector3.up) * m_camera.transform.lossyScale.y;
+		var neck = (rot * m_neckOffset - m_neckOffset.y * Vector3.up) * trackedCamera.transform.lossyScale.y;
 
-    Vector3 camPosition = m_camera.transform.position;
+		Vector3 camPosition = trackedCamera.transform.position;
     camPosition.y = neck.y;
-    m_camera.transform.localPosition = neck;
-    m_camera.transform.localRotation = rot;
+		trackedCamera.transform.localPosition = neck;
+		trackedCamera.transform.localRotation = rot;
   }
 #endif  // UNITY_EDITOR && UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_IOS)
 
@@ -98,8 +109,8 @@ public class GvrEditorEmulator : MonoBehaviour {
       return;
     }
     m_mouseX = m_mouseZ = 0;  // Do not reset pitch, which is how it works on the phone.
-    m_camera.transform.localPosition = Vector3.zero;
-    m_camera.transform.localRotation = new Quaternion(m_mouseX, m_mouseY, m_mouseZ, 1);
+		trackedCamera.transform.localPosition = Vector3.zero;
+		trackedCamera.transform.localRotation = new Quaternion(m_mouseX, m_mouseY, m_mouseZ, 1);
 #endif  // UNITY_EDITOR && UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_IOS)
   }
 }

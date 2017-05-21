@@ -36,7 +36,7 @@ public class TimedDestroy : NetworkBehaviour {
 			if (currentLerpTime > m_shrinkTime) {
 				if (m_networked && isServer) {
 					Debug.Log ("On the server and destroying");
-					LocalPlayer.singleton.CmdDestroyObject (netId);
+					IAAPlayer.localPlayer.CmdDestroyObject (netId);
 				}
 				else if (!m_networked)
 					Destroy (gameObject);

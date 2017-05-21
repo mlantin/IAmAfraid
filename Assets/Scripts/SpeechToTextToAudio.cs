@@ -42,7 +42,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 		singleton = this;
 
 		if (!isServer) {
-			m_wordmakerScript = LocalPlayer.playerObject.GetComponent<makeaword> ();
+			m_wordmakerScript = IAAPlayer.playerObject.GetComponent<makeaword> ();
 			m_textField = m_textcanvas.GetComponent<Text> ();
 			LogSystem.InstallDefaultReactors ();
 		}
@@ -56,9 +56,9 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 			transform.RotateAround (transform.position, Vector3.up, 3);
 		}
 		if (Input.GetKeyDown (KeyCode.Space))
-			LocalPlayer.singleton.CmdSetWatsonRotateCube (netId, true);
+			IAAPlayer.localPlayer.CmdSetWatsonRotateCube (netId, true);
 		else if (Input.GetKeyUp (KeyCode.Space))
-			LocalPlayer.singleton.CmdSetWatsonRotateCube (netId, false);
+			IAAPlayer.localPlayer.CmdSetWatsonRotateCube (netId, false);
 	}
 
 	// Only called by LocalPlayer proxy command
@@ -116,7 +116,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 		{
 			UnityObjectUtil.StartDestroyQueue();
 			m_RecordingRoutine = Runnable.Run(RecordingHandler2());
-			LocalPlayer.singleton.CmdSetWatsonRotateCube (netId, true);
+			IAAPlayer.localPlayer.CmdSetWatsonRotateCube (netId, true);
 		}
 	}
 
@@ -128,7 +128,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 			Microphone.End(m_MicrophoneID);
 			Runnable.Stop(m_RecordingRoutine);
 			m_RecordingRoutine = 0;
-			LocalPlayer.singleton.CmdSetWatsonRotateCube (netId, false);
+			IAAPlayer.localPlayer.CmdSetWatsonRotateCube (netId, false);
 		}
 	}
 
@@ -222,10 +222,10 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 		Webserver.singleton.Upload (m_mostRecentFilename, m_mostRecentClip, handler);
 		yield return new WaitUntil(() => handler.isDone == true);
 		if (!hasAuthority)
-			LocalPlayer.getAuthority (netId);
+			IAAPlayer.getAuthority (netId);
 		yield return new WaitUntil(() => hasAuthority == true);
 		spawnTheWord ();
-		LocalPlayer.removeAuthority (netId);
+		IAAPlayer.removeAuthority (netId);
 	}
 
 

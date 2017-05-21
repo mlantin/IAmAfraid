@@ -14,11 +14,11 @@ public class ReticleManager : NetworkBehaviour {
 	// destroyed when I go away.
 	void OnApplicationQuit() {
 		if (!isServer && hasAuthority)
-			LocalPlayer.removeAuthority (netId);
+			IAAPlayer.removeAuthority (netId);
 	}
 
 	void onDestroy() {
 		if (!isServer && hasAuthority)
-			LocalPlayer.removeAuthority (netId);
+			IAAPlayer.removeAuthority (netId);
 	}
 }

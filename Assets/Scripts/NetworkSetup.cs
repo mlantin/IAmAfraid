@@ -11,6 +11,7 @@ public class NetworkSetup : MonoBehaviour {
 
 	public Canvas m_inputCanvas;
 	public GameObject m_inputManager;
+	public GameObject m_UICamera;
 	public GameObject m_holojam;
 
 	bool m_networkstarted = false;
@@ -33,7 +34,7 @@ public class NetworkSetup : MonoBehaviour {
 		else
 			m_holojam.SetActive (false);
 
-		LocalPlayer.singleton.playerTracked = mocap;
+		IAAPlayer.localPlayer.playerTracked = mocap;
 	}
 
 	public void setServerIP(string ip) {
@@ -42,6 +43,8 @@ public class NetworkSetup : MonoBehaviour {
 
 	public void startNetwork(bool host) {
 		m_host = host;
+		m_inputCanvas.enabled = false;
+		m_UICamera.SetActive (false);
 		#if UNITY_EDITOR || UNITY_STANDALONE_OSX
 		if (host) { // We are starting in host mode
 			Debug.Log ("Host Mode");
@@ -51,7 +54,6 @@ public class NetworkSetup : MonoBehaviour {
 			NetworkManager.singleton.StartClient();
 		}
 		m_inputManager.SetActive (true);
-		m_inputCanvas.enabled = false;
 		#elif UNITY_ANDROID
 		StartCoroutine (LoadDevice ("daydream"));
 		#endif
@@ -69,8 +71,6 @@ public class NetworkSetup : MonoBehaviour {
 
 	void OnApplicationPause (bool paused)  {
 		if (!paused && !m_networkstarted && VRSettings.enabled) {
-			m_inputCanvas.enabled = false;
-			Debug.Log ("I'm not paused!");
 			if (m_host) { // We are starting in host mode
 				Debug.Log ("Host Mode");
 				NetworkManager.singleton.StartHost ();

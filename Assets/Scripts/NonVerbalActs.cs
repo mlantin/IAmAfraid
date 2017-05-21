@@ -33,7 +33,7 @@ public class NonVerbalActs : NetworkBehaviour
 	GameObject laser {
 		get {
 			if (m_laser == null) 
-				m_laser = LocalPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser").gameObject;
+				m_laser = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser").gameObject;
 			return m_laser;
 		}
 	}
@@ -41,7 +41,7 @@ public class NonVerbalActs : NetworkBehaviour
 	GameObject reticle {
 		get {
 			if (m_reticle == null)
-				m_reticle = LocalPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser/Reticle").gameObject;
+				m_reticle = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser/Reticle").gameObject;
 			return m_reticle;
 		}
 	}
@@ -92,7 +92,7 @@ public class NonVerbalActs : NetworkBehaviour
 			if (GvrController.ClickButtonUp) {
 				m_positioned = true;
 				m_moving = false;
-				LocalPlayer.singleton.CmdSetObjectPositioned(netId,true);
+				IAAPlayer.localPlayer.CmdSetObjectPositioned(netId,true);
 			}
 		} else if (m_positioned && !m_moving) {
 			if (m_target && GvrController.ClickButtonDown) {
@@ -104,10 +104,10 @@ public class NonVerbalActs : NetworkBehaviour
 					m_presshold = true;
 					if (GvrController.TouchPos.x > .85f) {
 						if (m_looping)
-							LocalPlayer.singleton.CmdToggleObjectLoopingState(netId);
-						LocalPlayer.singleton.CmdSetObjectDrawingSequence(netId,true);
-						LocalPlayer.singleton.CmdSetObjectHitState (netId, false);
-						LocalPlayer.singleton.CmdSetObjectHitState (netId, true);
+							IAAPlayer.localPlayer.CmdToggleObjectLoopingState(netId);
+						IAAPlayer.localPlayer.CmdSetObjectDrawingSequence(netId,true);
+						IAAPlayer.localPlayer.CmdSetObjectHitState (netId, false);
+						IAAPlayer.localPlayer.CmdSetObjectHitState (netId, true);
 						m_sequencer.startNewSequence();
 					}
 				}
@@ -116,11 +116,11 @@ public class NonVerbalActs : NetworkBehaviour
 					if (m_drawingSequence) {
 						m_sequencer.addTime();
 						m_sequencer.endSequence();
-						LocalPlayer.singleton.CmdSetObjectDrawingSequence(netId,false);
+						IAAPlayer.localPlayer.CmdSetObjectDrawingSequence(netId,false);
 						if (!m_looping)
-							LocalPlayer.singleton.CmdToggleObjectLoopingState(netId);
+							IAAPlayer.localPlayer.CmdToggleObjectLoopingState(netId);
 					} else if (m_target) {
-						LocalPlayer.singleton.CmdToggleObjectLoopingState (netId);
+						IAAPlayer.localPlayer.CmdToggleObjectLoopingState (netId);
 						Debug.Log("Toggle sequencer");
 					}
 				}
@@ -133,8 +133,6 @@ public class NonVerbalActs : NetworkBehaviour
 
 	void FixedUpdate() {
 		if (m_drawingSequence) {
-			
-
 			m_sequencer.addPos (gameObject.transform.InverseTransformPoint (reticle.transform.position));
 		}
 	}
@@ -146,12 +144,12 @@ public class NonVerbalActs : NetworkBehaviour
 
 	void setPositionedState(bool state) {
 		if (!hasAuthority) {
-			LocalPlayer.getAuthority (netId);
+			IAAPlayer.getAuthority (netId);
 		}
 		CmdSetPositioned (state);
 
 		if (state == true) {
-			LocalPlayer.removeAuthority (netId);
+			IAAPlayer.removeAuthority (netId);
 		}
 	}
 
@@ -173,7 +171,7 @@ public class NonVerbalActs : NetworkBehaviour
 		if (m_positioned) {
 			m_target = true;
 			if (!m_looping)
-				LocalPlayer.singleton.CmdSetObjectHitState (netId, true);
+				IAAPlayer.localPlayer.CmdSetObjectHitState (netId, true);
 			if (m_drawingSequence) {
 				m_sequencer.addTime ();
 				Debug.Log ("Add a point to the sequence");
@@ -185,7 +183,7 @@ public class NonVerbalActs : NetworkBehaviour
 		if (m_positioned) {
 			m_target = false;
 			if (!m_looping)
-				LocalPlayer.singleton.CmdSetObjectHitState (netId, false);
+				IAAPlayer.localPlayer.CmdSetObjectHitState (netId, false);
 			if (m_drawingSequence) {
 				m_sequencer.addTime ();
 				Debug.Log ("Add a point to the sequence");
@@ -198,7 +196,7 @@ public class NonVerbalActs : NetworkBehaviour
 			return;
 		//get the coordinates of the trackpad so we know what kind of event we want to trigger
 		if (GvrController.TouchPos.y > .85f) {
-			LocalPlayer.singleton.CmdActivateTimedDestroy (netId);
+			IAAPlayer.localPlayer.CmdActivateTimedDestroy (netId);
 		}
 	}
 		
@@ -218,7 +216,7 @@ public class NonVerbalActs : NetworkBehaviour
 			m_distanceFromPointer = intersectionLaser.magnitude;
 			m_positioned = false;
 			m_moving = true;
-			LocalPlayer.singleton.CmdSetObjectPositioned(netId,false);
+			IAAPlayer.localPlayer.CmdSetObjectPositioned(netId,false);
 		}
 	}
 	#endif
@@ -282,15 +280,11 @@ public class NonVerbalActs : NetworkBehaviour
 		m_looping = val;
 
 		if (m_looping) {
-			m_sequencer.activatePath ();
 			m_highlight.ConstantOnImmediate ();
-//			m_sequencer.startSequencer ();
-			LocalPlayer.singleton.CmdObjectStartSequencer(netId);
+			IAAPlayer.localPlayer.CmdObjectStartSequencer(netId);
 		} else {
-			m_sequencer.deactivatePath ();
 			m_highlight.ConstantOffImmediate ();
-//			m_sequencer.stopSequencer ();
-			LocalPlayer.singleton.CmdObjectStopSequencer(netId);
+			IAAPlayer.localPlayer.CmdObjectStopSequencer(netId);
 		}
 	}
 

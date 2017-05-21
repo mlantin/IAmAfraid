@@ -178,9 +178,10 @@
      <Compile Include="Assets\Scripts\AuthorityManager.cs" />
      <Compile Include="Assets\Scripts\IAAInputManager.cs" />
      <Compile Include="Assets\Scripts\IAANetworkManager.cs" />
+     <Compile Include="Assets\Scripts\IAAPlayer.cs" />
      <Compile Include="Assets\Scripts\LaserRender.cs" />
      <Compile Include="Assets\Scripts\LoadAndSaveState.cs" />
-     <Compile Include="Assets\Scripts\LocalPlayer.cs" />
+     <Compile Include="Assets\Scripts\LocalPlayerOptions.cs" />
      <Compile Include="Assets\Scripts\MakeSoundObject.cs" />
      <Compile Include="Assets\Scripts\NetworkSetup.cs" />
      <Compile Include="Assets\Scripts\NonVerbalActs.cs" />

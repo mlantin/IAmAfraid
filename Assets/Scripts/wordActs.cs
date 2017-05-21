@@ -19,35 +19,38 @@ public class wordActs : NetworkBehaviour
 
 	private Quaternion m_rotq;
 	private bool m_moving = false;
-	GameObject m_laser = null;
+	private GameObject m_laser = null;
 
 	GameObject laser {
 		get {
 			if (m_laser == null) 
-				m_laser = LocalPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser").gameObject;
+				m_laser = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser").gameObject;
 			return m_laser;
 		}
 	}
 
 	private float m_xspace = 0;
+	[HideInInspector]
+	public Vector3 bbdim = new Vector3(0.0f,0.0f,0.0f);
 
 	public GameObject alphabet;
-	public Vector3 bbdim = new Vector3(0.0f,0.0f,0.0f);
-	public Text m_debugText = null;
+	public float m_destroyDelay = 360; // The average amount of time in seconds to way for letters to die.
+
 
 	// This indicates that the word was preloaded. It's not a SyncVar
 	// so it's only valid on the server which is ok because only
 	// the server needs to know. The variable is used to prevent
 	// audio clip deletion.
+	[HideInInspector]
 	public bool m_preloaded = false;
-	[SyncVar]
+	[HideInInspector][SyncVar]
 	public bool m_positioned = false;
 	// The hook should only be called once because the word will be set once
-	[SyncVar]
+	[HideInInspector][SyncVar]
 	public string m_wordstr = "";
-	[SyncVar]
+	[HideInInspector][SyncVar]
 	public float m_scale = 1.0f;
-	[SyncVar]
+	[HideInInspector][SyncVar]
 	public string m_serverFileName = "";
 
 	[SyncVar (hook ="playWord")]
@@ -97,7 +100,7 @@ public class wordActs : NetworkBehaviour
 			if (GvrController.ClickButtonUp) {
 				m_positioned = true;
 				m_moving = false;
-				LocalPlayer.singleton.CmdSetWordPositioned(netId, true);
+				IAAPlayer.localPlayer.CmdSetWordPositioned(netId, true);
 			}
 		}
 		#endif
@@ -105,12 +108,12 @@ public class wordActs : NetworkBehaviour
 
 	void setPositionedState(bool state) {
 		if (!hasAuthority) {
-			LocalPlayer.getAuthority (netId);
+			IAAPlayer.getAuthority (netId);
 		}
 		CmdSetPositioned (state);
 
 		if (state == true) {
-			LocalPlayer.removeAuthority (netId);
+			IAAPlayer.removeAuthority (netId);
 		}
 	}
 
@@ -130,12 +133,12 @@ public class wordActs : NetworkBehaviour
 
 	public void OnPointerEnter (PointerEventData eventData) {
 		if (m_positioned)
-			LocalPlayer.singleton.CmdSetWordHitState (netId,true);
+			IAAPlayer.localPlayer.CmdSetWordHitState (netId,true);
 	}
 
 	public void OnPointerExit(PointerEventData eventData){
 		if (m_positioned)
-			LocalPlayer.singleton.CmdSetWordHitState (netId, false);
+			IAAPlayer.localPlayer.CmdSetWordHitState (netId, false);
 	}
 
 	public void OnPointerClick (PointerEventData eventData) {
@@ -143,9 +146,9 @@ public class wordActs : NetworkBehaviour
 			return;
 		//get the coordinates of the trackpad so we know what kind of event we want to trigger
 		if (GvrController.TouchPos.y > .85f)
-			LocalPlayer.singleton.CmdDestroyObject (netId);
+			IAAPlayer.localPlayer.CmdDestroyObject (netId);
 		else if (GvrController.TouchPos.x > .85f)
-			LocalPlayer.singleton.CmdToggleWordLoopingState (netId);
+			IAAPlayer.localPlayer.CmdToggleWordLoopingState (netId);
 	}
 
 	public void OnPointerDown (PointerEventData eventData) {
@@ -155,7 +158,7 @@ public class wordActs : NetworkBehaviour
 			m_distanceFromPointer = intersectionLaser.magnitude;
 			m_positioned = false;
 			m_moving = true;
-			LocalPlayer.singleton.CmdSetWordPositioned(netId,false);
+			IAAPlayer.localPlayer.CmdSetWordPositioned(netId,false);
 		}
 	}
 	#endif
@@ -269,7 +272,7 @@ public class wordActs : NetworkBehaviour
 			rbf.z = Random.Range (-.3f, .3f);
 			rb.AddForce (rbf, ForceMode.VelocityChange);
 			TimedDestroy timerscript = letter.gameObject.AddComponent<TimedDestroy> ();
-			timerscript.m_destroyTime = Random.Range (8f, 12f);
+			timerscript.m_destroyTime = Random.Range (m_destroyDelay*.80f, m_destroyDelay*1.20f);
 			timerscript.activate ();
 			//letter.parent = letter.parent.parent.parent;
 		}

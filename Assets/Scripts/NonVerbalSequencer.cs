@@ -12,47 +12,35 @@ public class NonVerbalSequencer : NetworkBehaviour {
 
 	public GameObject comet; // The satellite that will trace the sequence path
 
-	List<float> times = new List<float> ();
+	List<int> playtriggers = new List<int> (); // A list of indices for when looping should be triggered. Anchored to path.
 	List<Vector3> path = new List<Vector3>();
 
-	float currentTime = 0;
 	int nextTime;
 	int nextPos;
-	float timeAtLastAdd;
-	bool active = false;
-	bool activepath = false;
+	bool active = false; // Whether sequence is playing
 	bool playstate = false; // whether the sound is playing or not
 
 	// Use this for initialization
 	void Start () {
 		active = false;
-		activepath = false;
 		comet.SetActive (false);
-	}
-
-	// just for trying something out
-	public void activatePath() {
-		comet.SetActive (true);
-		activepath = true;
-		nextPos = 0;
-	}
-
-	public void deactivatePath() {
-		comet.SetActive (false);
-		activepath = false;
 	}
 
 	public void startSequencer() {
-		if (times.Count > 0) {
+		if (playtriggers.Count > 0) {
 			nextPos = 0;
 			comet.transform.localPosition = path [0];
 			comet.SetActive (true);
 			active = true;
-			currentTime = 0;
 			nextTime = 0;
 			playstate = true;
-			LocalPlayer.singleton.CmdSetObjectHitState (netId, playstate);
+			IAAPlayer.localPlayer.CmdSetObjectHitState (netId, playstate);
 		}
+	}
+
+	[ClientRpc]
+	public void RpcSetCometVisibility(bool visible) {
+		comet.SetActive(visible);
 	}
 
 	public void stopSequencer() {
@@ -63,21 +51,23 @@ public class NonVerbalSequencer : NetworkBehaviour {
 		
 	public void startNewSequence() {
 		stopSequencer ();
-		times.Clear ();
+		playtriggers.Clear ();
 		path.Clear ();
-		currentTime = 0;
-		timeAtLastAdd = Time.unscaledTime;
 	}
 
 	public void endSequence() {
 		if (!isServer)
-			LocalPlayer.singleton.CmdSetObjectSequenceTimes (netId, times.ToArray ());
+			IAAPlayer.localPlayer.CmdSetObjectSequencePath (netId, path.ToArray(), playtriggers.ToArray ());
 	}
 		
-	public void syncTimes(float[] ts) {
-		times.Clear ();
+	public void syncPath(Vector3[] p, int[] ts) {
+		playtriggers.Clear ();
 		for (int i = 0; i < ts.Length; i++) {
-			times.Add (ts [i]);
+			playtriggers.Add (ts [i]);
+		}
+		path.Clear ();
+		for (int i = 0; i < p.Length; i++) {
+			path.Add (p [i]);
 		}
 	}
 
@@ -87,35 +77,34 @@ public class NonVerbalSequencer : NetworkBehaviour {
 	}
 
 	public void addTime() {
-		float t = Time.unscaledTime;
-		float dt = t - timeAtLastAdd;
-		timeAtLastAdd = t;
-		times.Add (dt);
+		playtriggers.Add (path.Count-1);
 	}
 
 	public void FixedUpdate() {
-		if (activepath && path.Count > 0) {
+		if (!isServer || !active || playtriggers.Count <= 1)
+			return;
+		
+		bool toggleplay = false;
+		if (path.Count > 0) {
 			comet.transform.localPosition = path [nextPos];
+			if (nextPos == playtriggers [nextTime])
+				toggleplay = true;
 			nextPos++;
 			if (nextPos == path.Count)
 				nextPos = 0;
 		}
-		if (!isServer || !active || times.Count <= 1)
-			return;
-		currentTime += Time.fixedUnscaledDeltaTime;
-		if (currentTime > times [nextTime]) {
-			currentTime = 0;
+		if (toggleplay) {
 			playstate = !playstate;
-			LocalPlayer.singleton.CmdSetObjectHitState (netId, playstate);
+			IAAPlayer.localPlayer.CmdSetObjectHitState (netId, playstate);
 			nextTime++;
-			if (nextTime == times.Count) {
+			if (nextTime == playtriggers.Count) {
 				nextTime = 0;
 				// TODO: think about whether we should first stop the play if we are currently playing. This has
 				// the effect of restarting the sound instead of keeping on going. I think this is a matter of 
 				// just deciding which one makes more sense. Once it's playing, it will be consistent. But it won't be
 				// exactly as recorded if we don't stop and start.
 				playstate = true;
-				LocalPlayer.singleton.CmdSetObjectHitState (netId, playstate);
+				IAAPlayer.localPlayer.CmdSetObjectHitState (netId, playstate);
 			}
 		}
 	}
