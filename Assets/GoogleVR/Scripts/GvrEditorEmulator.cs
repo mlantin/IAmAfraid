@@ -41,9 +41,9 @@ public class GvrEditorEmulator : MonoBehaviour {
 	public Camera trackedCamera {
 		get {
 			if (m_camera == null)
-				return Camera.main;
-			else
-				return m_camera;
+				m_camera = Camera.main;
+			
+			return m_camera;
 		}
 	}
 

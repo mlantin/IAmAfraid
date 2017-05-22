@@ -17,7 +17,7 @@ public class PlayerSetup : NetworkBehaviour {
 	void Awake() {
 		m_InputManager = GameObject.Find ("IAAInputManager");
 	}
-
+		
 	// Use this for initialization
 	void Start () {
 		Debug.Log ("In Start");
@@ -51,7 +51,7 @@ public class PlayerSetup : NetworkBehaviour {
 		GameObject playerCameraObj = gameObject.transform.Find ("PlayerCamera").gameObject;
 		Camera playercamera = playerCameraObj.GetComponent<Camera>();
 		m_playerCameras.Add (playercamera);
-
+		Debug.Log ("There are now " + m_playerCameras.Count + " cameras");
 		// add the highlighter
 		HighlightingRenderer hlrender = playerCameraObj.AddComponent<HighlightingRenderer>();
 		hlrender.LoadPreset ("Speed");
@@ -129,7 +129,7 @@ public class PlayerSetup : NetworkBehaviour {
 	}
 		
 	public override void OnNetworkDestroy() {
-		if (isServer && m_observer) {
+		if (isServer && IAAPlayer.localPlayer.isObserver) {
 			Camera playerCamera = gameObject.transform.Find ("PlayerCamera").gameObject.GetComponent<Camera> ();
 			if (Camera.main == playerCamera) {
 				switchCamera (m_playerCameras [m_nextCamera]);
@@ -160,10 +160,5 @@ public class PlayerSetup : NetworkBehaviour {
 			}
 			camera.enabled = true;
 		}
-	}
-
-	void Update() {
-//		if (isLocalPlayer)
-//			publisher.relayData (playerOrigin);
 	}
 }

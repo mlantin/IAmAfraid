@@ -23,6 +23,8 @@ public class NonVerbalActs : NetworkBehaviour
 	public Text m_DebugText;
 	Highlighter m_highlight;
 	NonVerbalSequencer m_sequencer;
+	bool m_drawingPath = false;
+	Plane m_drawingPlane = new Plane ();
 
 	float m_distanceFromPointer = 1.0f;
 	GvrAudioSource m_wordSource;
@@ -103,19 +105,26 @@ public class NonVerbalActs : NetworkBehaviour
 				if (!m_presshold && m_presstime > m_holdtime) {
 					m_presshold = true;
 					if (GvrController.TouchPos.x > .85f) {
+						m_drawingPlane.SetNormalAndPosition((Camera.main.transform.position-reticle.transform.position).normalized,reticle.transform.position);
+						// Calculate the normal plane
+//						m_drawingPlaneNorm = (Camera.main.transform.position-reticle.transform.position).normalized;
+//						m_drawingPlaneOrig = reticle.transform.position;
+//						m_drawingPlaneD = reticle.transform.position.magnitude;
 						if (m_looping)
 							IAAPlayer.localPlayer.CmdToggleObjectLoopingState(netId);
 						IAAPlayer.localPlayer.CmdSetObjectDrawingSequence(netId,true);
 						IAAPlayer.localPlayer.CmdSetObjectHitState (netId, false);
 						IAAPlayer.localPlayer.CmdSetObjectHitState (netId, true);
 						m_sequencer.startNewSequence();
+						m_drawingPath = true;
 					}
 				}
 			} else if (GvrController.ClickButtonUp) {
 				if (GvrController.TouchPos.x > .85f) {
-					if (m_drawingSequence) {
-						m_sequencer.addTime();
+					if (m_drawingPath) {
+						//m_sequencer.addTime();
 						m_sequencer.endSequence();
+						m_drawingPath = false;
 						IAAPlayer.localPlayer.CmdSetObjectDrawingSequence(netId,false);
 						if (!m_looping)
 							IAAPlayer.localPlayer.CmdToggleObjectLoopingState(netId);
@@ -132,10 +141,29 @@ public class NonVerbalActs : NetworkBehaviour
 	}
 
 	void FixedUpdate() {
-		if (m_drawingSequence) {
-			m_sequencer.addPos (gameObject.transform.InverseTransformPoint (reticle.transform.position));
+		if (m_drawingPath) {
+			// Get the point on the current plane
+			//m_sequencer.addPos (gameObject.transform.InverseTransformPoint (reticle.transform.position));
+			m_sequencer.addPos (gameObject.transform.InverseTransformPoint (RayDrawingPlaneIntersect(reticle.transform.position)));
 		}
 	}
+
+	Vector3 RayDrawingPlaneIntersect(Vector3 p) {
+		float enter;
+		Vector3 raydir = (p - Camera.main.transform.position).normalized;
+		Ray pathray = new Ray (Camera.main.transform.position, raydir);
+		m_drawingPlane.Raycast (pathray, out enter);
+		return Camera.main.transform.position + raydir * enter;
+	}
+
+//	Vector3 pointOnDrawingPlane(Vector3 p) {
+//		// First get the vector from the origin of the plane to p
+//		Vector3 op = p - m_drawingPlaneOrig;
+//		// Then get the dot product of that vector and the normal and multiply it by the normal.
+//		Vector3 vpar = Vector3.Dot(op,m_drawingPlaneNorm)*m_drawingPlaneNorm;
+//		Vector3 vperp = op - vpar;
+//		return m_drawingPlaneOrig + vperp;
+//	}
 
 	void Start() {
 		randomizePaperBall ();
@@ -172,7 +200,7 @@ public class NonVerbalActs : NetworkBehaviour
 			m_target = true;
 			if (!m_looping)
 				IAAPlayer.localPlayer.CmdSetObjectHitState (netId, true);
-			if (m_drawingSequence) {
+			if (m_drawingPath) {
 				m_sequencer.addTime ();
 				Debug.Log ("Add a point to the sequence");
 			}
@@ -184,7 +212,7 @@ public class NonVerbalActs : NetworkBehaviour
 			m_target = false;
 			if (!m_looping)
 				IAAPlayer.localPlayer.CmdSetObjectHitState (netId, false);
-			if (m_drawingSequence) {
+			if (m_drawingPath) {
 				m_sequencer.addTime ();
 				Debug.Log ("Add a point to the sequence");
 			}
@@ -265,7 +293,7 @@ public class NonVerbalActs : NetworkBehaviour
 		verts = mesh.vertices;
 		for(int i = 0; i < verts.Length; i++)
 		{
-			verts[i] *= Random.Range (.7f, 1.3f);
+			verts[i] = verts[i].normalized*Random.Range (.3f, .7f);
 		}
 		mesh.vertices = verts;
 		mesh.RecalculateBounds();
