@@ -189,6 +189,36 @@ public class IAAPlayer : NetworkBehaviour {
 		acts.toggleLooping ();
 	}
 
+	[Command]
+	public void CmdSetWordDrawingSequence(NetworkInstanceId objid, bool val) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		wordActs acts = obj.GetComponent<wordActs> ();
+		acts.setDrawingSequence (val);
+	}
+
+	[Command]
+	public void CmdWordStartSequencer(NetworkInstanceId objid) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		WordSequencer seq = obj.GetComponent<WordSequencer> ();
+		seq.RpcSetCometVisibility (true);
+		seq.startSequencer ();
+	}
+
+	[Command]
+	public void CmdWordStopSequencer(NetworkInstanceId objid) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		WordSequencer seq = obj.GetComponent<WordSequencer> ();
+		seq.RpcSetCometVisibility (false);
+		seq.stopSequencer ();
+	}
+
+	[Command]
+	public void CmdSetWordSequencePath(NetworkInstanceId objid, int instanceID, Vector3[] p, int[] ts, float[] sc) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		WordSequencer seq = obj.GetComponent<WordSequencer> ();
+		seq.RpcSyncPath (instanceID,p,ts,sc);
+	}
+
 	//	[Command]
 	//	public void CmdSeparateLetters(NetworkInstanceId objid) {
 	//		NetworkIdentity netid = NetworkServer.objects [objid];

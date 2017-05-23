@@ -13,9 +13,9 @@ public class NonVerbalSequencer : NetworkBehaviour {
 	public GameObject comet; // The satellite that will trace the sequence path
 
 	List<int> playtriggers = new List<int> (); // A list of indices for when looping should be triggered. Anchored to path.
-	List<Vector3> path = new List<Vector3>();
+	List<Vector3> path = new List<Vector3>(); // A list of positions on the path, one for each fixed update
 
-	int nextTime;
+	int nextInOut;
 	int nextPos;
 	bool active = false; // Whether sequence is playing
 	bool playstate = false; // whether the sound is playing or not
@@ -32,7 +32,7 @@ public class NonVerbalSequencer : NetworkBehaviour {
 			comet.transform.localPosition = path [0];
 			comet.SetActive (true);
 			active = true;
-			nextTime = 0;
+			nextInOut = 0;
 			playstate = true;
 			IAAPlayer.localPlayer.CmdSetObjectHitState (netId, playstate);
 		}
@@ -56,7 +56,7 @@ public class NonVerbalSequencer : NetworkBehaviour {
 	}
 
 	public void endSequence() {
-		if (!isServer)
+		if (!isServer) // In case we are a host...there is no point transfering data to ourselves
 			IAAPlayer.localPlayer.CmdSetObjectSequencePath (netId, path.ToArray(), playtriggers.ToArray ());
 	}
 		
@@ -87,24 +87,27 @@ public class NonVerbalSequencer : NetworkBehaviour {
 		bool toggleplay = false;
 		if (path.Count > 0) {
 			comet.transform.localPosition = path [nextPos];
-			if (nextPos == playtriggers [nextTime])
+			if (nextPos == playtriggers [nextInOut])
 				toggleplay = true;
+			if (nextPos == 0) { // We are starting again so reset the play
+				if (playstate == true) {
+					IAAPlayer.localPlayer.CmdSetObjectHitState (netId, false);
+					IAAPlayer.localPlayer.CmdSetObjectHitState (netId, true);
+				} else {
+					toggleplay = true;
+				}
+			}
 			nextPos++;
 			if (nextPos == path.Count)
 				nextPos = 0;
-		}
-		if (toggleplay) {
-			playstate = !playstate;
-			IAAPlayer.localPlayer.CmdSetObjectHitState (netId, playstate);
-			nextTime++;
-			if (nextTime == playtriggers.Count) {
-				nextTime = 0;
-				// TODO: think about whether we should first stop the play if we are currently playing. This has
-				// the effect of restarting the sound instead of keeping on going. I think this is a matter of 
-				// just deciding which one makes more sense. Once it's playing, it will be consistent. But it won't be
-				// exactly as recorded if we don't stop and start.
-				playstate = true;
+		
+			if (toggleplay) {
+				playstate = !playstate;
 				IAAPlayer.localPlayer.CmdSetObjectHitState (netId, playstate);
+				nextInOut++;
+				if (nextInOut == playtriggers.Count) {
+					nextInOut = 0;
+				}
 			}
 		}
 	}

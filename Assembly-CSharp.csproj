@@ -195,6 +195,7 @@
      <Compile Include="Assets\Scripts\ViconTrackable.cs" />
      <Compile Include="Assets\Scripts\Webserver.cs" />
      <Compile Include="Assets\Scripts\WordInfo.cs" />
+     <Compile Include="Assets\Scripts\WordSequencer.cs" />
      <Compile Include="Assets\Scripts\makeaword.cs" />
      <Compile Include="Assets\Scripts\wordActs.cs" />
      <Compile Include="Assets\Watson\Examples\ServiceExamples\Scripts\ExampleAlchemyDataNews.cs" />

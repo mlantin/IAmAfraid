@@ -13,12 +13,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 	
 	static public SpeechToTextToAudio singleton = null;
 
-
-	public GameObject m_textcanvas = null;
-
 	private makeaword m_wordmakerScript = null;
-
-	private Text m_textField;
 
 	private int m_RecordingRoutine = 0;
 	private string m_MicrophoneID = null;
@@ -37,19 +32,23 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 
 	private SpeechToText m_SpeechToText = new SpeechToText();
 
-	void Start()
-	{
-		singleton = this;
-
-		if (!isServer) {
-			m_wordmakerScript = IAAPlayer.playerObject.GetComponent<makeaword> ();
-			m_textField = m_textcanvas.GetComponent<Text> ();
-			LogSystem.InstallDefaultReactors ();
+	private makeaword wordMakerScript {
+		get {
+			if (m_wordmakerScript == null)
+				m_wordmakerScript = IAAPlayer.playerObject.GetComponent<makeaword> ();
+			return m_wordmakerScript;
 		}
+	}
+
+	void Start()	{
+
+		singleton = this;
+		LogSystem.InstallDefaultReactors ();
+
 //		RequestPermissions ();
 //		Active = true;
 	}
-
+		
 	void Update() {
 		//if (m_RecordingRoutine != 0 || Input.GetKey(KeyCode.Space)) {
 		if (m_isRotating) {
@@ -102,7 +101,6 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 		tries++;
 		listening = m_SpeechToText.StartListening(OnRecognize);
 		if (listening || tries == 10) {
-			m_textField.text = "success connecting!";
 			yield break;
 		} else {
 			yield return null;
@@ -140,7 +138,6 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 	{
 		Active = false;
 
-		m_textField.text = "Error! " + error;
 	}
 
 	private IEnumerator RecordingHandler2()
@@ -156,18 +153,16 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 			yield break;
 		}
 
-		m_textField.text = "Recording";
+		//m_textField.text = "Recording";
 		while (m_RecordingRoutine != 0 && m_Recording != null)
 		{
 			int writePos = Microphone.GetPosition(m_MicrophoneID);
 			if (writePos > m_Recording.samples || !Microphone.IsRecording (m_MicrophoneID)) {
-				m_textField.text = "Error: Microphone disconnected";
 				Log.Error ("MicrophoneWidget", "Microphone disconnected.");
 
 				StopRecording ();
 				yield break;
 			} else if (m_readytosend) {
-				m_textField.text = "sending " + writePos + " samples";
 				float[] samples = null;
 				samples = new float[writePos];
 
@@ -210,7 +205,6 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 						text = "Interim: " + alt.transcript;
 					}
 					Log.Debug("ExampleStreaming", string.Format("{0} ({1}, {2:0.00})\n", text, res.final ? "Final" : "Interim", alt.confidence));
-					m_textField.text = text;
 
 				}
 			}
@@ -240,6 +234,6 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 		pos = Vector3.forward*2f;
 		rot = Quaternion.identity;
 		#endif
-		m_wordmakerScript.CmdSpawnWord (m_mostRecentTranscript, 1f, pos, rot, m_mostRecentFilename, true);
+		wordMakerScript.CmdSpawnWord (m_mostRecentTranscript, 1f, pos, rot, m_mostRecentFilename, true);
 	}
 }

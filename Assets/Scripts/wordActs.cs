@@ -13,6 +13,13 @@ public class wordActs : NetworkBehaviour
 #endif
 {
 
+	// This is to set a timer when a person clicks. If we linger long enough 
+	// we call it a press&hold.
+	float m_presstime = 0;
+	bool m_presshold = true;
+	bool m_target = false;
+	const float m_holdtime = .5f; // seconds until we call it a press&hold.
+
 	private float m_distanceFromPointer = 1.0f;
 	private GvrAudioSource m_wordSource;
 	private Highlighter m_highlight;
@@ -20,12 +27,25 @@ public class wordActs : NetworkBehaviour
 	private Quaternion m_rotq;
 	private bool m_moving = false;
 	private GameObject m_laser = null;
+	private GameObject m_reticle = null;
+
+	private Plane m_drawingPlane;
+	private bool m_drawingPath = false; 
+	private WordSequencer m_sequencer;
 
 	GameObject laser {
 		get {
 			if (m_laser == null) 
 				m_laser = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser").gameObject;
 			return m_laser;
+		}
+	}
+
+	GameObject reticle {
+		get {
+			if (m_reticle == null)
+				m_reticle = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser/Reticle").gameObject;
+			return m_reticle;
 		}
 	}
 
@@ -57,7 +77,9 @@ public class wordActs : NetworkBehaviour
 	bool wordHit = false;
 	[SyncVar (hook ="setLooping")]
 	bool m_looping = false;
-	bool m_drawingLoop = false;
+	[SyncVar (hook = "setDrawingHighlight")]
+	bool m_drawingSequence = false;
+
 
 	// Use this for initialization
 	void Awake () {
@@ -78,6 +100,8 @@ public class wordActs : NetworkBehaviour
 		m_highlight = GetComponent<Highlighter> ();
 		Color col = new Color (204, 102, 255); // a purple
 		m_highlight.ConstantParams (col);
+
+		m_sequencer = GetComponent<WordSequencer> ();
 	}
 
 	void Start() {
@@ -85,10 +109,21 @@ public class wordActs : NetworkBehaviour
 		fetchAudio (m_serverFileName);
 	}
 
+	public override void OnStartClient() {
+		//Make sure we are highlighted if we're looping or drawing at startup.
+		if (m_looping) {
+			m_highlight.ConstantOnImmediate ();
+		} else if (m_drawingSequence) {
+			m_highlight.FlashingOn ();
+		}
+	}
+
 	// Update is called once per frame
 	void Update () {
+		if (!isClient)
+			return;
 		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-		if (isClient && ((!m_positioned && hasAuthority) || (m_moving))) {
+		if ((!m_positioned && hasAuthority) || (m_moving)) {
 			if (!m_moving) {
 				transform.position = laser.transform.position + laser.transform.forward;
 			} else {
@@ -102,8 +137,59 @@ public class wordActs : NetworkBehaviour
 				m_moving = false;
 				IAAPlayer.localPlayer.CmdSetWordPositioned(netId, true);
 			}
+		} else if (m_positioned && !m_moving) {
+			if (m_target && GvrController.ClickButtonDown) {
+				m_presstime = 0;
+				m_presshold = false;
+			} else if (m_target && GvrController.ClickButton) {
+				m_presstime += Time.deltaTime;
+				if (!m_presshold && m_presstime > m_holdtime) {
+					m_presshold = true;
+					if (GvrController.TouchPos.x > .85f) {
+						m_drawingPlane.SetNormalAndPosition((Camera.main.transform.position-reticle.transform.position).normalized,reticle.transform.position);
+						if (m_looping)
+							IAAPlayer.localPlayer.CmdToggleWordLoopingState(netId);
+						IAAPlayer.localPlayer.CmdSetWordDrawingSequence(netId,true);
+						IAAPlayer.localPlayer.CmdSetWordHitState (netId, false);
+						IAAPlayer.localPlayer.CmdSetWordHitState (netId, true);
+						m_sequencer.startNewSequence();
+						m_drawingPath = true;
+					}
+				}
+			} else if (GvrController.ClickButtonUp) {
+				if (GvrController.TouchPos.x > .85f) {
+					if (m_drawingPath) {
+						//m_sequencer.addTime();
+						m_sequencer.endSequence();
+						m_drawingPath = false;
+						IAAPlayer.localPlayer.CmdSetObjectDrawingSequence(netId,false);
+						if (!m_looping)
+							IAAPlayer.localPlayer.CmdToggleObjectLoopingState(netId);
+					} else if (m_target) {
+						IAAPlayer.localPlayer.CmdToggleObjectLoopingState (netId);
+						Debug.Log("Toggle sequencer");
+					}
+				}
+				m_presshold = false;
+			}
 		}
 		#endif
+	}
+
+	void FixedUpdate() {
+		if (m_drawingPath) {
+			// Get the point on the current plane
+			//m_sequencer.addPos (gameObject.transform.InverseTransformPoint (reticle.transform.position));
+			m_sequencer.addPos (gameObject.transform.InverseTransformPoint (RayDrawingPlaneIntersect(reticle.transform.position)));
+		}
+	}
+
+	Vector3 RayDrawingPlaneIntersect(Vector3 p) {
+		float enter;
+		Vector3 raydir = (p - Camera.main.transform.position).normalized;
+		Ray pathray = new Ray (Camera.main.transform.position, raydir);
+		m_drawingPlane.Raycast (pathray, out enter);
+		return Camera.main.transform.position + raydir * enter;
 	}
 
 	void setPositionedState(bool state) {
@@ -128,17 +214,32 @@ public class wordActs : NetworkBehaviour
 		Vector3 reticleLocal;
 		reticleInWord = eventData.pointerCurrentRaycast.worldPosition;
 		reticleLocal = transform.InverseTransformPoint (reticleInWord);
-		Debug.Log ("x: " + (reticleLocal.x / bbdim.x + 0.5f) + " y: " + (reticleLocal.y / bbdim.y+.5f));
+		if (m_drawingPath) {
+			m_sequencer.addScrub (reticleLocal.x);
+		}
+//		Debug.Log ("x: " + (reticleLocal.x / bbdim.x + 0.5f) + " y: " + (reticleLocal.y / bbdim.y+.5f));
 	}
 
 	public void OnPointerEnter (PointerEventData eventData) {
-		if (m_positioned)
-			IAAPlayer.localPlayer.CmdSetWordHitState (netId,true);
+		if (m_positioned) {
+			m_target = true;
+			if (!m_looping)
+				IAAPlayer.localPlayer.CmdSetWordHitState (netId, true);
+			if (m_drawingPath) {
+				m_sequencer.addTime ();
+			}
+		}
 	}
 
 	public void OnPointerExit(PointerEventData eventData){
-		if (m_positioned)
-			IAAPlayer.localPlayer.CmdSetWordHitState (netId, false);
+		if (m_positioned) {
+			m_target = false;
+			if (!m_looping)
+				IAAPlayer.localPlayer.CmdSetWordHitState (netId, false);
+			if (m_drawingPath) {
+				m_sequencer.addTime ();
+			}
+		}
 	}
 
 	public void OnPointerClick (PointerEventData eventData) {
@@ -162,6 +263,11 @@ public class wordActs : NetworkBehaviour
 		}
 	}
 	#endif
+	
+	// This is only called from the LocalPlayer proxy server command
+	public void setDrawingSequence(bool val) {
+		m_drawingSequence = val;
+	}
 
 	public override void OnNetworkDestroy() {
 		separateLetters ();
@@ -188,13 +294,17 @@ public class wordActs : NetworkBehaviour
 		}
 	}
 
+
 	void setLooping(bool loop) {
 		m_looping = loop;
-		m_wordSource.loop = m_looping;
-		if (m_looping)
+
+		if (m_looping) {
 			m_highlight.ConstantOnImmediate ();
-		else
+			IAAPlayer.localPlayer.CmdWordStartSequencer(netId);
+		} else {
 			m_highlight.ConstantOffImmediate ();
+			IAAPlayer.localPlayer.CmdWordStopSequencer(netId);
+		}
 	}
 
 	void addLetters(string word) {
@@ -251,6 +361,15 @@ public class wordActs : NetworkBehaviour
 			m_wordSource.clip = SpeechToTextToAudio.singleton.mostRecentClip;
 		} else {
 			StartCoroutine(Webserver.singleton.GetAudioClip (clipfn, (newclip) => { m_wordSource.clip = newclip;}));
+		}
+	}
+
+	public void setDrawingHighlight(bool val) {
+		m_drawingSequence = val;
+		if (m_drawingSequence) {
+			m_highlight.FlashingOn ();
+		} else {
+			m_highlight.FlashingOff ();
 		}
 	}
 

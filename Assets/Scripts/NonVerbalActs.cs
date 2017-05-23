@@ -32,6 +32,26 @@ public class NonVerbalActs : NetworkBehaviour
 	GameObject m_laser = null;
 	GameObject m_reticle = null;
 
+	Quaternion m_rotq;
+	bool m_moving = false;
+	bool m_target = false; // Whether the reticle is on this object
+
+	// This indicates that the word was preloaded. It's not a SyncVar
+	// so it's only valid on the server which is ok because only
+	// the server needs to know. The variable is used to prevent
+	// audio clip deletion.
+	public bool m_preloaded = false;
+	[SyncVar (hook ="playSound")]
+	private bool objectHit = false;
+	[SyncVar]
+	public bool m_positioned = false;
+	[SyncVar (hook = "setLooping")]
+	bool m_looping = false;
+	[SyncVar (hook = "setDrawingHighlight")]
+	bool m_drawingSequence = false;
+	Vector3 m_pathNormal = new Vector3(); // we'll set this to be the vector from the object to the camera.
+
+
 	GameObject laser {
 		get {
 			if (m_laser == null) 
@@ -48,25 +68,6 @@ public class NonVerbalActs : NetworkBehaviour
 		}
 	}
 
-	Quaternion m_rotq;
-	bool m_moving = false;
-	bool m_target = false; // Whether the reticle is on this object
-
-	// This indicates that the word was preloaded. It's not a SyncVar
-	// so it's only valid on the server which is ok because only
-	// the server needs to know. The variable is used to prevent
-	// audio clip deletion.
-	public bool m_preloaded = false;
-	[SyncVar (hook ="playSound")]
-	private bool objectHit = false;
-	[SyncVar]
-	public bool m_positioned = false;
-	[SyncVar (hook = "setLooping")]
-	bool m_looping = false;
-	[SyncVar (hook = "setDrawing")]
-	bool m_drawingSequence = false;
-	Vector3 m_pathNormal = new Vector3(); // we'll set this to be the vector from the object to the camera.
-
 	// Use this for initialization
 	void Awake () {
 		m_wordSource = GetComponent<GvrAudioSource> ();
@@ -78,9 +79,18 @@ public class NonVerbalActs : NetworkBehaviour
 		m_sequencer = GetComponent<NonVerbalSequencer> ();
 	}
 
+	public override void OnStartClient() {
+		//Make sure we are highlighted if we're looping or drawing at startup.
+		if (m_looping) {
+			m_highlight.ConstantOnImmediate ();
+		} else if (m_drawingSequence) {
+			m_highlight.FlashingOn ();
+		}
+	}
+
 	void Update () {
-//		if (isServer)
-//			return;
+		if (!isClient)
+			return;
 		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 		if ((!m_positioned && hasAuthority) || (m_moving)) {
 			if (!m_moving) {
@@ -202,7 +212,6 @@ public class NonVerbalActs : NetworkBehaviour
 				IAAPlayer.localPlayer.CmdSetObjectHitState (netId, true);
 			if (m_drawingPath) {
 				m_sequencer.addTime ();
-				Debug.Log ("Add a point to the sequence");
 			}
 		}
 	}
@@ -214,7 +223,6 @@ public class NonVerbalActs : NetworkBehaviour
 				IAAPlayer.localPlayer.CmdSetObjectHitState (netId, false);
 			if (m_drawingPath) {
 				m_sequencer.addTime ();
-				Debug.Log ("Add a point to the sequence");
 			}
 		}
 	}
@@ -316,7 +324,7 @@ public class NonVerbalActs : NetworkBehaviour
 		}
 	}
 
-	public void setDrawing(bool val) {
+	public void setDrawingHighlight(bool val) {
 		m_drawingSequence = val;
 		if (m_drawingSequence) {
 			m_highlight.FlashingOn ();
