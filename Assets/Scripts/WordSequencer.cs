@@ -7,6 +7,8 @@ public class WordSequencer : NetworkBehaviour {
 
 	public GameObject comet; // The satellite that will trace the sequence path
 
+	wordActs m_wordActs;
+
 	List<int> playtriggers = new List<int> (); // A list of indices for when looping should be triggered. Anchored to path.
 	List<Vector3> path = new List<Vector3>(); // A list of positions on the path, one for each fixed update
 	// A list of scrub values. Note this list is not the same length as the path
@@ -21,19 +23,19 @@ public class WordSequencer : NetworkBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		m_wordActs = gameObject.GetComponent<wordActs> ();
 		active = false;
 		comet.SetActive (false);
 	}
 
 	public void startNewSequence() {
-		stopSequencer ();
+		IAAPlayer.localPlayer.CmdWordStopSequencer(netId);
 		playtriggers.Clear ();
 		path.Clear ();
 		scrubs.Clear ();
 	}
 
 	public void addPos(Vector3 p) {
-		Debug.Log ("adding a position: " + p);
 		path.Add(p);
 	}
 
@@ -69,30 +71,32 @@ public class WordSequencer : NetworkBehaviour {
 		}
 	}
 
-	public void startSequencer () {
+	[ClientRpc]
+	public void RpcStartSequencer () {
 		nextPos = 0;
 		nextScrub = 0;
 		comet.transform.localPosition = path [0];
-		comet.SetActive (true);
 		active = true;
 		nextInOut = 0;
+		setCometVisibility (true);
 		playstate = true;
-		IAAPlayer.localPlayer.CmdSetObjectHitState (netId, playstate);
-	}
-
-	public void stopSequencer() {
-		active = false;
-		playstate = false;
-		comet.SetActive (false);
+		m_wordActs.playWord (false);
+		m_wordActs.playWord (true);
 	}
 
 	[ClientRpc]
-	public void RpcSetCometVisibility(bool visible) {
+	public void RpcStopSequencer() {
+		active = false;
+		playstate = false;
+		setCometVisibility (false);
+	}
+
+	public void setCometVisibility(bool visible) {
 		comet.SetActive(visible);
 	}
 
 	public void FixedUpdate() {
-		if (!isClient || !active || scrubs.Count <= 1)
+		if (!active || scrubs.Count <= 1)
 			return;
 
 		bool toggleplay = false;
@@ -100,30 +104,23 @@ public class WordSequencer : NetworkBehaviour {
 			comet.transform.localPosition = path [nextPos];
 			if (nextPos == playtriggers [nextInOut])
 				toggleplay = true;
-			if (nextPos == 0) { // We are starting again so reset the play
-				if (playstate == true) {
-					IAAPlayer.localPlayer.CmdSetObjectHitState (netId, false);
-					IAAPlayer.localPlayer.CmdSetObjectHitState (netId, true);
-				} else {
-					toggleplay = true;
-				}
-			}
-			nextPos++;
-			if (nextPos == path.Count) {
-				nextPos = 0;
-				nextScrub = 0;
-			}
 			if (toggleplay) {
 				playstate = !playstate;
-				IAAPlayer.localPlayer.CmdSetObjectHitState (netId, playstate);
+				m_wordActs.playWord (playstate);
 				nextInOut++;
 				if (nextInOut == playtriggers.Count) {
-					nextInOut = 0;
+					nextInOut--;
 				}
 			}
 			if (playstate == true) {
-				Debug.Log ("scrub to " + scrubs [nextScrub]);
+				//Debug.Log ("scrub to " + scrubs [nextScrub]);
 				nextScrub++;
+			}
+			nextPos++;
+			if (nextPos == path.Count) {
+				active = false;
+				if (isServer)
+					IAAPlayer.localPlayer.CmdWordStartSequencer (netId);
 			}
 		}
 	}

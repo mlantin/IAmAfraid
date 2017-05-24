@@ -113,6 +113,7 @@ public class wordActs : NetworkBehaviour
 		//Make sure we are highlighted if we're looping or drawing at startup.
 		if (m_looping) {
 			m_highlight.ConstantOnImmediate ();
+			m_sequencer.setCometVisibility (true);
 		} else if (m_drawingSequence) {
 			m_highlight.FlashingOn ();
 		}
@@ -162,12 +163,11 @@ public class wordActs : NetworkBehaviour
 						//m_sequencer.addTime();
 						m_sequencer.endSequence();
 						m_drawingPath = false;
-						IAAPlayer.localPlayer.CmdSetObjectDrawingSequence(netId,false);
+						IAAPlayer.localPlayer.CmdSetWordDrawingSequence(netId,false);
 						if (!m_looping)
-							IAAPlayer.localPlayer.CmdToggleObjectLoopingState(netId);
+							IAAPlayer.localPlayer.CmdToggleWordLoopingState(netId);
 					} else if (m_target) {
-						IAAPlayer.localPlayer.CmdToggleObjectLoopingState (netId);
-						Debug.Log("Toggle sequencer");
+						IAAPlayer.localPlayer.CmdToggleWordLoopingState (netId);
 					}
 				}
 				m_presshold = false;
@@ -181,7 +181,14 @@ public class wordActs : NetworkBehaviour
 			// Get the point on the current plane
 			//m_sequencer.addPos (gameObject.transform.InverseTransformPoint (reticle.transform.position));
 			m_sequencer.addPos (gameObject.transform.InverseTransformPoint (RayDrawingPlaneIntersect(reticle.transform.position)));
+			if (m_target) {
+				m_sequencer.addScrub (getScrubValue ().x);
+			}
 		}
+	}
+
+	Vector3 getScrubValue() {
+		return transform.InverseTransformPoint (m_reticle.transform.position);
 	}
 
 	Vector3 RayDrawingPlaneIntersect(Vector3 p) {
@@ -210,14 +217,14 @@ public class wordActs : NetworkBehaviour
 
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 	public void OnGvrPointerHover(PointerEventData eventData) {
-		Vector3 reticleInWord;
-		Vector3 reticleLocal;
-		reticleInWord = eventData.pointerCurrentRaycast.worldPosition;
-		reticleLocal = transform.InverseTransformPoint (reticleInWord);
-		if (m_drawingPath) {
-			m_sequencer.addScrub (reticleLocal.x);
-		}
-//		Debug.Log ("x: " + (reticleLocal.x / bbdim.x + 0.5f) + " y: " + (reticleLocal.y / bbdim.y+.5f));
+//		Vector3 reticleInWord;
+//		Vector3 reticleLocal;
+//		reticleInWord = eventData.pointerCurrentRaycast.worldPosition;
+//		reticleLocal = transform.InverseTransformPoint (reticleInWord);
+//		if (m_drawingPath) {
+//			m_sequencer.addScrub (reticleLocal.x);
+//		}
+////		Debug.Log ("x: " + (reticleLocal.x / bbdim.x + 0.5f) + " y: " + (reticleLocal.y / bbdim.y+.5f));
 	}
 
 	public void OnPointerEnter (PointerEventData eventData) {
@@ -248,8 +255,6 @@ public class wordActs : NetworkBehaviour
 		//get the coordinates of the trackpad so we know what kind of event we want to trigger
 		if (GvrController.TouchPos.y > .85f)
 			IAAPlayer.localPlayer.CmdDestroyObject (netId);
-		else if (GvrController.TouchPos.x > .85f)
-			IAAPlayer.localPlayer.CmdToggleWordLoopingState (netId);
 	}
 
 	public void OnPointerDown (PointerEventData eventData) {
@@ -287,17 +292,18 @@ public class wordActs : NetworkBehaviour
 		wordHit = state;
 	}
 
-	void playWord(bool hit) {
+	public void playWord(bool hit) {
 		wordHit = hit;
-		if (hit && !m_looping) {
+		if (hit) {
 			m_wordSource.Play ();
+		} else {
+			m_wordSource.Stop ();
 		}
 	}
 
 
 	void setLooping(bool loop) {
 		m_looping = loop;
-
 		if (m_looping) {
 			m_highlight.ConstantOnImmediate ();
 			IAAPlayer.localPlayer.CmdWordStartSequencer(netId);

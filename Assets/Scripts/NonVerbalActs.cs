@@ -83,6 +83,7 @@ public class NonVerbalActs : NetworkBehaviour
 		//Make sure we are highlighted if we're looping or drawing at startup.
 		if (m_looping) {
 			m_highlight.ConstantOnImmediate ();
+			m_sequencer.setCometVisibility (true);
 		} else if (m_drawingSequence) {
 			m_highlight.FlashingOn ();
 		}
@@ -116,10 +117,6 @@ public class NonVerbalActs : NetworkBehaviour
 					m_presshold = true;
 					if (GvrController.TouchPos.x > .85f) {
 						m_drawingPlane.SetNormalAndPosition((Camera.main.transform.position-reticle.transform.position).normalized,reticle.transform.position);
-						// Calculate the normal plane
-//						m_drawingPlaneNorm = (Camera.main.transform.position-reticle.transform.position).normalized;
-//						m_drawingPlaneOrig = reticle.transform.position;
-//						m_drawingPlaneD = reticle.transform.position.magnitude;
 						if (m_looping)
 							IAAPlayer.localPlayer.CmdToggleObjectLoopingState(netId);
 						IAAPlayer.localPlayer.CmdSetObjectDrawingSequence(netId,true);
@@ -140,7 +137,6 @@ public class NonVerbalActs : NetworkBehaviour
 							IAAPlayer.localPlayer.CmdToggleObjectLoopingState(netId);
 					} else if (m_target) {
 						IAAPlayer.localPlayer.CmdToggleObjectLoopingState (netId);
-						Debug.Log("Toggle sequencer");
 					}
 				}
 				m_presshold = false;
@@ -272,7 +268,7 @@ public class NonVerbalActs : NetworkBehaviour
 		m_drawingSequence = val;
 	}
 
-	void playSound(bool hit) {
+	public void playSound(bool hit) {
 		objectHit = hit;
 //		if (m_looping)
 //			return;

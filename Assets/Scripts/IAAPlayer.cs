@@ -140,26 +140,25 @@ public class IAAPlayer : NetworkBehaviour {
 	}
 
 	[Command]
-	public void CmdSetObjectSequencePath(NetworkInstanceId objid, Vector3[] p, int[] ts) {
+	public void CmdSetObjectSequencePath(NetworkInstanceId objid, int objuid, Vector3[] p, int[] ts) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
 		NonVerbalSequencer seq = obj.GetComponent<NonVerbalSequencer> ();
-		seq.syncPath (p,ts);
+		seq.RpcSyncPath (objuid,p,ts);
 	}
 
 	[Command]
 	public void CmdObjectStartSequencer(NetworkInstanceId objid) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
 		NonVerbalSequencer seq = obj.GetComponent<NonVerbalSequencer> ();
-		seq.RpcSetCometVisibility (true);
-		seq.startSequencer ();
+		seq.RpcStartSequencer ();
+		CmdSetObjectHitState (objid, true);
 	}
 
 	[Command]
 	public void CmdObjectStopSequencer(NetworkInstanceId objid) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
 		NonVerbalSequencer seq = obj.GetComponent<NonVerbalSequencer> ();
-		seq.RpcSetCometVisibility (false);
-		seq.stopSequencer ();
+		seq.RpcStopSequencer ();
 	}
 
 	// Word activities
@@ -200,16 +199,14 @@ public class IAAPlayer : NetworkBehaviour {
 	public void CmdWordStartSequencer(NetworkInstanceId objid) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
 		WordSequencer seq = obj.GetComponent<WordSequencer> ();
-		seq.RpcSetCometVisibility (true);
-		seq.startSequencer ();
+		seq.RpcStartSequencer ();
 	}
 
 	[Command]
 	public void CmdWordStopSequencer(NetworkInstanceId objid) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
 		WordSequencer seq = obj.GetComponent<WordSequencer> ();
-		seq.RpcSetCometVisibility (false);
-		seq.stopSequencer ();
+		seq.RpcStopSequencer ();
 	}
 
 	[Command]
