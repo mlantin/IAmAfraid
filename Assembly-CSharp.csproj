@@ -176,6 +176,7 @@
      <Compile Include="Assets\Holojam\Tools\SynchronizableTrackable.cs" />
      <Compile Include="Assets\Holojam\Utility\HolojamUnity.cs" />
      <Compile Include="Assets\Scripts\AuthorityManager.cs" />
+     <Compile Include="Assets\Scripts\GranularUploadHandler.cs" />
      <Compile Include="Assets\Scripts\IAAInputManager.cs" />
      <Compile Include="Assets\Scripts\IAANetworkManager.cs" />
      <Compile Include="Assets\Scripts\IAAPlayer.cs" />
@@ -189,6 +190,7 @@
      <Compile Include="Assets\Scripts\NonVerbalSequencer.cs" />
      <Compile Include="Assets\Scripts\PlayerSetup.cs" />
      <Compile Include="Assets\Scripts\ReticleManager.cs" />
+     <Compile Include="Assets\Scripts\SilentAudioSource.cs" />
      <Compile Include="Assets\Scripts\SpeechToTextToAudio.cs" />
      <Compile Include="Assets\Scripts\TimedDestroy.cs" />
      <Compile Include="Assets\Scripts\ViconActor.cs" />

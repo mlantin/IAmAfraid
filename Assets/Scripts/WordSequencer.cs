@@ -113,6 +113,7 @@ public class WordSequencer : NetworkBehaviour {
 				}
 			}
 			if (playstate == true) {
+				m_wordActs.setScrubValue (scrubs [nextScrub]);
 				//Debug.Log ("scrub to " + scrubs [nextScrub]);
 				nextScrub++;
 			}

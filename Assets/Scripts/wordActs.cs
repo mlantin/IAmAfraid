@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.Audio;
 using HighlightingSystem;
 
 
@@ -12,6 +13,10 @@ public class wordActs : NetworkBehaviour
 , IGvrPointerHoverHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IPointerDownHandler 
 #endif
 {
+	private GvrAudioSource m_wordSource;
+	private int m_granularSlot;
+	private float m_granOffset = 0;
+	private AudioMixer m_mixer;
 
 	// This is to set a timer when a person clicks. If we linger long enough 
 	// we call it a press&hold.
@@ -21,7 +26,6 @@ public class wordActs : NetworkBehaviour
 	const float m_holdtime = .5f; // seconds until we call it a press&hold.
 
 	private float m_distanceFromPointer = 1.0f;
-	private GvrAudioSource m_wordSource;
 	private Highlighter m_highlight;
 
 	private Quaternion m_rotq;
@@ -180,15 +184,23 @@ public class wordActs : NetworkBehaviour
 		if (m_drawingPath) {
 			// Get the point on the current plane
 			//m_sequencer.addPos (gameObject.transform.InverseTransformPoint (reticle.transform.position));
-			m_sequencer.addPos (gameObject.transform.InverseTransformPoint (RayDrawingPlaneIntersect(reticle.transform.position)));
+			m_sequencer.addPos (gameObject.transform.InverseTransformPoint (RayDrawingPlaneIntersect (reticle.transform.position)));
 			if (m_target) {
-				m_sequencer.addScrub (getScrubValue ().x);
+				m_granOffset = getScrubValue ().x / bbdim.x + 0.5f;
+				m_sequencer.addScrub (m_granOffset);
 			}
+		}
+		if (wordHit) {
+			m_mixer.SetFloat ("Offset", m_granOffset);
 		}
 	}
 
 	Vector3 getScrubValue() {
-		return transform.InverseTransformPoint (m_reticle.transform.position);
+		return transform.InverseTransformPoint (reticle.transform.position);
+	}
+
+	public void setScrubValue(float s) {
+		m_granOffset = s;
 	}
 
 	Vector3 RayDrawingPlaneIntersect(Vector3 p) {
@@ -216,22 +228,20 @@ public class wordActs : NetworkBehaviour
 	}
 
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
+
 	public void OnGvrPointerHover(PointerEventData eventData) {
-//		Vector3 reticleInWord;
-//		Vector3 reticleLocal;
-//		reticleInWord = eventData.pointerCurrentRaycast.worldPosition;
-//		reticleLocal = transform.InverseTransformPoint (reticleInWord);
-//		if (m_drawingPath) {
-//			m_sequencer.addScrub (reticleLocal.x);
-//		}
+		if (!m_looping)
+			m_granOffset = getScrubValue ().x / bbdim.x + 0.5f;
 ////		Debug.Log ("x: " + (reticleLocal.x / bbdim.x + 0.5f) + " y: " + (reticleLocal.y / bbdim.y+.5f));
 	}
 
 	public void OnPointerEnter (PointerEventData eventData) {
 		if (m_positioned) {
 			m_target = true;
-			if (!m_looping)
+			if (!m_looping) {
 				IAAPlayer.localPlayer.CmdSetWordHitState (netId, true);
+				IAAPlayer.getAuthority (netId);
+			}
 			if (m_drawingPath) {
 				m_sequencer.addTime ();
 			}
@@ -241,8 +251,10 @@ public class wordActs : NetworkBehaviour
 	public void OnPointerExit(PointerEventData eventData){
 		if (m_positioned) {
 			m_target = false;
-			if (!m_looping)
+			if (!m_looping) {
 				IAAPlayer.localPlayer.CmdSetWordHitState (netId, false);
+				IAAPlayer.removeAuthority (netId);
+			}
 			if (m_drawingPath) {
 				m_sequencer.addTime ();
 			}
@@ -276,6 +288,8 @@ public class wordActs : NetworkBehaviour
 
 	public override void OnNetworkDestroy() {
 		separateLetters ();
+		GranularUploadHandler.singleton.setSlotToEmpty (m_granularSlot);
+		m_mixer.SetFloat ("Rate", 0f);
 		Debug.Log ("EXTERMINATE!");
 		if (isServer) {
 			Debug.Log ("Exterminating");
@@ -295,9 +309,10 @@ public class wordActs : NetworkBehaviour
 	public void playWord(bool hit) {
 		wordHit = hit;
 		if (hit) {
-			m_wordSource.Play ();
+			m_mixer.SetFloat ("Rate", 100f);
+//			m_wordSource.Play ();
 		} else {
-			m_wordSource.Stop ();
+			m_mixer.SetFloat ("Rate", 0f);
 		}
 	}
 
@@ -364,10 +379,24 @@ public class wordActs : NetworkBehaviour
 
 	void fetchAudio(string clipfn) {
 		if (hasAuthority) { // we created the sound clip so it's probably still in memory
-			m_wordSource.clip = SpeechToTextToAudio.singleton.mostRecentClip;
+			//m_wordSource.clip = SpeechToTextToAudio.singleton.mostRecentClip;
+			m_granularSlot = GranularUploadHandler.singleton.uploadSample(SpeechToTextToAudio.singleton.mostRecentClip);
+			setUpMixer ();
 		} else {
-			StartCoroutine(Webserver.singleton.GetAudioClip (clipfn, (newclip) => { m_wordSource.clip = newclip;}));
+//			StartCoroutine(Webserver.singleton.GetAudioClip (clipfn, (newclip) => { m_wordSource.clip = newclip;}));
+			StartCoroutine(Webserver.singleton.GetAudioClip (clipfn, 
+				(newclip) => {
+					m_granularSlot = GranularUploadHandler.singleton.uploadSample(newclip);
+					setUpMixer();
+				}));
 		}
+	}
+
+	void setUpMixer() {
+		m_mixer = Resources.Load ("grain" + (m_granularSlot + 1).ToString ()) as AudioMixer;
+		m_wordSource.audioSource.outputAudioMixerGroup = m_mixer.FindMatchingGroups ("Master") [0];
+		m_mixer.SetFloat ("Sample", m_granularSlot);
+		m_mixer.SetFloat ("Rate", 0f);
 	}
 
 	public void setDrawingHighlight(bool val) {

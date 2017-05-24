@@ -258,7 +258,7 @@ public class GvrAudioSource : MonoBehaviour {
 
   // Unity audio source attached to the game object.
   [SerializeField]
-  private AudioSource audioSource = null;
+  public AudioSource audioSource = null;
 
   // Unique source id.
   private int id = -1;
