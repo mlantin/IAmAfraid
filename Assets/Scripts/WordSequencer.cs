@@ -54,9 +54,9 @@ public class WordSequencer : NetworkBehaviour {
 
 	[ClientRpc]
 	public void RpcSyncPath(int objid, Vector3[] p, int[] ts, float[] sc) {
-		if (objid == gameObject.GetInstanceID()) // We originated this data so no need to do a copy
-			return; 
-		
+//		if (objid == gameObject.GetInstanceID()) // We originated this data so no need to do a copy
+//			return; 
+
 		playtriggers.Clear ();
 		for (int i = 0; i < ts.Length; i++) {
 			playtriggers.Add (ts [i]);
@@ -69,18 +69,21 @@ public class WordSequencer : NetworkBehaviour {
 		for (int i = 0; i < sc.Length; i++) {
 			scrubs.Add (sc[i]);
 		}
+
+		Debug.Log ("Got the path");
 	}
 
 	[ClientRpc]
 	public void RpcStartSequencer () {
 		nextPos = 0;
 		nextScrub = 0;
-		comet.transform.localPosition = path [0];
+		if (path.Count > 0) {
+			comet.transform.localPosition = path [0];
+			setCometVisibility (true);
+		}
 		active = true;
 		nextInOut = 0;
-		setCometVisibility (true);
 		playstate = true;
-		m_wordActs.playWord (false);
 		m_wordActs.playWord (true);
 	}
 
@@ -102,19 +105,20 @@ public class WordSequencer : NetworkBehaviour {
 		bool toggleplay = false;
 		if (path.Count > 0) {
 			comet.transform.localPosition = path [nextPos];
-			if (nextPos == playtriggers [nextInOut])
-				toggleplay = true;
-			if (toggleplay) {
-				playstate = !playstate;
-				m_wordActs.playWord (playstate);
-				nextInOut++;
-				if (nextInOut == playtriggers.Count) {
-					nextInOut--;
+			if (playtriggers.Count > 0) {
+				if (nextPos == playtriggers [nextInOut])
+					toggleplay = true;
+				if (toggleplay) {
+					playstate = !playstate;
+					m_wordActs.playWord (playstate);
+					nextInOut++;
+					if (nextInOut == playtriggers.Count) {
+						nextInOut--;
+					}
 				}
 			}
 			if (playstate == true) {
-				m_wordActs.setScrubValue (scrubs [nextScrub]);
-				//Debug.Log ("scrub to " + scrubs [nextScrub]);
+				m_wordActs.setLocalGranOffset (scrubs [nextScrub]);
 				nextScrub++;
 			}
 			nextPos++;

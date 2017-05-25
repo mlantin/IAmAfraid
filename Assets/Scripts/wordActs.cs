@@ -15,13 +15,16 @@ public class wordActs : NetworkBehaviour
 {
 	private GvrAudioSource m_wordSource;
 	private int m_granularSlot;
+	[SyncVar]
 	private float m_granOffset = 0;
+	private float m_localGranOffset = 0; // This one is not networked..for doing the sequencer.
 	private AudioMixer m_mixer;
 
 	// This is to set a timer when a person clicks. If we linger long enough 
 	// we call it a press&hold.
 	float m_presstime = 0;
 	bool m_presshold = true;
+	bool m_pressOrigin = false;
 	bool m_target = false;
 	const float m_holdtime = .5f; // seconds until we call it a press&hold.
 
@@ -29,6 +32,7 @@ public class wordActs : NetworkBehaviour
 	private Highlighter m_highlight;
 
 	private Quaternion m_rotq;
+	[SyncVar] // Needs to be networked so we can change the volume that is based on height
 	private bool m_moving = false;
 	private GameObject m_laser = null;
 	private GameObject m_reticle = null;
@@ -69,7 +73,6 @@ public class wordActs : NetworkBehaviour
 	public bool m_preloaded = false;
 	[HideInInspector][SyncVar]
 	public bool m_positioned = false;
-	// The hook should only be called once because the word will be set once
 	[HideInInspector][SyncVar]
 	public string m_wordstr = "";
 	[HideInInspector][SyncVar]
@@ -128,25 +131,32 @@ public class wordActs : NetworkBehaviour
 		if (!isClient)
 			return;
 		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-		if ((!m_positioned && hasAuthority) || (m_moving)) {
-			if (!m_moving) {
-				transform.position = laser.transform.position + laser.transform.forward;
-			} else {
-				// We have picked a word and we're moving it...
-				Vector3 newdir = m_rotq*laser.transform.forward;
-				transform.position = laser.transform.position+newdir*m_distanceFromPointer;
+
+		if (GvrController.ClickButtonUp)
+			m_pressOrigin = false;
+		
+		if (!m_positioned || m_moving) {
+			if (hasAuthority) {
+				if (!m_moving) {
+					transform.position = laser.transform.position + laser.transform.forward;
+				} else {
+					// We have picked a word and we're moving it...
+					Vector3 newdir = m_rotq*laser.transform.forward;
+					transform.position = laser.transform.position+newdir*m_distanceFromPointer;
+					// Change the volume according to height
+
+				}
+				transform.rotation = laser.transform.rotation;
+				if (GvrController.ClickButtonUp) {
+					m_positioned = true;
+					m_moving = false;
+					IAAPlayer.localPlayer.CmdSetWordMovingState(netId,false);
+					IAAPlayer.localPlayer.CmdSetWordPositioned(netId, true);
+				}
 			}
-			transform.rotation = laser.transform.rotation;
-			if (GvrController.ClickButtonUp) {
-				m_positioned = true;
-				m_moving = false;
-				IAAPlayer.localPlayer.CmdSetWordPositioned(netId, true);
-			}
+			setVolumeFromHeight(transform.position.y);
 		} else if (m_positioned && !m_moving) {
-			if (m_target && GvrController.ClickButtonDown) {
-				m_presstime = 0;
-				m_presshold = false;
-			} else if (m_target && GvrController.ClickButton) {
+			if (m_target && m_pressOrigin && GvrController.ClickButton) {
 				m_presstime += Time.deltaTime;
 				if (!m_presshold && m_presstime > m_holdtime) {
 					m_presshold = true;
@@ -180,59 +190,13 @@ public class wordActs : NetworkBehaviour
 		#endif
 	}
 
-	void FixedUpdate() {
-		if (m_drawingPath) {
-			// Get the point on the current plane
-			//m_sequencer.addPos (gameObject.transform.InverseTransformPoint (reticle.transform.position));
-			m_sequencer.addPos (gameObject.transform.InverseTransformPoint (RayDrawingPlaneIntersect (reticle.transform.position)));
-			if (m_target) {
-				m_granOffset = getScrubValue ().x / bbdim.x + 0.5f;
-				m_sequencer.addScrub (m_granOffset);
-			}
-		}
-		if (wordHit) {
-			m_mixer.SetFloat ("Offset", m_granOffset);
-		}
-	}
-
-	Vector3 getScrubValue() {
-		return transform.InverseTransformPoint (reticle.transform.position);
-	}
-
-	public void setScrubValue(float s) {
-		m_granOffset = s;
-	}
-
-	Vector3 RayDrawingPlaneIntersect(Vector3 p) {
-		float enter;
-		Vector3 raydir = (p - Camera.main.transform.position).normalized;
-		Ray pathray = new Ray (Camera.main.transform.position, raydir);
-		m_drawingPlane.Raycast (pathray, out enter);
-		return Camera.main.transform.position + raydir * enter;
-	}
-
-	void setPositionedState(bool state) {
-		if (!hasAuthority) {
-			IAAPlayer.getAuthority (netId);
-		}
-		CmdSetPositioned (state);
-
-		if (state == true) {
-			IAAPlayer.removeAuthority (netId);
-		}
-	}
-
-	[Command]
-	void CmdSetPositioned(bool state) {
-		m_positioned = state;
-	}
-
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 
 	public void OnGvrPointerHover(PointerEventData eventData) {
-		if (!m_looping)
+		if (!m_looping) {
 			m_granOffset = getScrubValue ().x / bbdim.x + 0.5f;
-////		Debug.Log ("x: " + (reticleLocal.x / bbdim.x + 0.5f) + " y: " + (reticleLocal.y / bbdim.y+.5f));
+			IAAPlayer.localPlayer.CmdWordSetGranOffset (netId, m_granOffset);
+		}
 	}
 
 	public void OnPointerEnter (PointerEventData eventData) {
@@ -276,15 +240,56 @@ public class wordActs : NetworkBehaviour
 			m_distanceFromPointer = intersectionLaser.magnitude;
 			m_positioned = false;
 			m_moving = true;
+			IAAPlayer.localPlayer.CmdSetWordMovingState(netId,false);
 			IAAPlayer.localPlayer.CmdSetWordPositioned(netId,false);
+		}
+		if (m_positioned && !m_moving) { // We are a candidate for presshold
+			m_pressOrigin = true;
+			m_presstime = 0;
+			m_presshold = false;
 		}
 	}
 	#endif
-	
-	// This is only called from the LocalPlayer proxy server command
-	public void setDrawingSequence(bool val) {
-		m_drawingSequence = val;
+
+	void FixedUpdate() {
+		if (m_drawingPath) {
+			// Get the point on the current plane
+			//m_sequencer.addPos (gameObject.transform.InverseTransformPoint (reticle.transform.position));
+			m_sequencer.addPos (gameObject.transform.InverseTransformPoint (RayDrawingPlaneIntersect (reticle.transform.position)));
+			if (m_target) {
+				m_granOffset = getScrubValue ().x / bbdim.x + 0.5f;
+				m_sequencer.addScrub (m_granOffset);
+			}
+		}
+		if (m_looping) {
+			m_mixer.SetFloat ("Offset", m_localGranOffset);
+		} else {
+			if (wordHit) {
+				m_mixer.SetFloat ("Offset", m_granOffset);
+			}
+		}
 	}
+
+	Vector3 getScrubValue() {
+		return transform.InverseTransformPoint (reticle.transform.position);
+	}
+
+	public void setGranOffset(float s) {
+		m_granOffset = s;
+	}
+
+	public void setLocalGranOffset(float s) {
+		m_localGranOffset = s;
+	}
+
+	Vector3 RayDrawingPlaneIntersect(Vector3 p) {
+		float enter;
+		Vector3 raydir = (p - Camera.main.transform.position).normalized;
+		Ray pathray = new Ray (Camera.main.transform.position, raydir);
+		m_drawingPlane.Raycast (pathray, out enter);
+		return Camera.main.transform.position + raydir * enter;
+	}
+
 
 	public override void OnNetworkDestroy() {
 		separateLetters ();
@@ -298,6 +303,13 @@ public class wordActs : NetworkBehaviour
 		}
 	}
 
+	// Proxy Functions (START)
+	// These are only called from the LocalPlayer proxy server command
+
+	public void setDrawingSequence(bool val) {
+		m_drawingSequence = val;
+	}
+
 	public void toggleLooping() {
 		m_looping = !m_looping;
 	}
@@ -306,11 +318,19 @@ public class wordActs : NetworkBehaviour
 		wordHit = state;
 	}
 
+	public void setMovingState(bool state) {
+		m_moving = state;
+	}
+
+	// Proxy Functions (END)
+
+
+	// Hook Functions (START)
+
 	public void playWord(bool hit) {
 		wordHit = hit;
 		if (hit) {
 			m_mixer.SetFloat ("Rate", 100f);
-//			m_wordSource.Play ();
 		} else {
 			m_mixer.SetFloat ("Rate", 0f);
 		}
@@ -327,6 +347,17 @@ public class wordActs : NetworkBehaviour
 			IAAPlayer.localPlayer.CmdWordStopSequencer(netId);
 		}
 	}
+
+	public void setDrawingHighlight(bool val) {
+		m_drawingSequence = val;
+		if (m_drawingSequence) {
+			m_highlight.FlashingOn ();
+		} else {
+			m_highlight.FlashingOff ();
+		}
+	}
+
+	// Hook Functions (END)
 
 	void addLetters(string word) {
 
@@ -379,11 +410,9 @@ public class wordActs : NetworkBehaviour
 
 	void fetchAudio(string clipfn) {
 		if (hasAuthority) { // we created the sound clip so it's probably still in memory
-			//m_wordSource.clip = SpeechToTextToAudio.singleton.mostRecentClip;
 			m_granularSlot = GranularUploadHandler.singleton.uploadSample(SpeechToTextToAudio.singleton.mostRecentClip);
 			setUpMixer ();
 		} else {
-//			StartCoroutine(Webserver.singleton.GetAudioClip (clipfn, (newclip) => { m_wordSource.clip = newclip;}));
 			StartCoroutine(Webserver.singleton.GetAudioClip (clipfn, 
 				(newclip) => {
 					m_granularSlot = GranularUploadHandler.singleton.uploadSample(newclip);
@@ -392,20 +421,26 @@ public class wordActs : NetworkBehaviour
 		}
 	}
 
+	void setVolumeFromHeight(float y) {
+		float vol = Mathf.Clamp(-50+y/1.8f*56f, -50f,6f);
+		m_mixer.SetFloat("Volume", vol);
+	}
+		
 	void setUpMixer() {
 		m_mixer = Resources.Load ("grain" + (m_granularSlot + 1).ToString ()) as AudioMixer;
 		m_wordSource.audioSource.outputAudioMixerGroup = m_mixer.FindMatchingGroups ("Master") [0];
 		m_mixer.SetFloat ("Sample", m_granularSlot);
-		m_mixer.SetFloat ("Rate", 0f);
-	}
+		m_mixer.SetFloat("Speed", 1.0f);
+		m_mixer.SetFloat("Offset", 0.5f);
+		m_mixer.SetFloat("Window", 0.1f);
+		m_mixer.SetFloat("Rate", 0f);
+		m_mixer.SetFloat("RndSpeed", 0f);
+		m_mixer.SetFloat("RndOffset", 0.1f);
+		m_mixer.SetFloat("RndWindow", 0.01f);
+		m_mixer.SetFloat("RndRate", 0f);
 
-	public void setDrawingHighlight(bool val) {
-		m_drawingSequence = val;
-		if (m_drawingSequence) {
-			m_highlight.FlashingOn ();
-		} else {
-			m_highlight.FlashingOff ();
-		}
+		setVolumeFromHeight (transform.position.y);
+
 	}
 
 	public void separateLetters(){

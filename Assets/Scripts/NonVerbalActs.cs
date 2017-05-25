@@ -16,6 +16,7 @@ public class NonVerbalActs : NetworkBehaviour
 	// we call it a press&hold.
 	float m_presstime = 0;
 	bool m_presshold = true;
+	bool m_pressOrigin = false; // We were the origin of the last button press
 	const float m_holdtime = .5f; // seconds until we call it a press&hold.
 
 	[SyncVar]
@@ -33,6 +34,7 @@ public class NonVerbalActs : NetworkBehaviour
 	GameObject m_reticle = null;
 
 	Quaternion m_rotq;
+	[SyncVar] // This needs to be a syncvar so we can vary the volume when the object is moving
 	bool m_moving = false;
 	bool m_target = false; // Whether the reticle is on this object
 
@@ -93,25 +95,29 @@ public class NonVerbalActs : NetworkBehaviour
 		if (!isClient)
 			return;
 		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-		if ((!m_positioned && hasAuthority) || (m_moving)) {
-			if (!m_moving) {
-				transform.position = laser.transform.position + laser.transform.forward;
-			} else {
-				// We have picked an object and we're moving it...
-				Vector3 newdir = m_rotq*laser.transform.forward;
-				transform.position = laser.transform.position+newdir*m_distanceFromPointer;
+		if (GvrController.ClickButtonUp)
+			m_pressOrigin = false;
+		
+		if (!m_positioned || m_moving) {
+			if (hasAuthority) {
+				if (!m_moving) {
+					transform.position = laser.transform.position + laser.transform.forward;
+				} else {
+					// We have picked an object and we're moving it...
+					Vector3 newdir = m_rotq*laser.transform.forward;
+					transform.position = laser.transform.position+newdir*m_distanceFromPointer;
+				}
+				transform.rotation = laser.transform.rotation;
+				if (GvrController.ClickButtonUp) {
+					m_positioned = true;
+					m_moving = false;
+					IAAPlayer.localPlayer.CmdSetObjectMovingState (netId,false);
+					IAAPlayer.localPlayer.CmdSetObjectPositioned(netId,true);
+				}
 			}
-			transform.rotation = laser.transform.rotation;
-			if (GvrController.ClickButtonUp) {
-				m_positioned = true;
-				m_moving = false;
-				IAAPlayer.localPlayer.CmdSetObjectPositioned(netId,true);
-			}
+			setVolumeFromHeight (transform.position.y);
 		} else if (m_positioned && !m_moving) {
-			if (m_target && GvrController.ClickButtonDown) {
-				m_presstime = 0;
-				m_presshold = false;
-			} else if (m_target && GvrController.ClickButton) {
+			if (m_target && m_pressOrigin && GvrController.ClickButton) {
 				m_presstime += Time.deltaTime;
 				if (!m_presshold && m_presstime > m_holdtime) {
 					m_presshold = true;
@@ -127,9 +133,9 @@ public class NonVerbalActs : NetworkBehaviour
 					}
 				}
 			} else if (GvrController.ClickButtonUp) {
+				// We put this here because we could be releasing outside of the original target
 				if (GvrController.TouchPos.x > .85f) {
 					if (m_drawingPath) {
-						//m_sequencer.addTime();
 						m_sequencer.endSequence();
 						m_drawingPath = false;
 						IAAPlayer.localPlayer.CmdSetObjectDrawingSequence(netId,false);
@@ -144,52 +150,6 @@ public class NonVerbalActs : NetworkBehaviour
 		}
 
 		#endif
-	}
-
-	void FixedUpdate() {
-		if (m_drawingPath) {
-			// Get the point on the current plane
-			//m_sequencer.addPos (gameObject.transform.InverseTransformPoint (reticle.transform.position));
-			m_sequencer.addPos (gameObject.transform.InverseTransformPoint (RayDrawingPlaneIntersect(reticle.transform.position)));
-		}
-	}
-
-	Vector3 RayDrawingPlaneIntersect(Vector3 p) {
-		float enter;
-		Vector3 raydir = (p - Camera.main.transform.position).normalized;
-		Ray pathray = new Ray (Camera.main.transform.position, raydir);
-		m_drawingPlane.Raycast (pathray, out enter);
-		return Camera.main.transform.position + raydir * enter;
-	}
-
-//	Vector3 pointOnDrawingPlane(Vector3 p) {
-//		// First get the vector from the origin of the plane to p
-//		Vector3 op = p - m_drawingPlaneOrig;
-//		// Then get the dot product of that vector and the normal and multiply it by the normal.
-//		Vector3 vpar = Vector3.Dot(op,m_drawingPlaneNorm)*m_drawingPlaneNorm;
-//		Vector3 vperp = op - vpar;
-//		return m_drawingPlaneOrig + vperp;
-//	}
-
-	void Start() {
-		randomizePaperBall ();
-		fetchAudio (m_serverFileName);
-	}
-
-	void setPositionedState(bool state) {
-		if (!hasAuthority) {
-			IAAPlayer.getAuthority (netId);
-		}
-		CmdSetPositioned (state);
-
-		if (state == true) {
-			IAAPlayer.removeAuthority (netId);
-		}
-	}
-
-	[Command]
-	void CmdSetPositioned(bool state) {
-		m_positioned = state;
 	}
 
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
@@ -231,7 +191,58 @@ public class NonVerbalActs : NetworkBehaviour
 			IAAPlayer.localPlayer.CmdActivateTimedDestroy (netId);
 		}
 	}
-		
+
+	public void OnPointerDown (PointerEventData eventData) {
+		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
+			Vector3 intersectionLaser = gameObject.transform.position - laser.transform.position;
+			m_rotq = Quaternion.FromToRotation (laser.transform.forward, intersectionLaser);
+			m_distanceFromPointer = intersectionLaser.magnitude;
+			m_positioned = false;
+			m_moving = true;
+			IAAPlayer.localPlayer.CmdSetObjectMovingState (netId,true);
+			IAAPlayer.localPlayer.CmdSetObjectPositioned(netId,false);
+		}
+		if (m_positioned && !m_moving) { // We are a candidate for presshold
+			m_pressOrigin = true;
+			m_presstime = 0;
+			m_presshold = false;
+		}
+
+	}
+
+	#endif
+	void FixedUpdate() {
+		if (m_drawingPath) {
+			// Get the point on the current plane
+			//m_sequencer.addPos (gameObject.transform.InverseTransformPoint (reticle.transform.position));
+			m_sequencer.addPos (gameObject.transform.InverseTransformPoint (RayDrawingPlaneIntersect(reticle.transform.position)));
+		}
+	}
+
+	Vector3 RayDrawingPlaneIntersect(Vector3 p) {
+		float enter;
+		Vector3 raydir = (p - Camera.main.transform.position).normalized;
+		Ray pathray = new Ray (Camera.main.transform.position, raydir);
+		m_drawingPlane.Raycast (pathray, out enter);
+		return Camera.main.transform.position + raydir * enter;
+	}
+
+//	Vector3 pointOnDrawingPlane(Vector3 p) {
+//		// First get the vector from the origin of the plane to p
+//		Vector3 op = p - m_drawingPlaneOrig;
+//		// Then get the dot product of that vector and the normal and multiply it by the normal.
+//		Vector3 vpar = Vector3.Dot(op,m_drawingPlaneNorm)*m_drawingPlaneNorm;
+//		Vector3 vperp = op - vpar;
+//		return m_drawingPlaneOrig + vperp;
+//	}
+
+	void Start() {
+		randomizePaperBall ();
+		fetchAudio (m_serverFileName);
+	}
+
+
+
 	public override void OnNetworkDestroy() {
 		Debug.Log ("EXTERMINATE!");
 		if (isServer) {
@@ -241,32 +252,27 @@ public class NonVerbalActs : NetworkBehaviour
 		}
 	}
 
-	public void OnPointerDown (PointerEventData eventData) {
-		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
-			Vector3 intersectionLaser = gameObject.transform.position - laser.transform.position;
-			m_rotq = Quaternion.FromToRotation (laser.transform.forward, intersectionLaser);
-			m_distanceFromPointer = intersectionLaser.magnitude;
-			m_positioned = false;
-			m_moving = true;
-			IAAPlayer.localPlayer.CmdSetObjectPositioned(netId,false);
-		}
-	}
-	#endif
+	// Proxy Function (START)
+	// These are only called from the LocalPlayer proxy server command
 
-	// This is only called from the LocalPlayer proxy server command
 	public void setHit(bool state) {
 		objectHit = state;
 	}
 
-	// This is only called from the LocalPlayer proxy server command
+	public void setMovingState(bool state) {
+		m_moving = state;
+	}
+
 	public void toggleLooping() {
 		m_looping = !m_looping;
 	}
 
-	// This is only called from the LocalPlayer proxy server command
 	public void setDrawingSequence(bool val) {
 		m_drawingSequence = val;
 	}
+
+	// Proxy Functions (END)
+
 
 	public void playSound(bool hit) {
 		objectHit = hit;
@@ -279,13 +285,20 @@ public class NonVerbalActs : NetworkBehaviour
 		}
 	}
 
+	void setVolumeFromHeight(float y) {
+		float dbvol = Mathf.Clamp(-50+y/1.8f*56f, -50f,6f);
+		float vol = Mathf.Pow(10.0f, dbvol/20.0f);
+		m_wordSource.volume = vol;
+	}
+
 	void fetchAudio(string filename) {
 		randomizePaperBall ();
 		if (hasAuthority) { // we created the sound clip so it's probably still in memory
 			m_wordSource.clip = NonVerbalRecord.singleton.mostRecentClip;
+			setVolumeFromHeight (transform.position.y);
 		} else {
 			StartCoroutine(Webserver.singleton.GetAudioClip (filename, 
-				(newclip) => { m_wordSource.clip = newclip;}));
+				(newclip) => { m_wordSource.clip = newclip; setVolumeFromHeight(transform.position.y);}));
 		}
 	}
 

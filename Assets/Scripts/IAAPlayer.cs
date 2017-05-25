@@ -112,7 +112,6 @@ public class IAAPlayer : NetworkBehaviour {
 			netid.AssignClientAuthority (connectionToClient);
 		else
 			netid.RemoveClientAuthority (connectionToClient);
-		Debug.Log ("Set positioned to " + state);
 	}
 
 	[Command]
@@ -123,6 +122,13 @@ public class IAAPlayer : NetworkBehaviour {
 			acts.setHit (state);
 		} catch (KeyNotFoundException e){
 		}
+	}
+
+	[Command]
+	public void CmdSetObjectMovingState(NetworkInstanceId objid, bool state) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		NonVerbalActs acts = obj.GetComponent<NonVerbalActs> ();
+		acts.setMovingState (state);
 	}
 
 	[Command]
@@ -170,6 +176,13 @@ public class IAAPlayer : NetworkBehaviour {
 	}
 
 	[Command]
+	public void CmdSetWordMovingState(NetworkInstanceId objid, bool state) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		wordActs acts = obj.GetComponent<wordActs> ();
+		acts.setMovingState (state);
+	}
+
+	[Command]
 	public void CmdSetWordPositioned(NetworkInstanceId objid, bool state) {
 		NetworkIdentity netid = NetworkServer.objects [objid];
 		GameObject obj = netid.gameObject;
@@ -179,6 +192,13 @@ public class IAAPlayer : NetworkBehaviour {
 			netid.AssignClientAuthority (connectionToClient);
 		else
 			netid.RemoveClientAuthority (connectionToClient);
+	}
+
+	[Command]
+	public void CmdWordSetGranOffset(NetworkInstanceId objid, float f) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		wordActs acts = obj.GetComponent<wordActs> ();
+		acts.setGranOffset (f);
 	}
 
 	[Command]

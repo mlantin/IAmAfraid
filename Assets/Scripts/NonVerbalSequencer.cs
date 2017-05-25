@@ -31,16 +31,14 @@ public class NonVerbalSequencer : NetworkBehaviour {
 
 	[ClientRpc]
 	public void RpcStartSequencer() {
-		if (playtriggers.Count > 0) {
-			nextPos = 0;
-			comet.transform.localPosition = path [0];
-			active = true;
-			nextInOut = 0;
-			playstate = true;
-			m_nvActs.playSound (false);
-			m_nvActs.playSound (true);
-			setCometVisibility (true);
-		}
+		nextPos = 0;
+		comet.transform.localPosition = path [0];
+		active = true;
+		nextInOut = 0;
+		playstate = true;
+		m_nvActs.playSound (false);
+		m_nvActs.playSound (true);
+		setCometVisibility (true);
 	}
 
 	public void setCometVisibility(bool visible) {
