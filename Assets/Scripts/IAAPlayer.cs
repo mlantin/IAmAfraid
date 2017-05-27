@@ -3,6 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
+public class SequenceMessage : MessageBase
+{
+	static public short SequenceMessageID;
+	public NetworkInstanceId netId;
+	public Vector3[] path;
+	public int[] playtriggers;
+	public float[] scrubs;
+}
+
 public class IAAPlayer : NetworkBehaviour {
 
 	static public IAAPlayer localPlayer;
@@ -26,6 +35,9 @@ public class IAAPlayer : NetworkBehaviour {
 			m_mocapName = LocalPlayerOptions.singleton.mocapName;
 		m_isObserver = LocalPlayerOptions.singleton.observer;
 		cm_playerObject = gameObject;
+
+		SequenceMessage.SequenceMessageID = MsgType.Highest + 1;
+		NetworkManager.singleton.client.RegisterHandler (SequenceMessage.SequenceMessageID, setSequence);
 	}
 
 	public void Update() {
@@ -146,10 +158,10 @@ public class IAAPlayer : NetworkBehaviour {
 	}
 
 	[Command]
-	public void CmdSetObjectSequencePath(NetworkInstanceId objid, int objuid, Vector3[] p, int[] ts) {
+	public void CmdSetObjectSequencePath(NetworkInstanceId objid, Vector3[] p, int[] ts) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
 		NonVerbalSequencer seq = obj.GetComponent<NonVerbalSequencer> ();
-		seq.RpcSyncPath (objuid,p,ts);
+		seq.RpcSyncPath (p,ts);
 	}
 
 	[Command]
@@ -230,10 +242,27 @@ public class IAAPlayer : NetworkBehaviour {
 	}
 
 	[Command]
-	public void CmdSetWordSequencePath(NetworkInstanceId objid, int instanceID, Vector3[] p, int[] ts, float[] sc) {
+	public void CmdSetWordSequencePath(NetworkInstanceId objid, Vector3[] p, int[] ts, float[] sc) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
 		WordSequencer seq = obj.GetComponent<WordSequencer> ();
-		seq.RpcSyncPath (instanceID,p,ts,sc);
+		seq.RpcSyncPath (p,ts,sc);
+	}
+
+	[Command]
+	public void CmdGetWordSequencePath(NetworkInstanceId objid) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		WordSequencer seq = obj.GetComponent<WordSequencer> ();
+		SequenceMessage msg;
+		seq.fillSequenceMessage (out msg);
+		msg.netId = objid;
+		Debug.Log ("sending the seq fill message with " + msg);
+		base.connectionToClient.Send(SequenceMessage.SequenceMessageID, msg );
+	}
+
+	public void setSequence(NetworkMessage seqmsg) {
+		var msg = seqmsg.ReadMessage<SequenceMessage>();
+		var wordobj = ClientScene.FindLocalObject(msg.netId);
+		wordobj.GetComponent<WordSequencer>().syncPath(msg.path,msg.playtriggers,msg.scrubs);
 	}
 
 	//	[Command]

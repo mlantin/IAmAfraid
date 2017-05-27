@@ -7,12 +7,13 @@ using UnityEngine.EventSystems;
 using UnityEngine.Audio;
 using HighlightingSystem;
 
-
 public class wordActs : NetworkBehaviour
 #if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 , IGvrPointerHoverHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IPointerDownHandler 
 #endif
 {
+	static Color HighlightColour = new Color(0.639216f, 0.458824f, 0.070588f);
+
 	private GvrAudioSource m_wordSource;
 	private int m_granularSlot;
 	[SyncVar]
@@ -105,8 +106,7 @@ public class wordActs : NetworkBehaviour
 		m_xspace = extent.x/2.5f;
 
 		m_highlight = GetComponent<Highlighter> ();
-		Color col = new Color (204, 102, 255); // a purple
-		m_highlight.ConstantParams (col);
+		m_highlight.ConstantParams (HighlightColour);
 
 		m_sequencer = GetComponent<WordSequencer> ();
 	}
@@ -114,18 +114,15 @@ public class wordActs : NetworkBehaviour
 	void Start() {
 		addLetters (m_wordstr);
 		fetchAudio (m_serverFileName);
-	}
-
-	public override void OnStartClient() {
-		//Make sure we are highlighted if we're looping or drawing at startup.
 		if (m_looping) {
-			m_highlight.ConstantOnImmediate ();
+			m_highlight.ConstantOnImmediate (HighlightColour);
 			m_sequencer.setCometVisibility (true);
+			IAAPlayer.localPlayer.CmdGetWordSequencePath (netId);
 		} else if (m_drawingSequence) {
 			m_highlight.FlashingOn ();
 		}
 	}
-
+		
 	// Update is called once per frame
 	void Update () {
 		if (!isClient)
@@ -138,13 +135,19 @@ public class wordActs : NetworkBehaviour
 		if (!m_positioned || m_moving) {
 			if (hasAuthority) {
 				if (!m_moving) {
-					transform.position = laser.transform.position + laser.transform.forward;
+					Vector3 newpos = laser.transform.position + laser.transform.forward;
+					// Make sure we don't go through the floor
+					if (newpos.y < 0.05f)
+						newpos.y = 0.05f;
+					transform.position = newpos;
 				} else {
 					// We have picked a word and we're moving it...
 					Vector3 newdir = m_rotq*laser.transform.forward;
-					transform.position = laser.transform.position+newdir*m_distanceFromPointer;
-					// Change the volume according to height
-
+					Vector3 newpos = laser.transform.position+newdir*m_distanceFromPointer;
+					// Make sure we don't go through the floor
+					if (newpos.y < 0.05f)
+						newpos.y = 0.05f;
+					transform.position = newpos;
 				}
 				transform.rotation = laser.transform.rotation;
 				if (GvrController.ClickButtonUp) {
@@ -180,8 +183,10 @@ public class wordActs : NetworkBehaviour
 						IAAPlayer.localPlayer.CmdSetWordDrawingSequence(netId,false);
 						if (!m_looping)
 							IAAPlayer.localPlayer.CmdToggleWordLoopingState(netId);
+						IAAPlayer.removeAuthority(netId);
 					} else if (m_target) {
 						IAAPlayer.localPlayer.CmdToggleWordLoopingState (netId);
+						IAAPlayer.removeAuthority(netId);
 					}
 				}
 				m_presshold = false;
@@ -229,8 +234,9 @@ public class wordActs : NetworkBehaviour
 		if (!m_positioned)
 			return;
 		//get the coordinates of the trackpad so we know what kind of event we want to trigger
-		if (GvrController.TouchPos.y > .85f)
+		if (GvrController.TouchPos.y > .85f) {
 			IAAPlayer.localPlayer.CmdDestroyObject (netId);
+		}
 	}
 
 	public void OnPointerDown (PointerEventData eventData) {
@@ -340,7 +346,7 @@ public class wordActs : NetworkBehaviour
 	void setLooping(bool loop) {
 		m_looping = loop;
 		if (m_looping) {
-			m_highlight.ConstantOnImmediate ();
+			m_highlight.ConstantOnImmediate (HighlightColour);
 			IAAPlayer.localPlayer.CmdWordStartSequencer(netId);
 		} else {
 			m_highlight.ConstantOffImmediate ();

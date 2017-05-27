@@ -32,13 +32,15 @@ public class NonVerbalSequencer : NetworkBehaviour {
 	[ClientRpc]
 	public void RpcStartSequencer() {
 		nextPos = 0;
-		comet.transform.localPosition = path [0];
+		if (path.Count > 0) {
+			comet.transform.localPosition = path [0];
+			setCometVisibility (true);
+		}
 		active = true;
 		nextInOut = 0;
 		playstate = true;
 		m_nvActs.playSound (false);
 		m_nvActs.playSound (true);
-		setCometVisibility (true);
 	}
 
 	public void setCometVisibility(bool visible) {
@@ -60,14 +62,11 @@ public class NonVerbalSequencer : NetworkBehaviour {
 
 	public void endSequence() {
 		if (!isServer) // In case we are a host...there is no point transfering data to ourselves
-			IAAPlayer.localPlayer.CmdSetObjectSequencePath (netId, gameObject.GetInstanceID(), path.ToArray(), playtriggers.ToArray ());
+			IAAPlayer.localPlayer.CmdSetObjectSequencePath (netId, path.ToArray(), playtriggers.ToArray ());
 	}
 		
 	[ClientRpc]
-	public void RpcSyncPath(int objuid, Vector3[] p, int[] ts) {
-		if (objuid == gameObject.GetInstanceID ())  // We don't need to sync because the data came from us
-			return;
-		
+	public void RpcSyncPath(Vector3[] p, int[] ts) {
 		playtriggers.Clear ();
 		for (int i = 0; i < ts.Length; i++) {
 			playtriggers.Add (ts [i]);
@@ -87,28 +86,29 @@ public class NonVerbalSequencer : NetworkBehaviour {
 	}
 		
 	public void FixedUpdate() {
-		if (!active || playtriggers.Count <= 1)
+		if (!active || path.Count < 1)
 			return;
 		
 		bool toggleplay = false;
-		if (path.Count > 0) {
-			comet.transform.localPosition = path [nextPos];
+		comet.transform.localPosition = path [nextPos];
+		if (playtriggers.Count > 0) {
 			if (nextPos == playtriggers [nextInOut])
 				toggleplay = true;
 			if (toggleplay) {
 				playstate = !playstate;
-				m_nvActs.playSound(playstate);
+				m_nvActs.playSound (playstate);
 				nextInOut++;
 				if (nextInOut == playtriggers.Count) {
 					nextInOut--;
 				}
 			}
-			nextPos++;
-			if (nextPos == path.Count) {
-				active = false;
-				if (isServer)
-					IAAPlayer.localPlayer.CmdObjectStartSequencer (netId);
-			}
 		}
+		nextPos++;
+		if (nextPos == path.Count) {
+			active = false;
+			if (isServer)
+				IAAPlayer.localPlayer.CmdObjectStartSequencer (netId);
+		}
+
 	}
 }

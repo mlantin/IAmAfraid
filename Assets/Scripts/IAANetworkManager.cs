@@ -7,7 +7,7 @@ public class IAANetworkManager : NetworkManager {
 
 	// Use this for initialization
 	void Start () {
-		
+
 	}
 
 	public override void OnStartServer(){

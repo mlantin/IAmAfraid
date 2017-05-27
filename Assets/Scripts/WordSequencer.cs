@@ -49,11 +49,19 @@ public class WordSequencer : NetworkBehaviour {
 
 	public void endSequence() {
 		if (!isServer)
-			IAAPlayer.localPlayer.CmdSetWordSequencePath (netId, gameObject.GetInstanceID(), path.ToArray(), playtriggers.ToArray (), scrubs.ToArray());
+			IAAPlayer.localPlayer.CmdSetWordSequencePath (netId, path.ToArray(), playtriggers.ToArray (), scrubs.ToArray());
+	}
+
+	public void fillSequenceMessage(out SequenceMessage msg) {
+		SequenceMessage m = new SequenceMessage ();
+		m.path = path.ToArray ();
+		m.playtriggers = playtriggers.ToArray ();
+		m.scrubs = scrubs.ToArray ();
+		msg = m;
 	}
 
 	[ClientRpc]
-	public void RpcSyncPath(int objid, Vector3[] p, int[] ts, float[] sc) {
+	public void RpcSyncPath(Vector3[] p, int[] ts, float[] sc) {
 //		if (objid == gameObject.GetInstanceID()) // We originated this data so no need to do a copy
 //			return; 
 
@@ -71,6 +79,26 @@ public class WordSequencer : NetworkBehaviour {
 		}
 
 		Debug.Log ("Got the path");
+	}
+
+	public void syncPath(Vector3[] p, int[] ts, float[] sc) {
+		//		if (objid == gameObject.GetInstanceID()) // We originated this data so no need to do a copy
+		//			return; 
+
+		playtriggers.Clear ();
+		for (int i = 0; i < ts.Length; i++) {
+			playtriggers.Add (ts [i]);
+		}
+		path.Clear ();
+		for (int i = 0; i < p.Length; i++) {
+			path.Add (p [i]);
+		}
+		scrubs.Clear ();
+		for (int i = 0; i < sc.Length; i++) {
+			scrubs.Add (sc[i]);
+		}
+
+		Debug.Log ("Got the path without RPC");
 	}
 
 	[ClientRpc]

@@ -75,9 +75,12 @@ public class PlayerSetup : NetworkBehaviour {
 		// Also disable tracking
 		if (isServer && LocalPlayerOptions.singleton.observer) {
 			m_observer = true;
+			if (LocalPlayerOptions.singleton.god) {
 //			gameObject.transform.position = new Vector3 (0, 1.6f, 0);
-			gameObject.transform.position = new Vector3 (0, 3, -.5f);
-			gameObject.transform.Rotate (35, 0, 0);
+				gameObject.transform.position = new Vector3 (0, 3, -.5f);
+				gameObject.transform.Rotate (35, 0, 0);
+			} 
+				
 		} else {
 		// Add the Highlighter, audiolistener, GvrAudioListener, and GvrPointerPhysicsRaycaster scripts to this object
 			HighlightingRenderer hlrender = playerCameraObj.GetComponent<HighlightingRenderer>();
@@ -123,6 +126,8 @@ public class PlayerSetup : NetworkBehaviour {
 			// Make the avatar invisible
 			gameObject.transform.Find("PlayerCamera/Gamer").gameObject.SetActive(false);
 			gameObject.transform.Find ("GvrControllerPointer/Controller/ddcontroller").gameObject.SetActive (false);
+			if (!LocalPlayerOptions.singleton.god)
+				m_playerCameras.RemoveAt (0);
 			if (m_cycleCameras)
 				StartCoroutine (cycleThroughCameras());
 		}
@@ -144,8 +149,10 @@ public class PlayerSetup : NetworkBehaviour {
 		while (true) {
 			if (m_playerCameras.Count == 0)
 				yield return m_waitforit;
-			switchCamera (m_playerCameras [m_nextCamera]);
-			m_nextCamera = (m_nextCamera + 1) % m_playerCameras.Count;
+			else {
+				switchCamera (m_playerCameras [m_nextCamera]);
+				m_nextCamera = (m_nextCamera + 1) % m_playerCameras.Count;
+			}
 			yield return m_waitforit;
 		}
 	}

@@ -12,7 +12,8 @@ public class LoadAndSaveState : NetworkBehaviour {
 
 	// Use this for initialization
 	public override void OnStartServer () {
-		if (!Loaded && loadInitialState) {
+		if (!Loaded && LocalPlayerOptions.singleton.preload) {
+			stateFile = LocalPlayerOptions.singleton.m_preloadFile;
 			string jsonText = "";
 			#if !UNITY_ANDROID || UNITY_EDITOR
 			try

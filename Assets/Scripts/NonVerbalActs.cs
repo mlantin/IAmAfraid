@@ -11,6 +11,7 @@ public class NonVerbalActs : NetworkBehaviour
 , IGvrPointerHoverHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IPointerDownHandler
 #endif
 {
+	static Color HighlightColour = new Color(0.639216f, 0.458824f, 0.070588f);
 
 	// This is to set a timer when a person clicks. If we linger long enough 
 	// we call it a press&hold.
@@ -75,8 +76,7 @@ public class NonVerbalActs : NetworkBehaviour
 		m_wordSource = GetComponent<GvrAudioSource> ();
 		m_wordSource.loop = true;
 		m_highlight = GetComponent<Highlighter> ();
-		Color col = new Color (204, 102, 255); // a purple
-		m_highlight.ConstantParams (col);
+		m_highlight.ConstantParams (HighlightColour);
 
 		m_sequencer = GetComponent<NonVerbalSequencer> ();
 	}
@@ -84,7 +84,7 @@ public class NonVerbalActs : NetworkBehaviour
 	public override void OnStartClient() {
 		//Make sure we are highlighted if we're looping or drawing at startup.
 		if (m_looping) {
-			m_highlight.ConstantOnImmediate ();
+			m_highlight.ConstantOnImmediate (HighlightColour);
 			m_sequencer.setCometVisibility (true);
 		} else if (m_drawingSequence) {
 			m_highlight.FlashingOn ();
@@ -101,11 +101,19 @@ public class NonVerbalActs : NetworkBehaviour
 		if (!m_positioned || m_moving) {
 			if (hasAuthority) {
 				if (!m_moving) {
-					transform.position = laser.transform.position + laser.transform.forward;
+					Vector3 newpos = laser.transform.position + laser.transform.forward;
+					// Make sure we don't go through the floor
+					if (newpos.y < 0.05f)
+						newpos.y = 0.05f;
+					transform.position = newpos;
 				} else {
 					// We have picked an object and we're moving it...
 					Vector3 newdir = m_rotq*laser.transform.forward;
-					transform.position = laser.transform.position+newdir*m_distanceFromPointer;
+					Vector3 newpos = laser.transform.position+newdir*m_distanceFromPointer;
+					// Make sure we don't go through the floor
+					if (newpos.y < 0.05f)
+						newpos.y = 0.05f;
+					transform.position = newpos;
 				}
 				transform.rotation = laser.transform.rotation;
 				if (GvrController.ClickButtonUp) {
@@ -325,7 +333,7 @@ public class NonVerbalActs : NetworkBehaviour
 		m_looping = val;
 
 		if (m_looping) {
-			m_highlight.ConstantOnImmediate ();
+			m_highlight.ConstantOnImmediate (HighlightColour);
 			IAAPlayer.localPlayer.CmdObjectStartSequencer(netId);
 		} else {
 			m_highlight.ConstantOffImmediate ();
