@@ -99,7 +99,69 @@ ModelImporter:
     animationScaleError: 0.5
     animationWrapMode: 0
     extraExposedTransformPaths: []
-    clipAnimations: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Take 001
+      takeName: Take 001
+      firstFrame: 1
+      lastFrame: 210
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Lung_Side:lungs
+        weight: 1
+      - path: Lung_Side:lungs/Lung_Side:Lung_Right_High_Poly
+        weight: 1
+      - path: lungs
+        weight: 1
+      - path: lungs/Broncioles_Left_High_Poly
+        weight: 1
+      - path: lungs/Broncioles_Right_High_Poly
+        weight: 1
+      - path: lungs/Cricothyroid_Ligament_High_Poly
+        weight: 1
+      - path: lungs/Epiglottis_High_Poly
+        weight: 1
+      - path: lungs/Epiglottis_Inner_High_Poly
+        weight: 1
+      - path: lungs/Lung_Right_High_Poly
+        weight: 1
+      - path: lungs/Thyrohyoid_Membrane_High_Poly
+        weight: 1
+      - path: lungs/Thyroid_Cartilage_High_Poly
+        weight: 1
+      - path: lungs/Trachea_High_Poly
+        weight: 1
+      - path: lungs/True_Vocal_Fold_Left_high_Poly
+        weight: 1
+      - path: lungs/True_Vocal_Fold_Right_High_Poly
+        weight: 1
+      - path: regularbreath:Scene_Root
+        weight: 1
+      - path: regularbreath:Scene_Root/regularbreath:Camera_Root
+        weight: 1
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
     isReadable: 1
   meshes:
     lODScreenPercentages: []

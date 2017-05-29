@@ -118,6 +118,7 @@ public class PlayerSetup : NetworkBehaviour {
 
 		// Add the GvrLaserPointer script to the laser object
 		GvrLaserPointer laserPtrScript = laser.AddComponent<GvrLaserPointer> ();
+		laserPtrScript.maxReticleDistance = 4.0f;
 		GameObject reticle = laser.transform.Find ("Reticle").gameObject;
 		laserPtrScript.reticle = reticle;
 		#endif

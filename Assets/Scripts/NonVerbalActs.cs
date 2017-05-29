@@ -121,6 +121,8 @@ public class NonVerbalActs : NetworkBehaviour
 					m_moving = false;
 					IAAPlayer.localPlayer.CmdSetObjectMovingState (netId,false);
 					IAAPlayer.localPlayer.CmdSetObjectPositioned(netId,true);
+					if (!m_target && !m_looping)
+						IAAPlayer.localPlayer.CmdSetObjectHitState (netId, false);
 				}
 			}
 			setVolumeFromHeight (transform.position.y);
@@ -170,8 +172,8 @@ public class NonVerbalActs : NetworkBehaviour
 	}
 
 	public void OnPointerEnter (PointerEventData eventData) {
+		m_target = true;
 		if (m_positioned) {
-			m_target = true;
 			if (!m_looping)
 				IAAPlayer.localPlayer.CmdSetObjectHitState (netId, true);
 			if (m_drawingPath) {
@@ -181,8 +183,8 @@ public class NonVerbalActs : NetworkBehaviour
 	}
 
 	public void OnPointerExit(PointerEventData eventData){
+		m_target = false;
 		if (m_positioned) {
-			m_target = false;
 			if (!m_looping)
 				IAAPlayer.localPlayer.CmdSetObjectHitState (netId, false);
 			if (m_drawingPath) {

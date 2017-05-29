@@ -155,6 +155,8 @@ public class wordActs : NetworkBehaviour
 					m_moving = false;
 					IAAPlayer.localPlayer.CmdSetWordMovingState(netId,false);
 					IAAPlayer.localPlayer.CmdSetWordPositioned(netId, true);
+					if (!m_target && !m_looping)
+						IAAPlayer.localPlayer.CmdSetWordHitState (netId, false);
 				}
 			}
 			setVolumeFromHeight(transform.position.y);
@@ -205,6 +207,7 @@ public class wordActs : NetworkBehaviour
 	}
 
 	public void OnPointerEnter (PointerEventData eventData) {
+		m_target = true;
 		if (m_positioned) {
 			m_target = true;
 			if (!m_looping) {
@@ -218,8 +221,8 @@ public class wordActs : NetworkBehaviour
 	}
 
 	public void OnPointerExit(PointerEventData eventData){
+		m_target = false;
 		if (m_positioned) {
-			m_target = false;
 			if (!m_looping) {
 				IAAPlayer.localPlayer.CmdSetWordHitState (netId, false);
 				IAAPlayer.removeAuthority (netId);
@@ -246,7 +249,7 @@ public class wordActs : NetworkBehaviour
 			m_distanceFromPointer = intersectionLaser.magnitude;
 			m_positioned = false;
 			m_moving = true;
-			IAAPlayer.localPlayer.CmdSetWordMovingState(netId,false);
+			IAAPlayer.localPlayer.CmdSetWordMovingState(netId,true);
 			IAAPlayer.localPlayer.CmdSetWordPositioned(netId,false);
 		}
 		if (m_positioned && !m_moving) { // We are a candidate for presshold
