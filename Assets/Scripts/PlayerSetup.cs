@@ -127,8 +127,6 @@ public class PlayerSetup : NetworkBehaviour {
 			// Make the avatar invisible
 			gameObject.transform.Find("PlayerCamera/Gamer").gameObject.SetActive(false);
 			gameObject.transform.Find ("GvrControllerPointer/Controller/ddcontroller").gameObject.SetActive (false);
-			if (!LocalPlayerOptions.singleton.god)
-				m_playerCameras.RemoveAt (0);
 			if (m_cycleCameras)
 				StartCoroutine (cycleThroughCameras());
 		}
@@ -151,6 +149,8 @@ public class PlayerSetup : NetworkBehaviour {
 			if (m_playerCameras.Count == 0)
 				yield return m_waitforit;
 			else {
+				if (m_nextCamera == 0 && !LocalPlayerOptions.singleton.god && m_playerCameras.Count > 1)
+					m_nextCamera++;
 				switchCamera (m_playerCameras [m_nextCamera]);
 				m_nextCamera = (m_nextCamera + 1) % m_playerCameras.Count;
 			}
