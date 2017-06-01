@@ -136,9 +136,11 @@ public class PlayerSetup : NetworkBehaviour {
 		if (isServer && IAAPlayer.localPlayer.isObserver) {
 			Camera playerCamera = gameObject.transform.Find ("PlayerCamera").gameObject.GetComponent<Camera> ();
 			if (Camera.main == playerCamera) {
+				if (m_nextCamera == 0 && !LocalPlayerOptions.singleton.god && m_playerCameras.Count > 2)
+					m_nextCamera++;
 				switchCamera (m_playerCameras [m_nextCamera]);
 			} else if (m_nextCamera == (m_playerCameras.Count - 1)) {
-				m_nextCamera = 0;	
+				m_nextCamera--;	
 			}
 			m_playerCameras.Remove (playerCamera);
 		}

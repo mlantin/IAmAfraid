@@ -127,6 +127,10 @@ public class wordActs : NetworkBehaviour
 	void Update () {
 		if (!isClient)
 			return;
+		bool volumeChanged = false;
+		if (!m_positioned || m_moving)
+			volumeChanged = true;
+
 		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 
 		if (GvrController.ClickButtonUp)
@@ -159,7 +163,6 @@ public class wordActs : NetworkBehaviour
 						IAAPlayer.localPlayer.CmdSetWordHitState (netId, false);
 				}
 			}
-			setVolumeFromHeight(transform.position.y);
 		} else if (m_positioned && !m_moving) {
 			if (m_target && m_pressOrigin && GvrController.ClickButton) {
 				m_presstime += Time.deltaTime;
@@ -195,6 +198,8 @@ public class wordActs : NetworkBehaviour
 			}
 		}
 		#endif
+		if (volumeChanged)
+			setVolumeFromHeight(transform.position.y);	
 	}
 
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
