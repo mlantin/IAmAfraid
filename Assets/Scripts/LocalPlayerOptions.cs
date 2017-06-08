@@ -11,6 +11,7 @@ public class LocalPlayerOptions : MonoBehaviour {
 	public Dropdown mocapSubjects;
 	public Toggle godToggle;
 	public Dropdown preloadFiles;
+	public GameObject holojam;
 
 	// These are set from the UI
 	bool m_observer = false;
@@ -93,6 +94,7 @@ public class LocalPlayerOptions : MonoBehaviour {
 		set {
 			m_trackLocalPlayer = value;
 			mocapSubjects.interactable = m_trackLocalPlayer;
+			holojam.SetActive (value);
 		}
 	}
 

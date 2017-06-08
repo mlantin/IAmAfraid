@@ -7,6 +7,7 @@ using HighlightingSystem;
 public class PlayerSetup : NetworkBehaviour {
 	public GameObject m_InputManager;
 	public bool m_cycleCameras = true;
+	public Camera m_observerCamera;
 	[SyncVar]
 	public bool m_observer = false;
 
@@ -90,6 +91,10 @@ public class PlayerSetup : NetworkBehaviour {
 			}
 			ViconActor tracking = gameObject.GetComponent<ViconActor> ();
 			if (LocalPlayerOptions.singleton.trackLocalPlayer) {
+				// Turn on Holojam
+				Debug.Log("Turning on Holojam");
+				GameObject holojam = GameObject.FindGameObjectWithTag ("Holojam");
+				holojam.SetActive (true);
 				tracking.track = true;
 				tracking.SetLabel(LocalPlayerOptions.singleton.mocapName);
 			} else {
@@ -127,18 +132,23 @@ public class PlayerSetup : NetworkBehaviour {
 			// Make the avatar invisible
 			gameObject.transform.Find("PlayerCamera/Gamer").gameObject.SetActive(false);
 			gameObject.transform.Find ("GvrControllerPointer/Controller/ddcontroller").gameObject.SetActive (false);
-			if (m_cycleCameras)
-				StartCoroutine (cycleThroughCameras());
+			if (m_cycleCameras) {
+				// Remove the server camera (the first one) and save it.
+				m_observerCamera = m_playerCameras [0];
+				m_playerCameras.RemoveAt (0);
+				StartCoroutine (cycleThroughCameras ());
+			}
 		}
 	}
 		
 	public override void OnNetworkDestroy() {
 		if (isServer && IAAPlayer.localPlayer.isObserver) {
 			Camera playerCamera = gameObject.transform.Find ("PlayerCamera").gameObject.GetComponent<Camera> ();
-			if (Camera.main == playerCamera) {
-				if (m_nextCamera == 0 && !LocalPlayerOptions.singleton.god && m_playerCameras.Count > 2)
-					m_nextCamera++;
+			if (m_playerCameras.Count == 1)
+				switchCamera (IAAPlayer.localPlayer.transform.Find("PlayerCamera").gameObject.GetComponent<Camera>());
+			else if (Camera.main == playerCamera) {
 				switchCamera (m_playerCameras [m_nextCamera]);
+				m_nextCamera = (m_nextCamera + 1) % (m_playerCameras.Count-1);
 			} else if (m_nextCamera == (m_playerCameras.Count - 1)) {
 				m_nextCamera--;	
 			}
@@ -151,10 +161,13 @@ public class PlayerSetup : NetworkBehaviour {
 			if (m_playerCameras.Count == 0)
 				yield return m_waitforit;
 			else {
-				if (m_nextCamera == 0 && !LocalPlayerOptions.singleton.god && m_playerCameras.Count > 1)
-					m_nextCamera++;
-				switchCamera (m_playerCameras [m_nextCamera]);
-				m_nextCamera = (m_nextCamera + 1) % m_playerCameras.Count;
+				if (m_nextCamera == 0 && LocalPlayerOptions.singleton.god && Camera.main != m_observerCamera)
+					switchCamera (m_observerCamera);
+				else {
+					switchCamera (m_playerCameras [m_nextCamera]);
+					m_nextCamera = (m_nextCamera + 1) % m_playerCameras.Count;
+				}
+
 			}
 			yield return m_waitforit;
 		}
