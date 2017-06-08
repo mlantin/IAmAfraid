@@ -39,6 +39,7 @@ public class NetworkSetup : MonoBehaviour {
 
 	public void setServerIP(string ip) {
 		NetworkManager.singleton.networkAddress = ip;
+		PlayerPrefs.SetString ("ServerIP", ip);
 	}
 
 	public void startNetwork(bool host) {

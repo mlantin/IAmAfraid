@@ -18,6 +18,7 @@ public class Webserver : MonoBehaviour {
 
 	public void setServerIP(string ip){
 		m_serverIP = ip;
+		PlayerPrefs.SetString ("SoundServerIP", ip);
 	}
 
 	public void setServerPort(string port) {

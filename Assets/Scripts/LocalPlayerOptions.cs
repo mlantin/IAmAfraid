@@ -25,8 +25,22 @@ public class LocalPlayerOptions : MonoBehaviour {
 	void Start() {
 		singleton = this;
 
+		// First populate from PlayerPrefs if they exist
+		populateUI();
+
 		List<Dropdown.OptionData> menuOptions = preloadFiles.GetComponent<Dropdown> ().options;
 		m_preloadFile = menuOptions [0].text+".json";
+	}
+
+	void populateUI() {
+		if (PlayerPrefs.HasKey ("ServerIP")) {
+			InputField serverip = transform.Find ("Panel/ServerIP").gameObject.GetComponent<InputField> ();
+			serverip.text = PlayerPrefs.GetString ("ServerIP");
+		}
+		if (PlayerPrefs.HasKey ("SoundServerIP")) {
+			InputField soundserverip = transform.Find ("Panel/Sound Server IP").gameObject.GetComponent<InputField> ();
+			soundserverip.text = PlayerPrefs.GetString ("SoundServerIP");
+		}
 	}
 
 	public bool observer {
@@ -96,6 +110,10 @@ public class LocalPlayerOptions : MonoBehaviour {
 			mocapSubjects.interactable = m_trackLocalPlayer;
 			holojam.SetActive (value);
 		}
+	}
+
+	void OnApplicationQuit() {
+		PlayerPrefs.Save ();
 	}
 
 }
