@@ -309,7 +309,15 @@ public class NonVerbalActs : NetworkBehaviour
 
 	void fetchAudio(string filename) {
 		randomizePaperBall ();
-		if (hasAuthority) { // we created the sound clip so it's probably still in memory
+//		if (hasAuthority || (isServer && isClient)) { // we created the sound clip so it's probably still in memory
+			// Unfortunately hasAuthority is never true because authority is assigned after object creation.
+			// There may be another way of telling ourselves that the audioclip is ours but I don't know what
+			// it would be. All clients are sent the same spawn message. For now, I've added some logic
+			// to at least not go to the server when we are host. The idea is if we are running standalone on
+			// the phone that we don't need an extra server. This will most probably break when we are running a 
+			// proper host because we won't be the one that generated the clip. There might be a way of finding
+			// out if there is only one client.
+		if (hasAuthority) {
 			m_wordSource.clip = NonVerbalRecord.singleton.mostRecentClip;
 			setVolumeFromHeight (transform.position.y);
 		} else {

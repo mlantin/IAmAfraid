@@ -75,8 +75,8 @@ public class NonVerbalRecord : MonoBehaviour {
 
 				string filename = Webserver.GenerateFileName (IAAPlayer.playerObject.GetComponent<NetworkIdentity>().netId.ToString ());
 				DownloadHandlerBuffer handler = new DownloadHandlerBuffer ();
-				Webserver.singleton.Upload (filename, m_mostRecentClip, handler);
-				yield return new WaitUntil(() => handler.isDone == true);
+				yield return StartCoroutine(Webserver.singleton.Upload (filename, m_mostRecentClip, handler));
+				//yield return new WaitUntil(() => handler.isDone == true);
 
 				// create a new sound object
 				IAAPlayer.playerObject.GetComponent<MakeSoundObject>().CmdSpawnSoundObject(filename);

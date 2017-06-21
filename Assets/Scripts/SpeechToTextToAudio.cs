@@ -213,7 +213,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 
 	IEnumerator handleUpload() {
 		DownloadHandlerBuffer handler = new DownloadHandlerBuffer ();
-		Webserver.singleton.Upload (m_mostRecentFilename, m_mostRecentClip, handler);
+		yield return StartCoroutine(Webserver.singleton.Upload (m_mostRecentFilename, m_mostRecentClip, handler));
 		yield return new WaitUntil(() => handler.isDone == true);
 		if (!hasAuthority)
 			IAAPlayer.getAuthority (netId);

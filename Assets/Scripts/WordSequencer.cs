@@ -77,8 +77,6 @@ public class WordSequencer : NetworkBehaviour {
 		for (int i = 0; i < sc.Length; i++) {
 			scrubs.Add (sc[i]);
 		}
-
-		Debug.Log ("Got the path");
 	}
 
 	public void syncPath(Vector3[] p, int[] ts, float[] sc) {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
 public class LocalPlayerOptions : MonoBehaviour {
 
@@ -35,11 +36,15 @@ public class LocalPlayerOptions : MonoBehaviour {
 	void populateUI() {
 		if (PlayerPrefs.HasKey ("ServerIP")) {
 			InputField serverip = transform.Find ("Panel/ServerIP").gameObject.GetComponent<InputField> ();
-			serverip.text = PlayerPrefs.GetString ("ServerIP");
+			string ip = PlayerPrefs.GetString ("ServerIP");
+			serverip.text = ip;
+			NetworkManager.singleton.networkAddress = ip;
 		}
 		if (PlayerPrefs.HasKey ("SoundServerIP")) {
 			InputField soundserverip = transform.Find ("Panel/Sound Server IP").gameObject.GetComponent<InputField> ();
-			soundserverip.text = PlayerPrefs.GetString ("SoundServerIP");
+			string ip = PlayerPrefs.GetString ("SoundServerIP");
+			soundserverip.text = ip;
+			Webserver.singleton.m_serverIP = ip;
 		}
 	}
 

@@ -25,7 +25,7 @@ public class Webserver : MonoBehaviour {
 		m_serverPort = port;
 	}
 
-	public  bool Upload(string filename, AudioClip clip, DownloadHandler handler) {
+	public  IEnumerator Upload(string filename, AudioClip clip, DownloadHandler handler) {
 		float[] audioData = new float[clip.samples];
 		clip.GetData (audioData, 0);
 		MemoryStream stream = new MemoryStream();
@@ -36,16 +36,15 @@ public class Webserver : MonoBehaviour {
 		UnityWebRequest www = UnityWebRequest.Put("http://"+m_serverIP+":"+m_serverPort+"/audio?fn="+filename, floatBytes);
 		if (handler != null)
 			www.downloadHandler = handler;
-		//yield return www.Send();
-		www.Send();
+		yield return www.Send();
+		//www.Send();
 
 		if(www.isError) {
-			Debug.Log(www.error);
+			Debug.Log("There was an error uploading: "+www.error);
 		}
 		else {
 			Debug.Log("Upload complete!");
 		}
-		return !www.isError;
 	}
 
 	public void ConvertAndWrite(BinaryWriter bw, float[] samplesData, int numsamples, int channels)
@@ -81,7 +80,7 @@ public class Webserver : MonoBehaviour {
 				yield return new WaitUntil(() => www.downloadHandler.isDone == true);
 
 			if(www.isError) {
-				Debug.Log("Logging error: " + www.error);
+				Debug.Log("Download error: " + www.error);
 			}
 			else {
 				if (DownloadHandlerAudioClip.GetContent(www) == null) {
