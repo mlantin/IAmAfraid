@@ -44,7 +44,7 @@ public class LocalPlayerOptions : MonoBehaviour {
 			InputField soundserverip = transform.Find ("Panel/Sound Server IP").gameObject.GetComponent<InputField> ();
 			string ip = PlayerPrefs.GetString ("SoundServerIP");
 			soundserverip.text = ip;
-			Webserver.singleton.m_serverIP = ip;
+			// The ip is set in Webserver script when it starts.
 		}
 	}
 
