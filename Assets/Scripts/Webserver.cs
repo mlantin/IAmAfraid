@@ -14,6 +14,10 @@ public class Webserver : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		singleton = this;
+		if (PlayerPrefs.HasKey ("SoundServerIP")) {
+			string ip = PlayerPrefs.GetString ("SoundServerIP");
+			m_serverIP = ip;
+		}
 	}
 
 	public void setServerIP(string ip){
