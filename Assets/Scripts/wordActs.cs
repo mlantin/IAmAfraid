@@ -21,6 +21,8 @@ public class wordActs : NetworkBehaviour
 	private float m_localGranOffset = 0; // This one is not networked..for doing the sequencer.
 	private AudioMixer m_mixer;
 
+	private bool m_saved = false; // Whether the word is part of an environment that has been saved.
+
 	// This is to set a timer when a person clicks. If we linger long enough 
 	// we call it a press&hold.
 	float m_presstime = 0;
@@ -278,9 +280,7 @@ public class wordActs : NetworkBehaviour
 		if (m_looping) {
 			m_mixer.SetFloat ("Offset", m_localGranOffset);
 		} else {
-			if (wordHit) {
-				m_mixer.SetFloat ("Offset", m_granOffset);
-			}
+			m_mixer.SetFloat ("Offset", m_granOffset);
 		}
 	}
 
@@ -312,11 +312,20 @@ public class wordActs : NetworkBehaviour
 		Debug.Log ("EXTERMINATE!");
 		if (isServer) {
 			Debug.Log ("Exterminating");
-			if (!m_preloaded)
+			if (!m_preloaded && !m_saved)
 				Webserver.singleton.DeleteAudioClipNoCheck (m_serverFileName);
 		}
 	}
 
+	public bool saved {
+		get {
+			return m_saved;
+		}
+		set {
+			m_saved = value;
+		}
+	}
+		
 	// Proxy Functions (START)
 	// These are only called from the LocalPlayer proxy server command
 

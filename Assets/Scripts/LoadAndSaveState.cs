@@ -59,12 +59,14 @@ public class LoadAndSaveState : NetworkBehaviour {
 			wordscript = obj.GetComponent<wordActs> ();
 			stateList.Add(new WordInfo(wordscript.m_wordstr, wordscript.m_serverFileName, wordscript.m_scale,
 				obj.transform.position, obj.transform.rotation));
+			wordscript.saved = true;
 		}
 		NonVerbalActs soundscript;
 		foreach (GameObject obj in sounds) {
 			soundscript = obj.GetComponent<NonVerbalActs> ();
 			stateList.Add (new WordInfo ("", soundscript.m_serverFileName, 1.0f,
 				obj.transform.position, obj.transform.rotation));
+			soundscript.saved = true;
 		}
 		string filename = Application.persistentDataPath+"/"+Webserver.GenerateFileName ("state")+".json";
 		Debug.Log ("Saving state to " + filename);

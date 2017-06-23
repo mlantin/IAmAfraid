@@ -31,6 +31,8 @@ public class NonVerbalActs : NetworkBehaviour
 	float m_distanceFromPointer = 1.0f;
 	GvrAudioSource m_wordSource;
 	 
+	bool m_saved = false;
+
 	GameObject m_laser = null;
 	GameObject m_reticle = null;
 
@@ -263,8 +265,17 @@ public class NonVerbalActs : NetworkBehaviour
 		Debug.Log ("EXTERMINATE!");
 		if (isServer) {
 			Debug.Log ("Exterminating");
-			if (!m_preloaded)
+			if (!m_preloaded && !m_saved)
 				Webserver.singleton.DeleteAudioClipNoCheck (m_serverFileName);
+		}
+	}
+
+	public bool saved {
+		get {
+			return m_saved;
+		}
+		set {
+			m_saved = value;
 		}
 	}
 
