@@ -44,6 +44,8 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 
 		singleton = this;
 		LogSystem.InstallDefaultReactors ();
+		// To solve the Waston problem
+		Config cfg = Config.Instance;
 
 //		RequestPermissions ();
 //		Active = true;

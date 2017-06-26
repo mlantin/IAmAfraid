@@ -246,6 +246,17 @@ namespace IBM.Watson.DeveloperCloud.Utilities
 #endif
     }
 
+	private IEnumerator LoadConfigCR()
+	{
+		// load the config using WWW, since this works on all platforms..
+		WWW request = new WWW(Application.streamingAssetsPath + Constants.Path.CONFIG_FILE);
+		while (!request.isDone)
+			yield return null;
+
+		LoadConfig(request.text);
+		yield break;
+	}
+
     /// <summary>
     /// Load the configuration from the given JSON data.
     /// </summary>
@@ -419,15 +430,6 @@ namespace IBM.Watson.DeveloperCloud.Utilities
       return output;
     }
 
-    private IEnumerator LoadConfigCR()
-    {
-      // load the config using WWW, since this works on all platforms..
-      WWW request = new WWW(Application.streamingAssetsPath + Constants.Path.CONFIG_FILE);
-      while (!request.isDone)
-        yield return null;
-
-      LoadConfig(request.text);
-      yield break;
-    }
+    
   }
 }
