@@ -90,6 +90,9 @@ public class wordActs : NetworkBehaviour
 	[SyncVar (hook = "setDrawingHighlight")]
 	bool m_drawingSequence = false;
 
+	// Using 'i' as a base char to correct shifting
+	private Vector3 extent_i, transform_i;
+
 
 	// Use this for initialization
 	void Awake () {
@@ -98,14 +101,15 @@ public class wordActs : NetworkBehaviour
 
 		string ci = "i";
 		MeshFilter[] letters = alphabet.GetComponentsInChildren<MeshFilter> ();
-		Vector3 extent = new Vector3();
+		extent_i = new Vector3 ();
+		transform_i = new Vector3 ();
 		foreach (MeshFilter letter in letters) {
 			if (letter.name == ci) {
-				extent = letter.sharedMesh.bounds.extents;
+				extent_i = letter.sharedMesh.bounds.extents;
 				break;
 			}
 		}
-		m_xspace = extent.x/2.5f;
+		m_xspace = extent_i.x/2.5f;
 
 		m_highlight = GetComponent<Highlighter> ();
 		m_highlight.ConstantParams (HighlightColour);
@@ -405,6 +409,7 @@ public class wordActs : NetworkBehaviour
 				boxsize.x += m_xspace * 2;
 				continue;
 			}
+				
 			foreach (MeshFilter letter in letters) {
 				if (letter.name == c.ToString()) {
 					lettermesh = Instantiate(letter) as MeshFilter;
@@ -413,10 +418,25 @@ public class wordActs : NetworkBehaviour
 					newletter.transform.parent = newword.transform;
 					newletter.transform.localScale = letterscale;
 					newletter.transform.localRotation = Quaternion.identity;
-					lettercentre = letter.sharedMesh.bounds.center;
-					extent = letter.sharedMesh.bounds.extents;
+
+					Debug.Log ("Size of letter " + letter.name + letter.sharedMesh.bounds.size * 100);
+					Debug.Log ("Y axis of letter " + letter.name + letter.transform.position.y);
+
+					lettercentre = letter.sharedMesh.bounds.center; // Always zero
+					extent = letter.sharedMesh.bounds.extents; // Half of their size
+
+					Debug.Log ("Center of letter " + letter.name + lettercentre * 100);
+					Debug.Log ("extents of letter " + letter.name + extent * 100);
+
+
 					boxsize.Set (boxsize.x + m_xspace + extent.x * 2, Mathf.Max (boxsize.y, extent.y*2), Mathf.Max (boxsize.z, extent.z * 2));
-					newletter.transform.localPosition = letterpos-lettercentre+extent;
+
+					Vector3 newLocalPosition = letterpos - lettercentre + extent;
+					float descent = extent.y - letter.transform.position.y - extent_i.y;
+					newLocalPosition.y -= descent;
+
+
+					newletter.transform.localPosition = newLocalPosition;
 					letterpos.x += extent.x*2 + m_xspace;
 					break;
 				}
