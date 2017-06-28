@@ -278,9 +278,11 @@ public class wordActs : NetworkBehaviour
 			}
 		}
 		if (m_looping) {
-			m_mixer.SetFloat ("Offset", m_localGranOffset);
+			if (m_mixer)
+				m_mixer.SetFloat ("Offset", m_localGranOffset);
 		} else {
-			m_mixer.SetFloat ("Offset", m_granOffset);
+			if (m_mixer)
+				m_mixer.SetFloat ("Offset", m_granOffset);
 		}
 	}
 
@@ -452,6 +454,7 @@ public class wordActs : NetworkBehaviour
 	void setUpMixer() {
 		m_mixer = Resources.Load ("grain" + (m_granularSlot + 1).ToString ()) as AudioMixer;
 		m_wordSource.audioSource.outputAudioMixerGroup = m_mixer.FindMatchingGroups ("Master") [0];
+		//gameObject.AddComponent<SilentAudioSource> ();
 		m_mixer.SetFloat ("Sample", m_granularSlot);
 		m_mixer.SetFloat("Speed", 1.0f);
 		m_mixer.SetFloat("Offset", 0.5f);
