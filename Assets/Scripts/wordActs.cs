@@ -35,10 +35,14 @@ public class wordActs : NetworkBehaviour
 	private Highlighter m_highlight;
 
 	private Quaternion m_rotq;
+	private Quaternion m_originalLaserRotation;
+	private Vector3 m_originalHitPoint;
+
 	[SyncVar] // Needs to be networked so we can change the volume that is based on height
 	private bool m_moving = false;
 	private GameObject m_laser = null;
 	private GameObject m_reticle = null;
+	private GameObject m_controller = null;
 
 	private Plane m_drawingPlane;
 	private bool m_drawingPath = false; 
@@ -57,6 +61,14 @@ public class wordActs : NetworkBehaviour
 			if (m_reticle == null)
 				m_reticle = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser/Reticle").gameObject;
 			return m_reticle;
+		}
+	}
+
+	GameObject controller {
+		get {
+			if (m_controller == null)
+				m_controller = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer").gameObject;
+			return m_controller;
 		}
 	}
 
@@ -91,7 +103,7 @@ public class wordActs : NetworkBehaviour
 	bool m_drawingSequence = false;
 
 	// Using 'i' as a base char to correct shifting
-	private Vector3 extent_i, transform_i;
+	private Vector3 extent_i;
 
 
 	// Use this for initialization
@@ -102,7 +114,6 @@ public class wordActs : NetworkBehaviour
 		string ci = "i";
 		MeshFilter[] letters = alphabet.GetComponentsInChildren<MeshFilter> ();
 		extent_i = new Vector3 ();
-		transform_i = new Vector3 ();
 		foreach (MeshFilter letter in letters) {
 			if (letter.name == ci) {
 				extent_i = letter.sharedMesh.bounds.extents;
@@ -145,21 +156,29 @@ public class wordActs : NetworkBehaviour
 		if (!m_positioned || m_moving) {
 			if (hasAuthority) {
 				if (!m_moving) {
+					// Condition: not positioned and not moving, has authority
+					// Forward is a unit vector. Strange
 					Vector3 newpos = laser.transform.position + laser.transform.forward;
+
 					// Make sure we don't go through the floor
 					if (newpos.y < 0.05f)
 						newpos.y = 0.05f;
 					transform.position = newpos;
 				} else {
+					// Condition: not positioned and moving, has authority
 					// We have picked a word and we're moving it...
-					Vector3 newdir = m_rotq*laser.transform.forward;
-					Vector3 newpos = laser.transform.position+newdir*m_distanceFromPointer;
+					Vector3 newdir = m_rotq * laser.transform.forward;
+					Vector3 newpos = laser.transform.position + newdir * m_distanceFromPointer;
 					// Make sure we don't go through the floor
 					if (newpos.y < 0.05f)
 						newpos.y = 0.05f;
 					transform.position = newpos;
 				}
-				transform.rotation = laser.transform.rotation;
+					
+				// transform.rotation = laser.transform.rotation;
+
+
+
 				if (GvrController.ClickButtonUp) {
 					m_positioned = true;
 					m_moving = false;
@@ -256,7 +275,23 @@ public class wordActs : NetworkBehaviour
 	public void OnPointerDown (PointerEventData eventData) {
 		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
 			Vector3 intersectionLaser = gameObject.transform.position - laser.transform.position;
+
 			m_rotq = Quaternion.FromToRotation (laser.transform.forward, intersectionLaser);
+			m_originalLaserRotation = laser.transform.rotation;
+			m_originalHitPoint = eventData.position;
+
+			Vector3 controllerPosition = controller.transform.position;
+			Vector3 fwd = GvrController.Orientation * Vector3.forward;
+			var controllerTransform = controller.transform;
+			RaycastHit pointingAtWhat;
+			if (Physics.Raycast (controllerTransform.position, fwd, out pointingAtWhat)) {
+				Debug.Log (pointingAtWhat.point);
+			} else {
+				Debug.Log ("Didn't get a hit point.");
+				return;
+			}
+
+
 			m_distanceFromPointer = intersectionLaser.magnitude;
 			m_positioned = false;
 			m_moving = true;
@@ -419,15 +454,8 @@ public class wordActs : NetworkBehaviour
 					newletter.transform.localScale = letterscale;
 					newletter.transform.localRotation = Quaternion.identity;
 
-					Debug.Log ("Size of letter " + letter.name + letter.sharedMesh.bounds.size * 100);
-					Debug.Log ("Y axis of letter " + letter.name + letter.transform.position.y);
-
 					lettercentre = letter.sharedMesh.bounds.center; // Always zero
 					extent = letter.sharedMesh.bounds.extents; // Half of their size
-
-					Debug.Log ("Center of letter " + letter.name + lettercentre * 100);
-					Debug.Log ("extents of letter " + letter.name + extent * 100);
-
 
 					boxsize.Set (boxsize.x + m_xspace + extent.x * 2, Mathf.Max (boxsize.y, extent.y*2), Mathf.Max (boxsize.z, extent.z * 2));
 
@@ -466,6 +494,7 @@ public class wordActs : NetworkBehaviour
 
 	void setVolumeFromHeight(float y) {
 		float vol = Mathf.Clamp(-50+y/1.8f*56f, -50f,6f);
+		Debug.Log ("y = " + y + " Vol = " + vol);
 		m_mixer.SetFloat("Volume", vol);
 	}
 		
