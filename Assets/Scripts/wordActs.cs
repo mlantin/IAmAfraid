@@ -67,7 +67,7 @@ public class wordActs : NetworkBehaviour
 	GameObject controller {
 		get {
 			if (m_controller == null)
-				m_controller = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer").gameObject;
+				m_controller = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Controller").gameObject;
 			return m_controller;
 		}
 	}
@@ -280,15 +280,21 @@ public class wordActs : NetworkBehaviour
 			m_originalLaserRotation = laser.transform.rotation;
 			m_originalHitPoint = eventData.position;
 
-			Vector3 controllerPosition = controller.transform.position;
-			Vector3 fwd = GvrController.Orientation * Vector3.forward;
-			var controllerTransform = controller.transform;
+			Vector3 controllerPosition = laser.transform.position;
+//			Vector3 fwd = GvrController.Orientation * Vector3.forward;
+			Vector3 fwd = laser.transform.forward;
+			Debug.Log ("FWD Direction: " + fwd * 100);
+			Debug.Log ("Laser Rotatoin: " + laser.transform.rotation * Vector3.forward * 100); 
+			Debug.Log ("Controller Pos: " + controller.transform.position * 100);
+			Debug.Log ("Laser Pos: " + laser.transform.position * 100);
+
+
+			var laserTransform = laser.transform;
 			RaycastHit pointingAtWhat;
-			if (Physics.Raycast (controllerTransform.position, fwd, out pointingAtWhat)) {
+			if (Physics.Raycast (laserTransform.position, fwd, out pointingAtWhat)) {
 				Debug.Log (pointingAtWhat.point);
 			} else {
 				Debug.Log ("Didn't get a hit point.");
-				return;
 			}
 
 
@@ -496,7 +502,7 @@ public class wordActs : NetworkBehaviour
 
 	void setVolumeFromHeight(float y) {
 		float vol = Mathf.Clamp(-50+y/1.8f*56f, -50f,6f);
-		Debug.Log ("y = " + y + " Vol = " + vol);
+		// Debug.Log ("y = " + y + " Vol = " + vol);
 		m_mixer.SetFloat("Volume", vol);
 	}
 		
