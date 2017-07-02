@@ -14,7 +14,7 @@ public class wordActs : NetworkBehaviour
 {
 	static Color HighlightColour = new Color(0.639216f, 0.458824f, 0.070588f);
 
-	private GvrAudioSource m_wordSource;
+	private AudioSource m_wordSource;
 	private int m_granularSlot;
 	[SyncVar]
 	private float m_granOffset = 0;
@@ -108,7 +108,7 @@ public class wordActs : NetworkBehaviour
 
 	// Use this for initialization
 	void Awake () {
-		m_wordSource = GetComponent<GvrAudioSource> ();
+		m_wordSource = GetComponent<AudioSource> ();
 		m_wordSource.loop = false;
 
 		string ci = "i";
@@ -288,7 +288,6 @@ public class wordActs : NetworkBehaviour
 				Debug.Log (pointingAtWhat.point);
 			} else {
 				Debug.Log ("Didn't get a hit point.");
-				return;
 			}
 
 
@@ -502,7 +501,7 @@ public class wordActs : NetworkBehaviour
 		
 	void setUpMixer() {
 		m_mixer = Resources.Load ("grain" + (m_granularSlot + 1).ToString ()) as AudioMixer;
-		m_wordSource.audioSource.outputAudioMixerGroup = m_mixer.FindMatchingGroups ("Master") [0];
+		m_wordSource.outputAudioMixerGroup = m_mixer.FindMatchingGroups ("Master") [0];
 		//gameObject.AddComponent<SilentAudioSource> ();
 		m_mixer.SetFloat ("Sample", m_granularSlot);
 		m_mixer.SetFloat("Speed", 1.0f);

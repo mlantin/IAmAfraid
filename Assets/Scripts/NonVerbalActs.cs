@@ -29,7 +29,7 @@ public class NonVerbalActs : NetworkBehaviour
 	Plane m_drawingPlane = new Plane ();
 
 	float m_distanceFromPointer = 1.0f;
-	GvrAudioSource m_wordSource;
+	AudioSource m_wordSource;
 	 
 	bool m_saved = false;
 
@@ -75,7 +75,7 @@ public class NonVerbalActs : NetworkBehaviour
 
 	// Use this for initialization
 	void Awake () {
-		m_wordSource = GetComponent<GvrAudioSource> ();
+		m_wordSource = GetComponent<AudioSource> ();
 		m_wordSource.loop = true;
 		m_highlight = GetComponent<Highlighter> ();
 		m_highlight.ConstantParams (HighlightColour);
