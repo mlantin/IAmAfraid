@@ -315,7 +315,8 @@ public class NonVerbalActs : NetworkBehaviour
 	void setVolumeFromHeight(float y) {
 		float dbvol = Mathf.Clamp(-50+y/1.8f*56f, -50f,6f);
 		float vol = Mathf.Pow(10.0f, dbvol/20.0f);
-		m_wordSource.volume = vol;
+		// m_wordSource.volume = vol;
+		m_wordSource.gainDb = dbvol;
 	}
 
 	void fetchAudio(string filename) {
