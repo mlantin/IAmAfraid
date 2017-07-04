@@ -37,12 +37,15 @@ public class wordActs : NetworkBehaviour
 	private Quaternion m_rotq;
 	private Quaternion m_originalLaserRotation;
 	private Vector3 m_originalHitPoint;
+	private Vector3 m_originalHitPointLocal, m_hitPointToController;
+	private Quaternion m_originalControllerRotation;
 
 	[SyncVar] // Needs to be networked so we can change the volume that is based on height
 	private bool m_moving = false;
 	private GameObject m_laser = null;
 	private GameObject m_reticle = null;
 	private GameObject m_controller = null;
+	private GameObject m_tmpSphere = null;
 
 	private Plane m_drawingPlane;
 	private bool m_drawingPath = false; 
@@ -155,29 +158,40 @@ public class wordActs : NetworkBehaviour
 		
 		if (!m_positioned || m_moving) {
 			if (hasAuthority) {
+				
 				if (!m_moving) {
-					// Condition: not positioned and not moving, has authority
 					// Forward is a unit vector. Strange
 					Vector3 newpos = laser.transform.position + laser.transform.forward;
-
 					// Make sure we don't go through the floor
 					if (newpos.y < 0.05f)
 						newpos.y = 0.05f;
-					transform.position = newpos;
+					// transform.position = newpos;
 				} else {
+
+					Quaternion deltaRotation = controller.transform.rotation * Quaternion.Inverse(m_originalControllerRotation);
+					var letterTrans = transform.GetChild(0);
+					transform.position += m_originalHitPointLocal;
+					letterTrans.position -= m_originalHitPointLocal;
+					
 					// Condition: not positioned and moving, has authority
 					// We have picked a word and we're moving it...
-					Vector3 newdir = m_rotq * laser.transform.forward;
-					Vector3 newpos = laser.transform.position + newdir * m_distanceFromPointer;
+					// Vector3 newdir = m_rotq * laser.transform.forward;
+					// Vector3 newpos = laser.transform.position + newdir * m_distanceFromPointer;
+
+					Vector3 newPosOffset = deltaRotation * m_hitPointToController;
+					// Vector3 newpos = controller.transform.position + controller.transform.forward * m_hitPointToController.magnitude;
+					Vector3 newpos = controller.transform.position + newPosOffset;
+
 					// Make sure we don't go through the floor
 					if (newpos.y < 0.05f)
 						newpos.y = 0.05f;
 					transform.position = newpos;
+
+					transform.rotation = controller.transform.rotation;
+					transform.position -= m_originalHitPointLocal;
+					letterTrans.position += m_originalHitPointLocal;
+
 				}
-					
-				// transform.rotation = laser.transform.rotation;
-
-
 
 				if (GvrController.ClickButtonUp) {
 					m_positioned = true;
@@ -274,31 +288,17 @@ public class wordActs : NetworkBehaviour
 
 	public void OnPointerDown (PointerEventData eventData) {
 		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
-			Vector3 intersectionLaser = gameObject.transform.position - laser.transform.position;
-
-			m_rotq = Quaternion.FromToRotation (laser.transform.forward, intersectionLaser);
+//			Vector3 intersectionLaser = gameObject.transform.position - laser.transform.position;
+//			m_rotq = Quaternion.FromToRotation (laser.transform.forward, intersectionLaser);
+//			m_distanceFromPointer = intersectionLaser.magnitude;
 			m_originalLaserRotation = laser.transform.rotation;
-			m_originalHitPoint = eventData.position;
-
-			Vector3 controllerPosition = laser.transform.position;
-//			Vector3 fwd = GvrController.Orientation * Vector3.forward;
-			Vector3 fwd = laser.transform.forward;
-			Debug.Log ("FWD Direction: " + fwd * 100);
-			Debug.Log ("Laser Rotatoin: " + laser.transform.rotation * Vector3.forward * 100); 
-			Debug.Log ("Controller Pos: " + controller.transform.position * 100);
-			Debug.Log ("Laser Pos: " + laser.transform.position * 100);
-
-
-			var laserTransform = laser.transform;
-			RaycastHit pointingAtWhat;
-			if (Physics.Raycast (laserTransform.position, fwd, out pointingAtWhat)) {
-				Debug.Log (pointingAtWhat.point);
-			} else {
-				Debug.Log ("Didn't get a hit point.");
-			}
-
-
-			m_distanceFromPointer = intersectionLaser.magnitude;
+			m_originalControllerRotation = controller.transform.rotation;
+			m_originalHitPoint = eventData.pointerCurrentRaycast.worldPosition;
+			m_hitPointToController = m_originalHitPoint - controller.transform.position;
+			m_originalHitPointLocal = m_originalHitPoint - gameObject.transform.position;
+//			m_tmpSphere = GameObject.CreatePrimitive (PrimitiveType.Sphere);
+//			m_tmpSphere.transform.localScale = new Vector3 (0.1f, 0.1f, 0.1f);
+//			m_tmpSphere.transform.position = m_originalHitPoint;
 			m_positioned = false;
 			m_moving = true;
 			IAAPlayer.localPlayer.CmdSetWordMovingState(netId,true);
