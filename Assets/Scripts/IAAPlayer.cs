@@ -25,11 +25,13 @@ public class IAAPlayer : NetworkBehaviour {
 	bool m_isObserver = false;
 	bool m_playerTracked = false;
 	string m_mocapName;
-	ViconActor m_tracker = null;
+	//ViconActor m_tracker = null;
+	MQTTTrack m_tracker = null;
 
 	public override void OnStartLocalPlayer() {
 		localPlayer = this;
-		m_tracker = playerObject.GetComponent<ViconActor> ();
+		//m_tracker = playerObject.GetComponent<ViconActor> ();
+		m_tracker = playerObject.GetComponent<MQTTTrack>();
 		m_playerTracked = LocalPlayerOptions.singleton.trackLocalPlayer;
 		if (m_playerTracked)
 			m_mocapName = LocalPlayerOptions.singleton.mocapName;
