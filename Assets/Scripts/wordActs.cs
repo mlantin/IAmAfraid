@@ -106,7 +106,7 @@ public class wordActs : NetworkBehaviour
 	bool m_drawingSequence = false;
 
 	// Using 'i' as a base char to correct shifting
-	private Vector3 extent_i;
+	private Vector3 extent_i, position_i;
 
 
 	// Use this for initialization
@@ -120,6 +120,7 @@ public class wordActs : NetworkBehaviour
 		foreach (MeshFilter letter in letters) {
 			if (letter.name == ci) {
 				extent_i = letter.sharedMesh.bounds.extents;
+				position_i = letter.transform.position;
 				break;
 			}
 		}
@@ -169,9 +170,10 @@ public class wordActs : NetworkBehaviour
 				} else {
 
 					Quaternion deltaRotation = controller.transform.rotation * Quaternion.Inverse(m_originalControllerRotation);
-					var letterTrans = transform.GetChild(0);
-					transform.position += m_originalHitPointLocal;
-					letterTrans.position -= m_originalHitPointLocal;
+					var letterTrans = transform.Find("Letters");
+					Vector3 tGlobal = transform.TransformPoint(m_originalHitPointLocal);
+					transform.position = tGlobal;
+					letterTrans.localPosition -= m_originalHitPointLocal;
 					
 					// Condition: not positioned and moving, has authority
 					// We have picked a word and we're moving it...
@@ -188,8 +190,8 @@ public class wordActs : NetworkBehaviour
 					transform.position = newpos;
 
 					transform.rotation = controller.transform.rotation;
-					transform.position -= m_originalHitPointLocal;
-					letterTrans.position += m_originalHitPointLocal;
+					letterTrans.localPosition += m_originalHitPointLocal;
+					transform.position = transform.TransformPoint(-m_originalHitPointLocal);
 
 				}
 
@@ -295,7 +297,7 @@ public class wordActs : NetworkBehaviour
 			m_originalControllerRotation = controller.transform.rotation;
 			m_originalHitPoint = eventData.pointerCurrentRaycast.worldPosition;
 			m_hitPointToController = m_originalHitPoint - controller.transform.position;
-			m_originalHitPointLocal = m_originalHitPoint - gameObject.transform.position;
+			m_originalHitPointLocal = transform.InverseTransformPoint(m_originalHitPoint);
 //			m_tmpSphere = GameObject.CreatePrimitive (PrimitiveType.Sphere);
 //			m_tmpSphere.transform.localScale = new Vector3 (0.1f, 0.1f, 0.1f);
 //			m_tmpSphere.transform.position = m_originalHitPoint;
@@ -445,6 +447,7 @@ public class wordActs : NetworkBehaviour
 		Vector3 lettercentre;
 		Vector3 extent = new Vector3();
 		Vector3 boxsize = new Vector3 ();
+		float maxDescent = 0.0f, maxAscend = 0.0f, yFloat = 0.0f;
 		string lowcaseWord = word.ToLower ();
 		foreach (char c in lowcaseWord) {
 			if (c == ' ') {
@@ -465,21 +468,25 @@ public class wordActs : NetworkBehaviour
 					lettercentre = letter.sharedMesh.bounds.center; // Always zero
 					extent = letter.sharedMesh.bounds.extents; // Half of their size
 
-					boxsize.Set (boxsize.x + m_xspace + extent.x * 2, Mathf.Max (boxsize.y, extent.y*2), Mathf.Max (boxsize.z, extent.z * 2));
-
 					Vector3 newLocalPosition = letterpos - lettercentre + extent;
-					float descent = extent.y - letter.transform.position.y - extent_i.y;
+					float descent = extent.y - letter.transform.position.y - (extent_i.y - position_i.y);
+					maxDescent = Mathf.Max (maxDescent, descent);
+					maxAscend = Mathf.Max (maxAscend, extent.y + letter.transform.position.y);
 					newLocalPosition.y -= descent;
 
-
+					boxsize.Set (boxsize.x + m_xspace + extent.x * 2f, Mathf.Max (boxsize.y, maxAscend + maxDescent), Mathf.Max (boxsize.z, extent.z * 2));
 					newletter.transform.localPosition = newLocalPosition;
-					letterpos.x += extent.x*2 + m_xspace;
+					letterpos.x += extent.x * 2f + m_xspace;
+					yFloat = Mathf.Max (yFloat, maxAscend - boxsize.y / 2f);
+
 					break;
 				}
 			}
 		}
 
-		newword.transform.localPosition -= boxsize / 2f;
+		Vector3 deltaPos = boxsize / 2f;
+		deltaPos.y = yFloat;
+		newword.transform.localPosition -= deltaPos;
 
 		BoxCollider bc = GetComponent<BoxCollider> ();
 		bc.size = boxsize;
