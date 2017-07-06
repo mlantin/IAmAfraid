@@ -130,6 +130,7 @@ public class WordInfo {
 	// We read the single-property object into an instance of WordInfoList, and then just take our desired list from it
 	[System.Serializable]
 	private class WordInfoList {
+		// public string name;
 		public List<WordInfo> wordInfoList;
 
 		public WordInfoList(List<WordInfo> wordInfoList) {

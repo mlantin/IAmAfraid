@@ -20,8 +20,37 @@ public class LocalPlayerOptions : MonoBehaviour {
 	bool m_preload = true;
 	[HideInInspector]
 	public string m_preloadFile;
+	[HideInInspector]
+	public SceneFile m_preloadScene;
+	private List<SceneFile> m_sceneFiles;
+	private int m_sceneNum = -1;
+
 	bool m_trackLocalPlayer = false;
 	int m_mocapnameIndex;
+
+	public class SceneFile {
+
+		public string name;
+		public bool isOnServer;
+		public string fileName;
+
+		public SceneFile (string _name, string _filename, bool _onServer) {
+			name = _name;
+			isOnServer = _onServer;
+			fileName = _filename;
+		}
+
+	}
+
+	public SceneFile PreloadFile {
+
+		get { 
+			if (m_sceneNum == -1)
+				return null;
+			else return m_sceneFiles [m_sceneNum]; 
+		}
+
+	}
 
 	void Start() {
 		singleton = this;
@@ -30,7 +59,19 @@ public class LocalPlayerOptions : MonoBehaviour {
 		populateUI();
 
 		List<Dropdown.OptionData> menuOptions = preloadFiles.GetComponent<Dropdown> ().options;
-		m_preloadFile = menuOptions [0].text+".json";
+		m_sceneFiles = new List<SceneFile>();
+		menuOptions.ForEach (x => {
+			m_sceneFiles.Add(new SceneFile(menuOptions [0].text, menuOptions [0].text+".json", false));
+		});
+
+	}
+
+	public void AddServerScene(string name, string filename) {
+
+		m_sceneFiles.Add(new SceneFile(name, filename, true));
+		List<string> t = new List<string> ();
+		t.Add ("+" + name);
+		preloadFiles.GetComponent<Dropdown> ().AddOptions (t);
 	}
 
 	void populateUI() {
@@ -85,10 +126,7 @@ public class LocalPlayerOptions : MonoBehaviour {
 	}
 
 	public void setPreloadFile (int val) {
-		List<Dropdown.OptionData> menuOptions = preloadFiles.GetComponent<Dropdown> ().options;
-
-		//get the string value of the selected index
-		m_preloadFile = menuOptions [val].text+".json";
+		m_sceneNum = val;
 	}
 
 	public int mocapNameIndex {

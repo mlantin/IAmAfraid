@@ -8,31 +8,40 @@ public class LoadAndSaveState : NetworkBehaviour {
 
 	static public bool Loaded = false;
 	public bool loadInitialState = false;
-	public string stateFile = "sampleData.json";
+	public LocalPlayerOptions.SceneFile stateFile = new LocalPlayerOptions.SceneFile ("Test Scene", "testscene.json", false);
 
 	// Use this for initialization
 	public override void OnStartServer () {
 		if (!Loaded && LocalPlayerOptions.singleton.preload) {
-			stateFile = LocalPlayerOptions.singleton.m_preloadFile;
+			stateFile = LocalPlayerOptions.singleton.PreloadFile;
 			string jsonText = "";
-			#if !UNITY_ANDROID || UNITY_EDITOR
-			try
-			{
-				if (!Directory.Exists(Application.streamingAssetsPath))
-					Directory.CreateDirectory(Application.streamingAssetsPath);
-				string fullFilePath = Application.streamingAssetsPath + "/" + stateFile;
-				jsonText = System.IO.File.ReadAllText(fullFilePath);
+
+			if (stateFile.isOnServer) {
+				jsonText = Webserver.singleton.getScene (stateFile.fileName);
+				Debug.Log (jsonText);
+			} else {
+				#if !UNITY_ANDROID || UNITY_EDITOR
+				try
+				{
+					if (!Directory.Exists(Application.streamingAssetsPath))
+						Directory.CreateDirectory(Application.streamingAssetsPath);
+					string fullFilePath = Application.streamingAssetsPath + "/" + stateFile;
+					jsonText = System.IO.File.ReadAllText(fullFilePath);
+				}
+				catch (System.IO.FileNotFoundException)
+				{
+					// mark as loaded anyway, so we don't keep retrying..
+					Debug.Log("Failed to load state file.");
+				}
+				#else
+				WWW request = new WWW(Application.streamingAssetsPath + "/" + stateFile);
+				while (!request.isDone);
+				jsonText = request.text;
+				#endif
 			}
-			catch (System.IO.FileNotFoundException)
-			{
-				// mark as loaded anyway, so we don't keep retrying..
-				Debug.Log("Failed to load state file.");
-			}
-			#else
-			WWW request = new WWW(Application.streamingAssetsPath + "/" + stateFile);
-			while (!request.isDone);
-			jsonText = request.text;
-			#endif
+
+
+
 			List<WordInfo> wordlist = WordInfo.newWordInfoListFromString(jsonText);
 
 			makeaword wordscript = GetComponent<makeaword> ();

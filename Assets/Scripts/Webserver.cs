@@ -29,7 +29,7 @@ public class Webserver : MonoBehaviour {
 		m_serverPort = port;
 	}
 
-	public  IEnumerator Upload(string filename, AudioClip clip, DownloadHandler handler) {
+	public IEnumerator Upload(string filename, AudioClip clip, DownloadHandler handler) {
 		float[] audioData = new float[clip.samples];
 		clip.GetData (audioData, 0);
 		MemoryStream stream = new MemoryStream();
@@ -78,7 +78,7 @@ public class Webserver : MonoBehaviour {
 	}
 
 	public IEnumerator GetAudioClip(string fileName, System.Action<AudioClip> callback) {
-		using(UnityWebRequest www = UnityWebRequest.GetAudioClip("http://"+m_serverIP+":"+m_serverPort+"?fn=" + fileName, AudioType.WAV)) {
+		using(UnityWebRequest www = UnityWebRequest.GetAudioClip("http://" + m_serverIP + ":" + m_serverPort + "/audio/" + fileName + ".wav", AudioType.WAV)) {
 			yield return www.Send();
 			if (!www.downloadHandler.isDone)
 				yield return new WaitUntil(() => www.downloadHandler.isDone == true);
@@ -122,6 +122,36 @@ public class Webserver : MonoBehaviour {
 		UnityWebRequest www = UnityWebRequest.Delete ("http://" + m_serverIP + ":" + m_serverPort + "?fn=" + fileName);
 		www.downloadHandler = new DownloadHandlerBuffer();
 		www.Send ();
+	}
+
+	public void getSceneList() {
+		StartCoroutine (processSceneList ());
+
+	}
+
+	public IEnumerator processSceneList() {
+
+		WWW www = new WWW ("http://" + m_serverIP + ":" + m_serverPort + "/scenes/");
+		yield return www;
+		if (www.error == null) {
+			Debug.Log (www.text);
+			SceneInfoList sceneList = SceneInfoList.CreateFromJSON (www.text);
+			Debug.Log (sceneList.scenes.Count);
+			LocalPlayerOptions playerOptions = LocalPlayerOptions.singleton;
+
+			sceneList.scenes.ForEach (x => {
+				playerOptions.AddServerScene(x.name, x.filename);
+			});
+		} else {
+			Debug.LogAssertion ("Failed to get scene list");
+		}
+
+	}
+
+	public string getScene(string file) {
+		WWW request = new WWW("http://" + m_serverIP + ":" + m_serverPort + "/scene/" + file);
+		while (!request.isDone);
+		return request.text;
 	}
 
 }
