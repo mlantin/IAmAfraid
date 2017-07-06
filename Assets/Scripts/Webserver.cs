@@ -136,7 +136,6 @@ public class Webserver : MonoBehaviour {
 		if (www.error == null) {
 			Debug.Log (www.text);
 			SceneInfoList sceneList = SceneInfoList.CreateFromJSON (www.text);
-			Debug.Log (sceneList.scenes.Count);
 			LocalPlayerOptions playerOptions = LocalPlayerOptions.singleton;
 
 			sceneList.scenes.ForEach (x => {

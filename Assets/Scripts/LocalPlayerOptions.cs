@@ -23,7 +23,7 @@ public class LocalPlayerOptions : MonoBehaviour {
 	[HideInInspector]
 	public SceneFile m_preloadScene;
 	private List<SceneFile> m_sceneFiles;
-	private int m_sceneNum = -1;
+	private int m_sceneNum = 0;
 
 	bool m_trackLocalPlayer = false;
 	int m_mocapnameIndex;
@@ -61,7 +61,7 @@ public class LocalPlayerOptions : MonoBehaviour {
 		List<Dropdown.OptionData> menuOptions = preloadFiles.GetComponent<Dropdown> ().options;
 		m_sceneFiles = new List<SceneFile>();
 		menuOptions.ForEach (x => {
-			m_sceneFiles.Add(new SceneFile(menuOptions [0].text, menuOptions [0].text+".json", false));
+			m_sceneFiles.Add(new SceneFile(x.text, x.text+".json", false));
 		});
 
 	}

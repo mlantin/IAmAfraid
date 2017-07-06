@@ -25,7 +25,7 @@ public class LoadAndSaveState : NetworkBehaviour {
 				{
 					if (!Directory.Exists(Application.streamingAssetsPath))
 						Directory.CreateDirectory(Application.streamingAssetsPath);
-					string fullFilePath = Application.streamingAssetsPath + "/" + stateFile;
+					string fullFilePath = Application.streamingAssetsPath + "/" + stateFile.fileName;
 					jsonText = System.IO.File.ReadAllText(fullFilePath);
 				}
 				catch (System.IO.FileNotFoundException)

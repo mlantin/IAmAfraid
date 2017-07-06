@@ -35,7 +35,6 @@ public class wordActs : NetworkBehaviour
 	private Highlighter m_highlight;
 
 	private Quaternion m_rotq;
-	private Quaternion m_originalLaserRotation;
 	private Vector3 m_originalHitPoint;
 	private Vector3 m_originalHitPointLocal, m_hitPointToController;
 	private Quaternion m_originalControllerRotation;
@@ -45,7 +44,6 @@ public class wordActs : NetworkBehaviour
 	private GameObject m_laser = null;
 	private GameObject m_reticle = null;
 	private GameObject m_controller = null;
-	private GameObject m_tmpSphere = null;
 
 	private Plane m_drawingPlane;
 	private bool m_drawingPath = false; 
@@ -292,8 +290,7 @@ public class wordActs : NetworkBehaviour
 		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
 //			Vector3 intersectionLaser = gameObject.transform.position - laser.transform.position;
 //			m_rotq = Quaternion.FromToRotation (laser.transform.forward, intersectionLaser);
-//			m_distanceFromPointer = intersectionLaser.magnitude;
-			m_originalLaserRotation = laser.transform.rotation;
+//			m_distanceFromPointer = intersectionLaser.magnitude; 
 			m_originalControllerRotation = controller.transform.rotation;
 			m_originalHitPoint = eventData.pointerCurrentRaycast.worldPosition;
 			m_hitPointToController = m_originalHitPoint - controller.transform.position;
