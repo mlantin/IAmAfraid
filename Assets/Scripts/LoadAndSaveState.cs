@@ -20,12 +20,14 @@ public class LoadAndSaveState : NetworkBehaviour {
 				jsonText = Webserver.singleton.getScene (stateFile.fileName);
 				Debug.Log (jsonText);
 			} else {
+				string fileLocation = "/" + stateFile.fileName;
+
 				#if !UNITY_ANDROID || UNITY_EDITOR
 				try
 				{
 					if (!Directory.Exists(Application.streamingAssetsPath))
 						Directory.CreateDirectory(Application.streamingAssetsPath);
-					string fullFilePath = Application.streamingAssetsPath + "/" + stateFile.fileName;
+					string fullFilePath = Application.streamingAssetsPath + fileLocation;
 					jsonText = System.IO.File.ReadAllText(fullFilePath);
 				}
 				catch (System.IO.FileNotFoundException)
@@ -34,7 +36,7 @@ public class LoadAndSaveState : NetworkBehaviour {
 					Debug.Log("Failed to load state file.");
 				}
 				#else
-				WWW request = new WWW(Application.streamingAssetsPath + "/" + stateFile);
+				WWW request = new WWW(Application.streamingAssetsPath + fileLocation);
 				while (!request.isDone);
 				jsonText = request.text;
 				#endif
