@@ -12,18 +12,15 @@ using Holojam.Protocol;
 using System;
 
 public class MQTTTrack : MonoBehaviour {
-	private MqttClient client;
 
 	public GameObject playerCamera;
-	public bool track = false;
-	public string label = "Trackable";
-	public string scope = ""; 
+	public string label = "ECUVicon/Update/PIXEL1";
+	bool labelSubscribed = false;
 
+	bool track = false;
 	bool UpdatedThisFrame = false;
 	UnityEngine.Vector3 TrackedPosition = new UnityEngine.Vector3();
 	Quaternion TrackedRotation = new Quaternion();
-	float deltaTime = 0;
-	float lastUpdateTime;
 
 	UnityEngine.Vector3 viconPos = new UnityEngine.Vector3 ();
 	Quaternion viconRot = new Quaternion();
@@ -36,28 +33,44 @@ public class MQTTTrack : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		if (track) {
-			// create client instance 
-			client = new MqttClient (IPAddress.Parse ("10.1.1.5"), 1883, false, null); 
-
-			// register to message received 
-			client.MqttMsgPublishReceived += client_MqttMsgPublishReceived; 
-
-			string clientId = Guid.NewGuid ().ToString (); 
-			client.Connect (clientId); 
-
-			lastUpdateTime = Time.time;
-
-			// subscribe to the topic "/home/temperature" with QoS 2 
-			client.Subscribe (new string[] { "holojam" }, new byte[] { MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE });
+		if (track && MQTTClient.singleton && !labelSubscribed) {
+			MQTTClient.singleton.On (label, updateReceived);
+			labelSubscribed = true;
 		}
 	}
-	void client_MqttMsgPublishReceived(object sender, MqttMsgPublishEventArgs e) 
+
+	public bool Track {
+		get {
+			return track;
+		}
+		set {
+			if (value != track && MQTTClient.singleton) {
+				if (value == true && !labelSubscribed) {
+					MQTTClient.singleton.On (label, updateReceived);
+					labelSubscribed = true;
+				} else if (labelSubscribed) {
+					MQTTClient.singleton.Unsubscribe (label, updateReceived);
+					labelSubscribed = false;
+				}
+			}
+			track = value;
+		}
+	}
+
+	public void SetLabel(string labelstr) {
+		if (label != labelstr && track && MQTTClient.singleton) {
+			if (labelSubscribed) {
+				MQTTClient.singleton.Unsubscribe (label, updateReceived);
+				labelSubscribed = false;
+			}
+			MQTTClient.singleton.On (labelstr, updateReceived);
+			labelSubscribed = true;
+		}
+		label = labelstr;
+	}
+
+	void updateReceived(Nugget nugget) 
 	{ 
-		//Debug.Log("Received: " + System.Text.Encoding.UTF8.GetString(e.Message)  );
-		Debug.Log("Received");
-		ByteBuffer buf = new ByteBuffer(e.Message);
-		Nugget nugget = Nugget.GetRootAsNugget (buf);
 		TrackedPosition.Set (
 			nugget.Flakes(0).Value.Vector3s(0).Value.X,
 			nugget.Flakes(0).Value.Vector3s(0).Value.Y,
@@ -92,9 +105,6 @@ public class MQTTTrack : MonoBehaviour {
 			//			transform.rotation = viconRot;
 			UpdatedThisFrame = false;
 		} 
-		else {
-			Debug.Log ("No update");
-		}
 	}
 
 	void correctRotation() {
@@ -109,7 +119,5 @@ public class MQTTTrack : MonoBehaviour {
 		rotCorrected = true;
 	}
 
-	void OnApplicationQuit() {
-		client.Disconnect ();
-	}
+
 }
