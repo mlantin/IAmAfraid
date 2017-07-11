@@ -14,7 +14,7 @@ using System;
 public class MQTTTrack : MonoBehaviour {
 
 	public GameObject playerCamera;
-	public string label = "ECUVicon/Update/PIXEL1";
+	public string label = "Update/PIXEL1";
 	bool labelSubscribed = false;
 
 	bool track = false;
@@ -27,6 +27,7 @@ public class MQTTTrack : MonoBehaviour {
 	// This is the difference between what the Vicon rotation says we are and what 
 	// the daydream head tracking says we are.
 	Quaternion rotDiff; 
+	[HideInInspector]
 	public bool rotCorrected = false;
 
 	private UnityEngine.Vector3 lastpos;

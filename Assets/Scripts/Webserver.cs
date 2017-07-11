@@ -12,7 +12,7 @@ public class Webserver : MonoBehaviour {
 	public string m_serverPort;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 		singleton = this;
 		if (PlayerPrefs.HasKey ("SoundServerIP")) {
 			string ip = PlayerPrefs.GetString ("SoundServerIP");
@@ -29,7 +29,7 @@ public class Webserver : MonoBehaviour {
 		m_serverPort = port;
 	}
 
-	public  IEnumerator Upload(string filename, AudioClip clip, DownloadHandler handler) {
+	public IEnumerator Upload(string filename, AudioClip clip, DownloadHandler handler) {
 		float[] audioData = new float[clip.samples];
 		clip.GetData (audioData, 0);
 		MemoryStream stream = new MemoryStream();
@@ -37,7 +37,7 @@ public class Webserver : MonoBehaviour {
 		ConvertAndWrite (bw, audioData, clip.samples, clip.channels);
 		byte[] floatBytes = stream.ToArray();
 		//NetworkConnection conn = NetworkManager.singleton.client.connection;
-		UnityWebRequest www = UnityWebRequest.Put("http://"+m_serverIP+":"+m_serverPort+"/audio?fn="+filename, floatBytes);
+		UnityWebRequest www = UnityWebRequest.Put("http://"+m_serverIP+":"+m_serverPort+"/upload_audio?fn=" + filename, floatBytes);
 		if (handler != null)
 			www.downloadHandler = handler;
 		yield return www.Send();
@@ -77,8 +77,13 @@ public class Webserver : MonoBehaviour {
 		return context + "_" + System.DateTime.Now.ToString("yyyyMMddHHmm") + "_" + System.Guid.NewGuid().ToString("N");
 	}
 
+	static public string GenerateSceneName(string title) {
+		return title + LoadAndSaveState.sepString + System.DateTime.Now.ToString ("yyyy-MM-dd_HH-mm-ss");
+	}
+
 	public IEnumerator GetAudioClip(string fileName, System.Action<AudioClip> callback) {
-		using(UnityWebRequest www = UnityWebRequest.GetAudioClip("http://"+m_serverIP+":"+m_serverPort+"?fn=" + fileName, AudioType.WAV)) {
+		string url = "http://" + m_serverIP + ":" + m_serverPort + "/" + fileName + ".wav";
+		using(UnityWebRequest www = UnityWebRequest.GetAudioClip(url, AudioType.WAV)) {
 			yield return www.Send();
 			if (!www.downloadHandler.isDone)
 				yield return new WaitUntil(() => www.downloadHandler.isDone == true);
@@ -118,10 +123,61 @@ public class Webserver : MonoBehaviour {
 	}
 
 	public void DeleteAudioClipNoCheck(string fileName) {
+		/*
 		Debug.Log ("Deleting an audio clip: " + fileName);
 		UnityWebRequest www = UnityWebRequest.Delete ("http://" + m_serverIP + ":" + m_serverPort + "?fn=" + fileName);
 		www.downloadHandler = new DownloadHandlerBuffer();
 		www.Send ();
+		*/
+	}
+
+	public void getSceneList() {
+		StartCoroutine (processSceneList ());
+
+	}
+
+	public IEnumerator processSceneList() {
+
+		WWW www = new WWW ("http://" + m_serverIP + ":" + m_serverPort + "/scenes/");
+		yield return www;
+		if (www.error == null) {
+			Debug.Log (www.text);
+			SceneInfoList sceneList = SceneInfoList.CreateFromJSON (www.text);
+			LocalPlayerOptions playerOptions = LocalPlayerOptions.singleton;
+
+			sceneList.scenes.ForEach (x => {
+				playerOptions.AddServerScene(x.title, x.name);
+			});
+		} else {
+			Debug.LogAssertion ("Failed to get scene list");
+		}
+
+	}
+
+	public string getScene(string sceneName) {
+		string url = "http://" + m_serverIP + ":" + m_serverPort + "/scene/" + sceneName + "/config.json";
+		Debug.Log (url);
+		WWW request = new WWW(url);
+		while (!request.isDone);
+		return request.text;
+	}
+
+	public IEnumerator _uploadNewScene(IAAScene _scene) {
+		string json = _scene.getJSON();
+		string url = "http://" + m_serverIP + ":" + m_serverPort + "/scene/?fn=" + _scene.name;
+		UnityWebRequest www = UnityWebRequest.Put(url, json);
+		yield return www.Send();
+
+		if(www.isError) {
+			Debug.Log("There was an error uploading: "+www.error);
+		}
+		else {
+			Debug.Log("Upload complete!");
+		}
+	}
+
+	public void UploadNewScene(IAAScene scene) {
+		StartCoroutine (_uploadNewScene (scene));
 	}
 
 }

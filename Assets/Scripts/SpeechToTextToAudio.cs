@@ -191,25 +191,28 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 		
 	private void OnRecognize(SpeechRecognitionEvent result)
 	{
-		if (result != null && result.results.Length > 0)
-		{
-			foreach (var res in result.results)
-			{
-				foreach (var alt in res.alternatives)
-				{
+		if (result != null && result.results.Length > 0) {
+			foreach (var res in result.results) {
+				foreach (var alt in res.alternatives) {
 					string text;
 					if (res.final) {
 						text = "Final: " + alt.transcript;
 						m_mostRecentTranscript = alt.transcript;
-						m_mostRecentFilename = Webserver.GenerateFileName (netId.ToString ());
-						StartCoroutine(handleUpload ());
+						m_mostRecentFilename = "temp/" + Webserver.GenerateFileName (netId.ToString ());
+						StartCoroutine (handleUpload ());
 					} else {
 						text = "Interim: " + alt.transcript;
 					}
-					Log.Debug("ExampleStreaming", string.Format("{0} ({1}, {2:0.00})\n", text, res.final ? "Final" : "Interim", alt.confidence));
+					Log.Debug ("ExampleStreaming", string.Format ("{0} ({1}, {2:0.00})\n", text, res.final ? "Final" : "Interim", alt.confidence));
 
 				}
 			}
+		} else {
+			// Only for debugging
+			string text = "Test";
+			m_mostRecentTranscript = text;
+			m_mostRecentFilename = Path.Combine("temp", Webserver.GenerateFileName (netId.ToString ()));
+			StartCoroutine (handleUpload ());
 		}
 	}
 
@@ -226,12 +229,13 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 
 
 	public void spawnTheWord() {
+		GameObject controller = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Controller").gameObject;
 		Vector3 pos;
 		Quaternion rot;
 		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-		pos = GvrController.ArmModel.pointerRotation * Vector3.forward + 
-			GvrController.ArmModel.pointerPosition + Vector3.up * 1.6f;
-		rot = GvrController.ArmModel.pointerRotation;
+		pos = controller.transform.rotation * Vector3.forward
+			+ controller.transform.position;
+		rot = controller.transform.rotation;
 		#else
 		pos = Vector3.forward*2f;
 		rot = Quaternion.identity;

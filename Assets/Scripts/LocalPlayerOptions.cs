@@ -20,17 +20,67 @@ public class LocalPlayerOptions : MonoBehaviour {
 	bool m_preload = true;
 	[HideInInspector]
 	public string m_preloadFile;
+	[HideInInspector]
+	public SceneFile m_preloadScene;
+	private List<SceneFile> m_sceneFiles;
+	private int m_sceneNum = 0;
+
 	bool m_trackLocalPlayer = false;
 	int m_mocapnameIndex;
+
+	public class SceneFile {
+
+		public string sceneName;
+		public bool isOnServer;
+		public string title;
+
+		public SceneFile (string _sceneName, string _title, bool _onServer) {
+			sceneName = _sceneName;
+			isOnServer = _onServer;
+			title = _title;
+		}
+
+	}
+
+	public SceneFile PreloadFile {
+
+		get { 
+			return m_sceneFiles [m_sceneNum]; 
+		}
+
+	}
 
 	void Start() {
 		singleton = this;
 
 		// First populate from PlayerPrefs if they exist
 		populateUI();
-
+		m_sceneFiles = new List<SceneFile>();
+		m_sceneFiles.Add(new SceneFile("NewScene", "New Scene", false));
+		List<string> t = new List<string> ();
+		t.Add ("New Scene");
+		preloadFiles.GetComponent<Dropdown> ().AddOptions (t);
+		Webserver.singleton.getSceneList ();
+		/*
 		List<Dropdown.OptionData> menuOptions = preloadFiles.GetComponent<Dropdown> ().options;
-		m_preloadFile = menuOptions [0].text+".json";
+
+		menuOptions.ForEach (x => {
+			m_sceneFiles.Add(new SceneFile(x.text, x.text, false));
+		});
+		*/
+
+	}
+
+	public void AddServerScene(string title, string sceneName) {
+		RemoveServerScene ();
+		m_sceneFiles.Add(new SceneFile(sceneName, title, true));
+		List<string> t = new List<string> ();
+		t.Add ("+" + title);
+		preloadFiles.GetComponent<Dropdown> ().AddOptions (t);
+	}
+
+	public void RemoveServerScene() {
+		// TODO.
 	}
 
 	void populateUI() {
@@ -85,10 +135,7 @@ public class LocalPlayerOptions : MonoBehaviour {
 	}
 
 	public void setPreloadFile (int val) {
-		List<Dropdown.OptionData> menuOptions = preloadFiles.GetComponent<Dropdown> ().options;
-
-		//get the string value of the selected index
-		m_preloadFile = menuOptions [val].text+".json";
+		m_sceneNum = val;
 	}
 
 	public int mocapNameIndex {

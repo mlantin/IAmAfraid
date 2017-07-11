@@ -35,10 +35,9 @@ public class wordActs : NetworkBehaviour
 	private Highlighter m_highlight;
 
 	private Quaternion m_rotq;
-	private Quaternion m_originalLaserRotation;
 	private Vector3 m_originalHitPoint;
 	private Vector3 m_originalHitPointLocal, m_hitPointToController;
-	private Quaternion m_originalControllerRotation;
+	private Quaternion m_originalControllerRotation, m_originalLaserRotation;
 
 	[SyncVar] // Needs to be networked so we can change the volume that is based on height
 	private bool m_moving = false;
@@ -53,24 +52,27 @@ public class wordActs : NetworkBehaviour
 
 	GameObject laser {
 		get {
-			if (m_laser == null) 
+			if (m_laser == null) {
 				m_laser = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser").gameObject;
+			}
 			return m_laser;
 		}
 	}
 
 	GameObject reticle {
 		get {
-			if (m_reticle == null)
+			if (m_reticle == null) {
 				m_reticle = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser/Reticle").gameObject;
+			}
 			return m_reticle;
 		}
 	}
 
 	GameObject controller {
 		get {
-			if (m_controller == null)
-				m_controller = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Controller").gameObject;
+			if (m_controller == null) {
+				m_controller = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Controller/ddcontroller").gameObject;
+			}
 			return m_controller;
 		}
 	}
@@ -166,10 +168,12 @@ public class wordActs : NetworkBehaviour
 					// Make sure we don't go through the floor
 					if (newpos.y < 0.05f)
 						newpos.y = 0.05f;
-					// transform.position = newpos;
+					transform.position = newpos;
+					transform.rotation = GvrController.Orientation;
 				} else {
 
 					Quaternion deltaRotation = controller.transform.rotation * Quaternion.Inverse(m_originalControllerRotation);
+					// Quaternion deltaRotation = controller.transform.rotation * Quaternion.Inverse(m_originalControllerRotation);
 					var letterTrans = transform.Find("Letters");
 					Vector3 tGlobal = transform.TransformPoint(m_originalHitPointLocal);
 					transform.position = tGlobal;
@@ -189,7 +193,8 @@ public class wordActs : NetworkBehaviour
 						newpos.y = 0.05f;
 					transform.position = newpos;
 
-					transform.rotation = controller.transform.rotation;
+					transform.rotation = GvrController.Orientation; // controller.transform.rotation;
+
 					letterTrans.localPosition += m_originalHitPointLocal;
 					transform.position = transform.TransformPoint(-m_originalHitPointLocal);
 
@@ -292,9 +297,9 @@ public class wordActs : NetworkBehaviour
 		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
 //			Vector3 intersectionLaser = gameObject.transform.position - laser.transform.position;
 //			m_rotq = Quaternion.FromToRotation (laser.transform.forward, intersectionLaser);
-//			m_distanceFromPointer = intersectionLaser.magnitude;
-			m_originalLaserRotation = laser.transform.rotation;
+//			m_distanceFromPointer = intersectionLaser.magnitude; 
 			m_originalControllerRotation = controller.transform.rotation;
+			m_originalLaserRotation = laser.transform.rotation;
 			m_originalHitPoint = eventData.pointerCurrentRaycast.worldPosition;
 			m_hitPointToController = m_originalHitPoint - controller.transform.position;
 			m_originalHitPointLocal = transform.InverseTransformPoint(m_originalHitPoint);
