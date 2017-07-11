@@ -198,7 +198,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 					if (res.final) {
 						text = "Final: " + alt.transcript;
 						m_mostRecentTranscript = alt.transcript;
-						m_mostRecentFilename = Webserver.GenerateFileName (netId.ToString ());
+						m_mostRecentFilename = "temp/" + Webserver.GenerateFileName (netId.ToString ());
 						StartCoroutine (handleUpload ());
 					} else {
 						text = "Interim: " + alt.transcript;
@@ -211,7 +211,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 			// Only for debugging
 			string text = "Test";
 			m_mostRecentTranscript = text;
-			m_mostRecentFilename = Webserver.GenerateFileName (netId.ToString ());
+			m_mostRecentFilename = Path.Combine("temp", Webserver.GenerateFileName (netId.ToString ()));
 			StartCoroutine (handleUpload ());
 		}
 	}

@@ -20,14 +20,13 @@ public class SceneInfoList {
 	[System.Serializable]
 	public class SceneInfo {
 		// public string name;
-		public SceneInfo(string _filename, string _name) {
-			filename = _filename;
+		public SceneInfo(string _name, string _title) {
+			title = _title;
 			name = _name;
 		}
 
-		public string filename;
+		public string title;
 		public string name;
-
 
 	}
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
@@ -73,7 +74,7 @@ public class NonVerbalRecord : MonoBehaviour {
 				m_mostRecentClip = AudioClip.Create ("clipy", writePos, 1, m_RecordingHZ, false);
 				m_mostRecentClip.SetData (samples, 0);
 
-				string filename = Webserver.GenerateFileName (IAAPlayer.playerObject.GetComponent<NetworkIdentity>().netId.ToString ());
+				string filename = Path.Combine("temp", Webserver.GenerateFileName (IAAPlayer.playerObject.GetComponent<NetworkIdentity>().netId.ToString ()));
 				DownloadHandlerBuffer handler = new DownloadHandlerBuffer ();
 				yield return StartCoroutine(Webserver.singleton.Upload (filename, m_mostRecentClip, handler));
 				//yield return new WaitUntil(() => handler.isDone == true);

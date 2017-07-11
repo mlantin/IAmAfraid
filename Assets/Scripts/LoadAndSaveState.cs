@@ -7,8 +7,9 @@ using UnityEngine.Networking;
 public class LoadAndSaveState : NetworkBehaviour {
 
 	static public bool Loaded = false;
+	static public string sepString = "__";
 	public bool loadInitialState = false;
-	public LocalPlayerOptions.SceneFile stateFile = new LocalPlayerOptions.SceneFile ("Test Scene", "testscene.json", false);
+	public LocalPlayerOptions.SceneFile stateFile = new LocalPlayerOptions.SceneFile ("testscene", "Test Scene", false);
 
 	// Use this for initialization
 	public override void OnStartServer () {
@@ -17,17 +18,19 @@ public class LoadAndSaveState : NetworkBehaviour {
 			string jsonText = "";
 
 			if (stateFile.isOnServer) {
-				jsonText = Webserver.singleton.getScene (stateFile.fileName);
+				Debug.Log ("Scene name: " + stateFile.sceneName + "Title: " + stateFile.title);
+				jsonText = Webserver.singleton.getScene (stateFile.sceneName);
 				Debug.Log (jsonText);
 			} else {
-				string fileLocation = "/" + stateFile.fileName;
+				/*
+				string fileLocation = Path.Combine(Path.Combine("scene", stateFile.sceneName), "config.json");
 
 				#if !UNITY_ANDROID || UNITY_EDITOR
 				try
 				{
 					if (!Directory.Exists(Application.streamingAssetsPath))
 						Directory.CreateDirectory(Application.streamingAssetsPath);
-					string fullFilePath = Application.streamingAssetsPath + fileLocation;
+					string fullFilePath = Path.Combine(Application.streamingAssetsPath, fileLocation);
 					jsonText = System.IO.File.ReadAllText(fullFilePath);
 				}
 				catch (System.IO.FileNotFoundException)
@@ -36,31 +39,31 @@ public class LoadAndSaveState : NetworkBehaviour {
 					Debug.Log("Failed to load state file.");
 				}
 				#else
-				WWW request = new WWW(Application.streamingAssetsPath + fileLocation);
+				WWW request = new WWW(Path.Combine(Application.streamingAssetsPath, fileLocation));
 				while (!request.isDone);
 				jsonText = request.text;
 				#endif
+				*/
+				IAAScene t = new IAAScene (stateFile.title, stateFile.sceneName, null);
 			}
 
+			List<WordInfo> wordlist = IAAScene.fromJSON(jsonText).wordInfoList;
+			MakeWords creatorObject = GetComponent<MakeWords> ();
 
-
-			List<WordInfo> wordlist = WordInfo.newWordInfoListFromString(jsonText);
-
-			makeaword wordscript = GetComponent<makeaword> ();
-			MakeSoundObject soundscript = GetComponent<MakeSoundObject> ();
-			foreach(WordInfo word in wordlist) {
-				if (word.word != "") {
-					wordscript.spawnWord (word.word, word.scale, word.pos, word.rot, word.clipfn, false);
-				} else {
-					soundscript.spawnSoundObjectInPlace (word.clipfn, word.pos, word.rot);
-				}
+			if (wordlist != null) {
+				
+				wordlist.ForEach (x => {
+					creatorObject.spawn (x, false);
+				});
 			}
+
 			Loaded = true;
 		}
 	}
 
 	[Command]
 	public void CmdSaveState() {
+		Debug.Log ("Saving state");
 		GameObject[] words = GameObject.FindGameObjectsWithTag ("Word");
 		GameObject[] sounds = GameObject.FindGameObjectsWithTag ("Sound");
 
@@ -79,9 +82,28 @@ public class LoadAndSaveState : NetworkBehaviour {
 				obj.transform.position, obj.transform.rotation));
 			soundscript.saved = true;
 		}
-		string filename = Application.persistentDataPath+"/"+Webserver.GenerateFileName ("state")+".json";
+		/*
+		string filename = Application.persistentDataPath + "/" + Webserver.GenerateFileName ("state") + ".json";
 		Debug.Log ("Saving state to " + filename);
-		WordInfo.writeFileWithNewWordInfoList (filename, stateList);
+		*/
+
+		IAAScene scene = new IAAScene ();
+		scene.wordInfoList = stateList;
+		LocalPlayerOptions.SceneFile sceneFile = LocalPlayerOptions.singleton.PreloadFile;
+		if (sceneFile != null) {
+			string oriTitle = sceneFile.title;
+			int pos = sceneFile.title.LastIndexOf (sepString);
+			if (pos != -1) {
+				oriTitle = sceneFile.title.Substring (0, pos);
+			}
+			scene.title = Webserver.GenerateSceneName (oriTitle);
+			scene.name = Webserver.GenerateSceneName (sceneFile.sceneName);
+		} else {
+			scene.title = Webserver.GenerateSceneName ("New Scene");
+			scene.name = Webserver.GenerateSceneName ("NewScene");
+		}
+		Webserver.singleton.UploadNewScene (scene);
+		
 	}
 
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)

@@ -2,6 +2,36 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
 
+// Workaround for JsonUtility refusing to deserialize a root-level json array.
+// We read the single-property object into an instance of WordInfoList, and then just take our desired list from it
+[System.Serializable]
+public class IAAScene {
+	public string title;
+	public string name;
+	public List<WordInfo> wordInfoList;
+
+	public IAAScene(string _title, string _name, List<WordInfo> _wordInfoList) {
+		wordInfoList = _wordInfoList;
+		name = _name;
+		title = _title;
+	}
+
+	public IAAScene() {
+		wordInfoList = null;
+		title = null;
+	}
+
+	public string getJSON() {
+		return JsonUtility.ToJson (this, true);
+	}
+
+	public static IAAScene fromJSON(string json) {
+		return JsonUtility.FromJson<IAAScene>(json);
+	}
+}
+
+
+
 [System.Serializable]
 public class WordInfo {
 
@@ -20,7 +50,7 @@ public class WordInfo {
 		this.pos = pos;
 		this.rot = rot;
 	}
-
+	/*
 	// Main Getter utility method - reads json into list of word info objects
 	public static List<WordInfo> newWordInfoListFromFile() {
 		string json = File.ReadAllText(DATA_FILE_NAME);
@@ -125,17 +155,6 @@ public class WordInfo {
 		}
 		return true;
 	}
-
-	// Workaround for JsonUtility refusing to deserialize a root-level json array.
-	// We read the single-property object into an instance of WordInfoList, and then just take our desired list from it
-	[System.Serializable]
-	private class WordInfoList {
-		// public string name;
-		public List<WordInfo> wordInfoList;
-
-		public WordInfoList(List<WordInfo> wordInfoList) {
-			this.wordInfoList = wordInfoList;
-		}
-	}
-
+	*/
 }
+

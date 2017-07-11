@@ -1,11 +1,12 @@
 fileFormatVersion: 2
 guid: 1362ee83563f0458bbbc776de423bfe8
-timeCreated: 1498098412
+timeCreated: 1499465464
 licenseType: Free
 PluginImporter:
   serializedVersion: 2
   iconMap: {}
-  executionOrder: {}
+  executionOrder:
+    Holojam.Network.Client: -16000
   isPreloaded: 0
   isOverridable: 0
   platformData:

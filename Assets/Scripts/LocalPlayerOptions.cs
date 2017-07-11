@@ -30,14 +30,14 @@ public class LocalPlayerOptions : MonoBehaviour {
 
 	public class SceneFile {
 
-		public string name;
+		public string sceneName;
 		public bool isOnServer;
-		public string fileName;
+		public string title;
 
-		public SceneFile (string _name, string _filename, bool _onServer) {
-			name = _name;
+		public SceneFile (string _sceneName, string _title, bool _onServer) {
+			sceneName = _sceneName;
 			isOnServer = _onServer;
-			fileName = _filename;
+			title = _title;
 		}
 
 	}
@@ -45,9 +45,7 @@ public class LocalPlayerOptions : MonoBehaviour {
 	public SceneFile PreloadFile {
 
 		get { 
-			if (m_sceneNum == -1)
-				return null;
-			else return m_sceneFiles [m_sceneNum]; 
+			return m_sceneFiles [m_sceneNum]; 
 		}
 
 	}
@@ -57,21 +55,32 @@ public class LocalPlayerOptions : MonoBehaviour {
 
 		// First populate from PlayerPrefs if they exist
 		populateUI();
-
-		List<Dropdown.OptionData> menuOptions = preloadFiles.GetComponent<Dropdown> ().options;
 		m_sceneFiles = new List<SceneFile>();
+		m_sceneFiles.Add(new SceneFile("NewScene", "New Scene", false));
+		List<string> t = new List<string> ();
+		t.Add ("New Scene");
+		preloadFiles.GetComponent<Dropdown> ().AddOptions (t);
+		Webserver.singleton.getSceneList ();
+		/*
+		List<Dropdown.OptionData> menuOptions = preloadFiles.GetComponent<Dropdown> ().options;
+
 		menuOptions.ForEach (x => {
-			m_sceneFiles.Add(new SceneFile(x.text, x.text+".json", false));
+			m_sceneFiles.Add(new SceneFile(x.text, x.text, false));
 		});
+		*/
 
 	}
 
-	public void AddServerScene(string name, string filename) {
-
-		m_sceneFiles.Add(new SceneFile(name, filename, true));
+	public void AddServerScene(string title, string sceneName) {
+		RemoveServerScene ();
+		m_sceneFiles.Add(new SceneFile(sceneName, title, true));
 		List<string> t = new List<string> ();
-		t.Add ("+" + name);
+		t.Add ("+" + title);
 		preloadFiles.GetComponent<Dropdown> ().AddOptions (t);
+	}
+
+	public void RemoveServerScene() {
+		// TODO.
 	}
 
 	void populateUI() {
