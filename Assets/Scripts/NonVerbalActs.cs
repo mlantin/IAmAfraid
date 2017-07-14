@@ -6,12 +6,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.Networking;
 using HighlightingSystem;
 
-public class NonVerbalActs : NetworkBehaviour
-#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-, IGvrPointerHoverHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IPointerDownHandler
-#endif
+public class NonVerbalActs : SoundObjectActs
 {
-	static Color HighlightColour = new Color(0.639216f, 0.458824f, 0.070588f);
 
 	// This is to set a timer when a person clicks. If we linger long enough 
 	// we call it a press&hold.

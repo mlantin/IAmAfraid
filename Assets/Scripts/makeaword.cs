@@ -19,7 +19,7 @@ public class makeaword : NetworkBehaviour {
 		newwordTrans.transform.position = pos;
 		newwordTrans.transform.rotation = rot;
 
-		wordActs wordscript = newwordTrans.GetComponent<wordActs> ();
+		WordActs wordscript = newwordTrans.GetComponent<WordActs> ();
 		wordscript.m_scale = scale;
 		wordscript.m_wordstr = word;
 		wordscript.m_serverFileName = clipfn;

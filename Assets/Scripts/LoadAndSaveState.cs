@@ -67,10 +67,10 @@ public class LoadAndSaveState : NetworkBehaviour {
 		GameObject[] words = GameObject.FindGameObjectsWithTag ("Word");
 		GameObject[] sounds = GameObject.FindGameObjectsWithTag ("Sound");
 
-		wordActs wordscript;
+		WordActs wordscript;
 		List<WordInfo> stateList = new List<WordInfo>();
 		foreach (GameObject obj in words) {
-			wordscript = obj.GetComponent<wordActs> ();
+			wordscript = obj.GetComponent<WordActs> ();
 			stateList.Add(new WordInfo(wordscript.m_wordstr, wordscript.m_serverFileName, wordscript.m_scale,
 				obj.transform.position, obj.transform.rotation));
 			wordscript.saved = true;

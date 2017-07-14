@@ -7,7 +7,7 @@ public class WordSequencer : NetworkBehaviour {
 
 	public GameObject comet; // The satellite that will trace the sequence path
 
-	wordActs m_wordActs;
+	WordActs m_WordActs;
 
 	List<int> playtriggers = new List<int> (); // A list of indices for when looping should be triggered. Anchored to path.
 	List<Vector3> path = new List<Vector3>(); // A list of positions on the path, one for each fixed update
@@ -23,7 +23,7 @@ public class WordSequencer : NetworkBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		m_wordActs = gameObject.GetComponent<wordActs> ();
+		m_WordActs = gameObject.GetComponent<WordActs> ();
 		active = false;
 		comet.SetActive (false);
 	}
@@ -110,7 +110,7 @@ public class WordSequencer : NetworkBehaviour {
 		active = true;
 		nextInOut = 0;
 		playstate = true;
-		m_wordActs.playWord (true);
+		m_WordActs.playWord (true);
 	}
 
 	[ClientRpc]
@@ -136,7 +136,7 @@ public class WordSequencer : NetworkBehaviour {
 					toggleplay = true;
 				if (toggleplay) {
 					playstate = !playstate;
-					m_wordActs.playWord (playstate);
+					m_WordActs.playWord (playstate);
 					nextInOut++;
 					if (nextInOut == playtriggers.Count) {
 						nextInOut--;
@@ -144,7 +144,7 @@ public class WordSequencer : NetworkBehaviour {
 				}
 			}
 			if (playstate == true) {
-				m_wordActs.setLocalGranOffset (scrubs [nextScrub]);
+				m_WordActs.setLocalGranOffset (scrubs [nextScrub]);
 				nextScrub++;
 			}
 			nextPos++;

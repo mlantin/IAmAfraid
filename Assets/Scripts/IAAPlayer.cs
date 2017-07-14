@@ -183,14 +183,14 @@ public class IAAPlayer : NetworkBehaviour {
 	[Command]
 	public void CmdSetWordHitState(NetworkInstanceId objid, bool state) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
-		wordActs acts = obj.GetComponent<wordActs> ();
+		WordActs acts = obj.GetComponent<WordActs> ();
 		acts.setHit (state);
 	}
 
 	[Command]
 	public void CmdSetWordMovingState(NetworkInstanceId objid, bool state) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
-		wordActs acts = obj.GetComponent<wordActs> ();
+		WordActs acts = obj.GetComponent<WordActs> ();
 		acts.setMovingState (state);
 	}
 
@@ -198,7 +198,7 @@ public class IAAPlayer : NetworkBehaviour {
 	public void CmdSetWordPositioned(NetworkInstanceId objid, bool state) {
 		NetworkIdentity netid = NetworkServer.objects [objid];
 		GameObject obj = netid.gameObject;
-		wordActs acts = obj.GetComponent<wordActs> ();
+		WordActs acts = obj.GetComponent<WordActs> ();
 		acts.m_positioned = state;
 		if (!state)
 			netid.AssignClientAuthority (connectionToClient);
@@ -209,21 +209,21 @@ public class IAAPlayer : NetworkBehaviour {
 	[Command]
 	public void CmdWordSetGranOffset(NetworkInstanceId objid, float f) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
-		wordActs acts = obj.GetComponent<wordActs> ();
+		WordActs acts = obj.GetComponent<WordActs> ();
 		acts.setGranOffset (f);
 	}
 
 	[Command]
 	public void CmdToggleWordLoopingState(NetworkInstanceId objid) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
-		wordActs acts = obj.GetComponent<wordActs> ();
+		WordActs acts = obj.GetComponent<WordActs> ();
 		acts.toggleLooping ();
 	}
 
 	[Command]
 	public void CmdSetWordDrawingSequence(NetworkInstanceId objid, bool val) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
-		wordActs acts = obj.GetComponent<wordActs> ();
+		WordActs acts = obj.GetComponent<WordActs> ();
 		acts.setDrawingSequence (val);
 	}
 
@@ -269,7 +269,7 @@ public class IAAPlayer : NetworkBehaviour {
 	//	public void CmdSeparateLetters(NetworkInstanceId objid) {
 	//		NetworkIdentity netid = NetworkServer.objects [objid];
 	//		GameObject obj = netid.gameObject;
-	//		wordActs acts = obj.GetComponent<wordActs> ();
+	//		WordActs acts = obj.GetComponent<WordActs> ();
 	//		Debug.Log ("I'm going to separate letters now");
 	//		acts.RpcSeparateLetters ();
 	//		NetworkServer.Destroy (NetworkServer.objects [objid].gameObject);
