@@ -110,7 +110,7 @@ public class WordSequencer : NetworkBehaviour {
 		active = true;
 		nextInOut = 0;
 		playstate = true;
-		m_WordActs.playWord (true);
+		m_WordActs.playSound (true);
 	}
 
 	[ClientRpc]
@@ -136,7 +136,7 @@ public class WordSequencer : NetworkBehaviour {
 					toggleplay = true;
 				if (toggleplay) {
 					playstate = !playstate;
-					m_WordActs.playWord (playstate);
+					m_WordActs.playSound (playstate);
 					nextInOut++;
 					if (nextInOut == playtriggers.Count) {
 						nextInOut--;

@@ -17,62 +17,6 @@ public class WordActs : SoundObjectActs
 	private float m_localGranOffset = 0; // This one is not networked..for doing the sequencer.
 	private AudioMixer m_mixer;
 
-	private bool m_saved = false; // Whether the word is part of an environment that has been saved.
-
-	// This is to set a timer when a person clicks. If we linger long enough 
-	// we call it a press&hold.
-	float m_presstime = 0;
-	bool m_presshold = true;
-	bool m_pressOrigin = false;
-	bool m_target = false;
-	const float m_holdtime = .5f; // seconds until we call it a press&hold.
-
-	private float m_distanceFromPointer = 1.0f;
-	private Highlighter m_highlight;
-
-	private Quaternion m_rotq;
-	private Vector3 m_originalHitPoint;
-	private Vector3 m_originalHitPointLocal, m_hitPointToController;
-	private Quaternion m_originalControllerRotation, m_originalLaserRotation;
-
-	[SyncVar] // Needs to be networked so we can change the volume that is based on height
-	private bool m_moving = false;
-	private GameObject m_laser = null;
-	private GameObject m_reticle = null;
-	private GameObject m_controller = null;
-	private GameObject m_tmpSphere = null;
-
-	private Plane m_drawingPlane;
-	private bool m_drawingPath = false; 
-	private WordSequencer m_sequencer;
-
-	GameObject laser {
-		get {
-			if (m_laser == null) {
-				m_laser = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser").gameObject;
-			}
-			return m_laser;
-		}
-	}
-
-	GameObject reticle {
-		get {
-			if (m_reticle == null) {
-				m_reticle = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser/Reticle").gameObject;
-			}
-			return m_reticle;
-		}
-	}
-
-	GameObject controller {
-		get {
-			if (m_controller == null) {
-				m_controller = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Controller/ddcontroller").gameObject;
-			}
-			return m_controller;
-		}
-	}
-
 	private float m_xspace = 0;
 	[HideInInspector]
 	public Vector3 bbdim = new Vector3(0.0f,0.0f,0.0f);
@@ -88,20 +32,11 @@ public class WordActs : SoundObjectActs
 	[HideInInspector]
 	public bool m_preloaded = false;
 	[HideInInspector][SyncVar]
-	public bool m_positioned = false;
-	[HideInInspector][SyncVar]
 	public string m_wordstr = "";
 	[HideInInspector][SyncVar]
 	public float m_scale = 1.0f;
-	[HideInInspector][SyncVar]
-	public string m_serverFileName = "";
 
-	[SyncVar (hook ="playWord")]
-	bool wordHit = false;
-	[SyncVar (hook ="setLooping")]
-	bool m_looping = false;
-	[SyncVar (hook = "setDrawingHighlight")]
-	bool m_drawingSequence = false;
+	private WordSequencer m_sequencer;
 
 	// Using 'i' as a base char to correct shifting
 	private Vector3 extent_i, position_i;
@@ -141,124 +76,29 @@ public class WordActs : SoundObjectActs
 			m_highlight.FlashingOn ();
 		}
 	}
-		
-	// Update is called once per frame
-	void Update () {
-		if (!isClient)
-			return;
-		bool volumeChanged = false;
-		if (!m_positioned || m_moving)
-			volumeChanged = true;
 
-		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-
-		if (GvrController.ClickButtonUp)
-			m_pressOrigin = false;
-		
-		if (!m_positioned || m_moving) {
-			if (hasAuthority) {
-				
-				if (!m_moving) {
-					// Forward is a unit vector. Strange
-					Vector3 newpos = laser.transform.position + laser.transform.forward;
-					// Make sure we don't go through the floor
-					if (newpos.y < 0.05f)
-						newpos.y = 0.05f;
-					transform.position = newpos;
-					transform.rotation = GvrController.Orientation;
-				} else {
-
-					Quaternion deltaRotation = controller.transform.rotation * Quaternion.Inverse(m_originalControllerRotation);
-					// Quaternion deltaRotation = controller.transform.rotation * Quaternion.Inverse(m_originalControllerRotation);
-					var letterTrans = transform.Find("Letters");
-					Vector3 tGlobal = transform.TransformPoint(m_originalHitPointLocal);
-					transform.position = tGlobal;
-					letterTrans.localPosition -= m_originalHitPointLocal;
-					
-					// Condition: not positioned and moving, has authority
-					// We have picked a word and we're moving it...
-					// Vector3 newdir = m_rotq * laser.transform.forward;
-					// Vector3 newpos = laser.transform.position + newdir * m_distanceFromPointer;
-
-					Vector3 newPosOffset = deltaRotation * m_hitPointToController;
-					// Vector3 newpos = controller.transform.position + controller.transform.forward * m_hitPointToController.magnitude;
-					Vector3 newpos = controller.transform.position + newPosOffset;
-
-					// Make sure we don't go through the floor
-					if (newpos.y < 0.05f)
-						newpos.y = 0.05f;
-					transform.position = newpos;
-
-					transform.rotation = GvrController.Orientation; // controller.transform.rotation;
-
-					letterTrans.localPosition += m_originalHitPointLocal;
-					transform.position = transform.TransformPoint(-m_originalHitPointLocal);
-
-				}
-
-				if (GvrController.ClickButtonUp) {
-					m_positioned = true;
-					m_moving = false;
-					IAAPlayer.localPlayer.CmdSetWordMovingState(netId,false);
-					IAAPlayer.localPlayer.CmdSetWordPositioned(netId, true);
-					if (!m_target && !m_looping)
-						IAAPlayer.localPlayer.CmdSetWordHitState (netId, false);
-				}
-			}
-		} else if (m_positioned && !m_moving) {
-			if (m_target && m_pressOrigin && GvrController.ClickButton) {
-				m_presstime += Time.deltaTime;
-				if (!m_presshold && m_presstime > m_holdtime) {
-					m_presshold = true;
-					if (GvrController.TouchPos.x > .85f) {
-						m_drawingPlane.SetNormalAndPosition((Camera.main.transform.position-reticle.transform.position).normalized,reticle.transform.position);
-						if (m_looping)
-							IAAPlayer.localPlayer.CmdToggleWordLoopingState(netId);
-						IAAPlayer.localPlayer.CmdSetWordDrawingSequence(netId,true);
-						IAAPlayer.localPlayer.CmdSetWordHitState (netId, false);
-						IAAPlayer.localPlayer.CmdSetWordHitState (netId, true);
-						m_sequencer.startNewSequence();
-						m_drawingPath = true;
-					}
-				}
-			} else if (GvrController.ClickButtonUp) {
-				if (GvrController.TouchPos.x > .85f) {
-					if (m_drawingPath) {
-						//m_sequencer.addTime();
-						m_sequencer.endSequence();
-						m_drawingPath = false;
-						IAAPlayer.localPlayer.CmdSetWordDrawingSequence(netId,false);
-						if (!m_looping)
-							IAAPlayer.localPlayer.CmdToggleWordLoopingState(netId);
-						IAAPlayer.removeAuthority(netId);
-					} else if (m_target) {
-						IAAPlayer.localPlayer.CmdToggleWordLoopingState (netId);
-						IAAPlayer.removeAuthority(netId);
-					}
-				}
-				m_presshold = false;
-			}
-		}
-		#endif
-		if (volumeChanged)
-			setVolumeFromHeight(transform.position.y);	
+	protected override void tmpStartNewSequence() {
+		m_sequencer.startNewSequence ();
+	}
+	protected override void tmpEndSequence() {
+		m_sequencer.endSequence ();
 	}
 
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 
-	public void OnGvrPointerHover(PointerEventData eventData) {
+	public override void OnGvrPointerHover(PointerEventData eventData) {
 		if (!m_looping) {
 			m_granOffset = getScrubValue ().x / bbdim.x + 0.5f;
 			IAAPlayer.localPlayer.CmdWordSetGranOffset (netId, m_granOffset);
 		}
 	}
 
-	public void OnPointerEnter (PointerEventData eventData) {
+	public override void OnPointerEnter (PointerEventData eventData) {
 		m_target = true;
 		if (m_positioned) {
 			m_target = true;
 			if (!m_looping) {
-				IAAPlayer.localPlayer.CmdSetWordHitState (netId, true);
+				IAAPlayer.localPlayer.CmdSetSoundObjectHitState (netId, true);
 				IAAPlayer.getAuthority (netId);
 			}
 			if (m_drawingPath) {
@@ -267,11 +107,11 @@ public class WordActs : SoundObjectActs
 		}
 	}
 
-	public void OnPointerExit(PointerEventData eventData){
+	public override void OnPointerExit(PointerEventData eventData){
 		m_target = false;
 		if (m_positioned) {
 			if (!m_looping) {
-				IAAPlayer.localPlayer.CmdSetWordHitState (netId, false);
+				IAAPlayer.localPlayer.CmdSetSoundObjectHitState (netId, false);
 				IAAPlayer.removeAuthority (netId);
 			}
 			if (m_drawingPath) {
@@ -280,39 +120,7 @@ public class WordActs : SoundObjectActs
 		}
 	}
 
-	public void OnPointerClick (PointerEventData eventData) {
-		if (!m_positioned)
-			return;
-		//get the coordinates of the trackpad so we know what kind of event we want to trigger
-		if (GvrController.TouchPos.y > .85f) {
-			IAAPlayer.localPlayer.CmdDestroyObject (netId);
-		}
-	}
 
-	public void OnPointerDown (PointerEventData eventData) {
-		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
-//			Vector3 intersectionLaser = gameObject.transform.position - laser.transform.position;
-//			m_rotq = Quaternion.FromToRotation (laser.transform.forward, intersectionLaser);
-//			m_distanceFromPointer = intersectionLaser.magnitude; 
-			m_originalControllerRotation = controller.transform.rotation;
-			m_originalLaserRotation = laser.transform.rotation;
-			m_originalHitPoint = eventData.pointerCurrentRaycast.worldPosition;
-			m_hitPointToController = m_originalHitPoint - controller.transform.position;
-			m_originalHitPointLocal = transform.InverseTransformPoint(m_originalHitPoint);
-//			m_tmpSphere = GameObject.CreatePrimitive (PrimitiveType.Sphere);
-//			m_tmpSphere.transform.localScale = new Vector3 (0.1f, 0.1f, 0.1f);
-//			m_tmpSphere.transform.position = m_originalHitPoint;
-			m_positioned = false;
-			m_moving = true;
-			IAAPlayer.localPlayer.CmdSetWordMovingState(netId,true);
-			IAAPlayer.localPlayer.CmdSetWordPositioned(netId,false);
-		}
-		if (m_positioned && !m_moving) { // We are a candidate for presshold
-			m_pressOrigin = true;
-			m_presstime = 0;
-			m_presshold = false;
-		}
-	}
 	#endif
 
 	void FixedUpdate() {
@@ -379,29 +187,14 @@ public class WordActs : SoundObjectActs
 	// Proxy Functions (START)
 	// These are only called from the LocalPlayer proxy server command
 
-	public void setDrawingSequence(bool val) {
-		m_drawingSequence = val;
-	}
-
-	public void toggleLooping() {
-		m_looping = !m_looping;
-	}
-
-	public void setHit(bool state) {
-		wordHit = state;
-	}
-
-	public void setMovingState(bool state) {
-		m_moving = state;
-	}
-
+		
 	// Proxy Functions (END)
 
 
 	// Hook Functions (START)
 
-	public void playWord(bool hit) {
-		wordHit = hit;
+	public override void playSound(bool hit) {
+		objectHit = hit;
 		if (hit) {
 			m_mixer.SetFloat ("Rate", 100f);
 		} else {
@@ -410,7 +203,7 @@ public class WordActs : SoundObjectActs
 	}
 
 
-	void setLooping(bool loop) {
+	public override void setLooping(bool loop) {
 		m_looping = loop;
 		if (m_looping) {
 			m_highlight.ConstantOnImmediate (HighlightColour);
@@ -418,15 +211,6 @@ public class WordActs : SoundObjectActs
 		} else {
 			m_highlight.ConstantOffImmediate ();
 			IAAPlayer.localPlayer.CmdWordStopSequencer(netId);
-		}
-	}
-
-	public void setDrawingHighlight(bool val) {
-		m_drawingSequence = val;
-		if (m_drawingSequence) {
-			m_highlight.FlashingOn ();
-		} else {
-			m_highlight.FlashingOff ();
 		}
 	}
 
@@ -508,7 +292,7 @@ public class WordActs : SoundObjectActs
 		}
 	}
 
-	void setVolumeFromHeight(float y) {
+	protected override void setVolumeFromHeight(float y) {
 		float vol = Mathf.Clamp(-50+y/1.8f*56f, -50f,6f);
 		// Debug.Log ("y = " + y + " Vol = " + vol);
 		m_mixer.SetFloat("Volume", vol);

@@ -9,65 +9,20 @@ using HighlightingSystem;
 public class NonVerbalActs : SoundObjectActs
 {
 
-	// This is to set a timer when a person clicks. If we linger long enough 
-	// we call it a press&hold.
-	float m_presstime = 0;
-	bool m_presshold = true;
-	bool m_pressOrigin = false; // We were the origin of the last button press
-	const float m_holdtime = .5f; // seconds until we call it a press&hold.
 
-	[SyncVar]
-	public string m_serverFileName = "";
 	public Text m_DebugText;
-	Highlighter m_highlight;
-	NonVerbalSequencer m_sequencer;
-	bool m_drawingPath = false;
-	Plane m_drawingPlane = new Plane ();
 
-	float m_distanceFromPointer = 1.0f;
 	GvrAudioSource m_wordSource;
-	 
-	bool m_saved = false;
-
-	GameObject m_laser = null;
-	GameObject m_reticle = null;
-
-	Quaternion m_rotq;
-	[SyncVar] // This needs to be a syncvar so we can vary the volume when the object is moving
-	bool m_moving = false;
-	bool m_target = false; // Whether the reticle is on this object
+	private NonVerbalSequencer m_sequencer;
 
 	// This indicates that the word was preloaded. It's not a SyncVar
 	// so it's only valid on the server which is ok because only
 	// the server needs to know. The variable is used to prevent
 	// audio clip deletion.
 	public bool m_preloaded = false;
-	[SyncVar (hook ="playSound")]
-	private bool objectHit = false;
-	[SyncVar]
-	public bool m_positioned = false;
-	[SyncVar (hook = "setLooping")]
-	bool m_looping = false;
-	[SyncVar (hook = "setDrawingHighlight")]
-	bool m_drawingSequence = false;
+
 	Vector3 m_pathNormal = new Vector3(); // we'll set this to be the vector from the object to the camera.
 
-
-	GameObject laser {
-		get {
-			if (m_laser == null) 
-				m_laser = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser").gameObject;
-			return m_laser;
-		}
-	}
-
-	GameObject reticle {
-		get {
-			if (m_reticle == null)
-				m_reticle = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser/Reticle").gameObject;
-			return m_reticle;
-		}
-	}
 
 	// Use this for initialization
 	void Awake () {
@@ -89,85 +44,15 @@ public class NonVerbalActs : SoundObjectActs
 		}
 	}
 
-	void Update () {
-		if (!isClient)
-			return;
-
-		bool volumeChanged = false;
-		if (!m_positioned || m_moving)
-			volumeChanged = true;
-		
-		#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-		if (GvrController.ClickButtonUp)
-			m_pressOrigin = false;
-		
-		if (!m_positioned || m_moving) {
-			if (hasAuthority) {
-				if (!m_moving) {
-					Vector3 newpos = laser.transform.position + laser.transform.forward;
-					// Make sure we don't go through the floor
-					if (newpos.y < 0.05f)
-						newpos.y = 0.05f;
-					transform.position = newpos;
-				} else {
-					// We have picked an object and we're moving it...
-					Vector3 newdir = m_rotq*laser.transform.forward;
-					Vector3 newpos = laser.transform.position+newdir*m_distanceFromPointer;
-					// Make sure we don't go through the floor
-					if (newpos.y < 0.05f)
-						newpos.y = 0.05f;
-					transform.position = newpos;
-				}
-				transform.rotation = laser.transform.rotation;
-				if (GvrController.ClickButtonUp) {
-					m_positioned = true;
-					m_moving = false;
-					IAAPlayer.localPlayer.CmdSetObjectMovingState (netId,false);
-					IAAPlayer.localPlayer.CmdSetObjectPositioned(netId,true);
-					if (!m_target && !m_looping)
-						IAAPlayer.localPlayer.CmdSetObjectHitState (netId, false);
-				}
-			}
-			volumeChanged = true;
-		} else if (m_positioned && !m_moving) {
-			if (m_target && m_pressOrigin && GvrController.ClickButton) {
-				m_presstime += Time.deltaTime;
-				if (!m_presshold && m_presstime > m_holdtime) {
-					m_presshold = true;
-					if (GvrController.TouchPos.x > .85f) {
-						m_drawingPlane.SetNormalAndPosition((Camera.main.transform.position-reticle.transform.position).normalized,reticle.transform.position);
-						if (m_looping)
-							IAAPlayer.localPlayer.CmdToggleObjectLoopingState(netId);
-						IAAPlayer.localPlayer.CmdSetObjectDrawingSequence(netId,true);
-						IAAPlayer.localPlayer.CmdSetObjectHitState (netId, false);
-						IAAPlayer.localPlayer.CmdSetObjectHitState (netId, true);
-						m_sequencer.startNewSequence();
-						m_drawingPath = true;
-					}
-				}
-			} else if (GvrController.ClickButtonUp) {
-				// We put this here because we could be releasing outside of the original target
-				if (GvrController.TouchPos.x > .85f) {
-					if (m_drawingPath) {
-						m_sequencer.endSequence();
-						m_drawingPath = false;
-						IAAPlayer.localPlayer.CmdSetObjectDrawingSequence(netId,false);
-						if (!m_looping)
-							IAAPlayer.localPlayer.CmdToggleObjectLoopingState(netId);
-					} else if (m_target) {
-						IAAPlayer.localPlayer.CmdToggleObjectLoopingState (netId);
-					}
-				}
-				m_presshold = false;
-			}
-		}
-		#endif
-		if (volumeChanged)
-			setVolumeFromHeight (transform.position.y);
+	protected override void tmpStartNewSequence() {
+		m_sequencer.startNewSequence ();
+	}
+	protected override void tmpEndSequence() {
+		m_sequencer.endSequence ();
 	}
 
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-	public void OnGvrPointerHover(PointerEventData eventData) {
+	public override void OnGvrPointerHover(PointerEventData eventData) {
 		Vector3 reticleInWord;
 		Vector3 reticleLocal;
 		reticleInWord = eventData.pointerCurrentRaycast.worldPosition;
@@ -175,53 +60,26 @@ public class NonVerbalActs : SoundObjectActs
 		//m_debugText.text = "x: " + reticleLocal.x / bbdim.x + " y: " + reticleLocal.y/bbdim.y;
 	}
 
-	public void OnPointerEnter (PointerEventData eventData) {
+	public override void OnPointerEnter (PointerEventData eventData) {
 		m_target = true;
 		if (m_positioned) {
 			if (!m_looping)
-				IAAPlayer.localPlayer.CmdSetObjectHitState (netId, true);
+				IAAPlayer.localPlayer.CmdSetSoundObjectHitState (netId, true);
 			if (m_drawingPath) {
 				m_sequencer.addTime ();
 			}
 		}
 	}
 
-	public void OnPointerExit(PointerEventData eventData){
+	public override void OnPointerExit(PointerEventData eventData){
 		m_target = false;
 		if (m_positioned) {
 			if (!m_looping)
-				IAAPlayer.localPlayer.CmdSetObjectHitState (netId, false);
+				IAAPlayer.localPlayer.CmdSetSoundObjectHitState (netId, false);
 			if (m_drawingPath) {
 				m_sequencer.addTime ();
 			}
 		}
-	}
-
-	public void OnPointerClick (PointerEventData eventData) {
-		if (!m_positioned)
-			return;
-		//get the coordinates of the trackpad so we know what kind of event we want to trigger
-		if (GvrController.TouchPos.y > .85f) {
-			IAAPlayer.localPlayer.CmdActivateTimedDestroy (netId);
-		}
-	}
-
-	public void OnPointerDown (PointerEventData eventData) {
-		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
-			Vector3 intersectionLaser = gameObject.transform.position - laser.transform.position;
-			m_rotq = Quaternion.FromToRotation (laser.transform.forward, intersectionLaser);
-			m_distanceFromPointer = intersectionLaser.magnitude;
-			m_positioned = false;
-			m_moving = true;
-			IAAPlayer.localPlayer.CmdSetObjectMovingState (netId,true);
-			IAAPlayer.localPlayer.CmdSetObjectPositioned(netId,false);
-		}
-		if (m_positioned && !m_moving) { // We are a candidate for presshold
-			m_pressOrigin = true;
-			m_presstime = 0;
-			m_presshold = false;
-		}
-
 	}
 
 	#endif
@@ -255,8 +113,6 @@ public class NonVerbalActs : SoundObjectActs
 		fetchAudio (m_serverFileName);
 	}
 
-
-
 	public override void OnNetworkDestroy() {
 		Debug.Log ("EXTERMINATE!");
 		if (isServer) {
@@ -275,29 +131,9 @@ public class NonVerbalActs : SoundObjectActs
 		}
 	}
 
-	// Proxy Function (START)
-	// These are only called from the LocalPlayer proxy server command
-
-	public void setHit(bool state) {
-		objectHit = state;
-	}
-
-	public void setMovingState(bool state) {
-		m_moving = state;
-	}
-
-	public void toggleLooping() {
-		m_looping = !m_looping;
-	}
-
-	public void setDrawingSequence(bool val) {
-		m_drawingSequence = val;
-	}
-
 	// Proxy Functions (END)
 
-
-	public void playSound(bool hit) {
+	public override void playSound(bool hit) {
 		objectHit = hit;
 //		if (m_looping)
 //			return;
@@ -308,7 +144,7 @@ public class NonVerbalActs : SoundObjectActs
 		}
 	}
 
-	void setVolumeFromHeight(float y) {
+	protected override void setVolumeFromHeight(float y) {
 		float dbvol = Mathf.Clamp(-50+y/1.8f*56f, -50f,6f);
 		float vol = Mathf.Pow(10.0f, dbvol/20.0f);
 		// m_wordSource.volume = vol;
@@ -353,7 +189,7 @@ public class NonVerbalActs : SoundObjectActs
 		col.radius = Mathf.Max(Mathf.Max(maxvert.x,maxvert.y),maxvert.z)+ .02f;
 	}
 
-	public void setLooping(bool val) {
+	public override void setLooping(bool val) {
 		m_looping = val;
 
 		if (m_looping) {
@@ -365,14 +201,6 @@ public class NonVerbalActs : SoundObjectActs
 		}
 	}
 
-	public void setDrawingHighlight(bool val) {
-		m_drawingSequence = val;
-		if (m_drawingSequence) {
-			m_highlight.FlashingOn ();
-		} else {
-			m_highlight.FlashingOff ();
-		}
-	}
 }
 
 	

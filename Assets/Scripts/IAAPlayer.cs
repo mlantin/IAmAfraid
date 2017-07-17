@@ -113,12 +113,11 @@ public class IAAPlayer : NetworkBehaviour {
 			destroyscript.RpcActivate ();
 	}
 
-	// Non Verbal activities
 	[Command]
-	public void CmdSetObjectPositioned(NetworkInstanceId objid, bool state) {
+	public void CmdSetSoundObjectPositioned(NetworkInstanceId objid, bool state) {
 		NetworkIdentity netid = NetworkServer.objects [objid];
 		GameObject obj = netid.gameObject;
-		NonVerbalActs acts = obj.GetComponent<NonVerbalActs> ();
+		SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
 		acts.m_positioned = state;
 		if (!state)
 			netid.AssignClientAuthority (connectionToClient);
@@ -127,33 +126,30 @@ public class IAAPlayer : NetworkBehaviour {
 	}
 
 	[Command]
-	public void CmdSetObjectHitState(NetworkInstanceId objid, bool state){
-		try {
-			GameObject obj = NetworkServer.objects [objid].gameObject;
-			NonVerbalActs acts = obj.GetComponent<NonVerbalActs> ();
-			acts.setHit (state);
-		} catch (KeyNotFoundException e){
-		}
+	public void CmdSetSoundObjectHitState(NetworkInstanceId objid, bool state) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
+		acts.setHit (state);
 	}
 
 	[Command]
-	public void CmdSetObjectMovingState(NetworkInstanceId objid, bool state) {
+	public void CmdSetSoundObjectMovingState(NetworkInstanceId objid, bool state) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
-		NonVerbalActs acts = obj.GetComponent<NonVerbalActs> ();
+		SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
 		acts.setMovingState (state);
 	}
 
 	[Command]
-	public void CmdToggleObjectLoopingState(NetworkInstanceId objid) {
+	public void CmdToggleSoundObjectLoopingState(NetworkInstanceId objid) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
-		NonVerbalActs acts = obj.GetComponent<NonVerbalActs> ();
+		SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
 		acts.toggleLooping ();
 	}
 
 	[Command]
-	public void CmdSetObjectDrawingSequence(NetworkInstanceId objid, bool val) {
+	public void CmdSetSoundObjectDrawingSequence(NetworkInstanceId objid, bool val) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
-		NonVerbalActs acts = obj.GetComponent<NonVerbalActs> ();
+		SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
 		acts.setDrawingSequence (val);
 	}
 
@@ -169,7 +165,7 @@ public class IAAPlayer : NetworkBehaviour {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
 		NonVerbalSequencer seq = obj.GetComponent<NonVerbalSequencer> ();
 		seq.RpcStartSequencer ();
-		CmdSetObjectHitState (objid, true);
+		CmdSetSoundObjectHitState (objid, true);
 	}
 
 	[Command]
@@ -178,34 +174,7 @@ public class IAAPlayer : NetworkBehaviour {
 		NonVerbalSequencer seq = obj.GetComponent<NonVerbalSequencer> ();
 		seq.RpcStopSequencer ();
 	}
-
-	// Word activities
-	[Command]
-	public void CmdSetWordHitState(NetworkInstanceId objid, bool state) {
-		GameObject obj = NetworkServer.objects [objid].gameObject;
-		WordActs acts = obj.GetComponent<WordActs> ();
-		acts.setHit (state);
-	}
-
-	[Command]
-	public void CmdSetWordMovingState(NetworkInstanceId objid, bool state) {
-		GameObject obj = NetworkServer.objects [objid].gameObject;
-		WordActs acts = obj.GetComponent<WordActs> ();
-		acts.setMovingState (state);
-	}
-
-	[Command]
-	public void CmdSetWordPositioned(NetworkInstanceId objid, bool state) {
-		NetworkIdentity netid = NetworkServer.objects [objid];
-		GameObject obj = netid.gameObject;
-		WordActs acts = obj.GetComponent<WordActs> ();
-		acts.m_positioned = state;
-		if (!state)
-			netid.AssignClientAuthority (connectionToClient);
-		else
-			netid.RemoveClientAuthority (connectionToClient);
-	}
-
+		
 	[Command]
 	public void CmdWordSetGranOffset(NetworkInstanceId objid, float f) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
@@ -213,19 +182,6 @@ public class IAAPlayer : NetworkBehaviour {
 		acts.setGranOffset (f);
 	}
 
-	[Command]
-	public void CmdToggleWordLoopingState(NetworkInstanceId objid) {
-		GameObject obj = NetworkServer.objects [objid].gameObject;
-		WordActs acts = obj.GetComponent<WordActs> ();
-		acts.toggleLooping ();
-	}
-
-	[Command]
-	public void CmdSetWordDrawingSequence(NetworkInstanceId objid, bool val) {
-		GameObject obj = NetworkServer.objects [objid].gameObject;
-		WordActs acts = obj.GetComponent<WordActs> ();
-		acts.setDrawingSequence (val);
-	}
 
 	[Command]
 	public void CmdWordStartSequencer(NetworkInstanceId objid) {
