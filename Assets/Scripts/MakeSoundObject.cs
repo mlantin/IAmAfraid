@@ -31,7 +31,7 @@ public class MakeSoundObject : NetworkBehaviour {
 		NonVerbalActs soundscript = soundobj.GetComponent<NonVerbalActs> ();
 		soundscript.m_serverFileName = clipfn;
 		soundscript.m_positioned = true;
-		soundscript.m_preloaded = true;
+		// soundscript.m_preloaded = true;
 
 		NetworkServer.Spawn (soundobj);
 	}

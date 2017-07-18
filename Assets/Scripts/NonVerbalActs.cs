@@ -10,7 +10,7 @@ public class NonVerbalActs : SoundObjectActs
 {
 
 	public Text m_DebugText;
-	private GvrAudioSource m_wordSource;
+	private AudioSource m_wordSource;
 	private NonVerbalSequencer m_sequencer;
 	private Vector3 m_pathNormal = new Vector3(); // we'll set this to be the vector from the object to the camera.
 
