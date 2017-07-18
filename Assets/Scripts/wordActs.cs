@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -9,10 +9,9 @@ using HighlightingSystem;
 
 public class WordActs : SoundObjectActs
 {
-	
-	private GvrAudioSource m_wordSource;
-	private WordSequencer m_sequencer;
-	private int m_granularSlot;
+    private AudioSource m_wordSource;
+    private WordSequencer m_sequencer;
+    private int m_granularSlot;
 	[SyncVar]
 	private float m_granOffset = 0;
 	private float m_localGranOffset = 0; // This one is not networked..for doing the sequencer.
@@ -39,7 +38,7 @@ public class WordActs : SoundObjectActs
 
 	// Use this for initialization
 	void Awake () {
-		m_wordSource = GetComponent<GvrAudioSource> ();
+		m_wordSource = GetComponent<AudioSource> ();
 		m_wordSource.loop = false;
 
 		string ci = "i";
@@ -282,7 +281,7 @@ public class WordActs : SoundObjectActs
 		
 	void setUpMixer() {
 		m_mixer = Resources.Load ("grain" + (m_granularSlot + 1).ToString ()) as AudioMixer;
-		m_wordSource.audioSource.outputAudioMixerGroup = m_mixer.FindMatchingGroups ("Master") [0];
+		m_wordSource.outputAudioMixerGroup = m_mixer.FindMatchingGroups ("Master") [0];
 		//gameObject.AddComponent<SilentAudioSource> ();
 		m_mixer.SetFloat ("Sample", m_granularSlot);
 		m_mixer.SetFloat("Speed", 1.0f);

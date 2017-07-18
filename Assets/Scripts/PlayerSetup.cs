@@ -41,8 +41,9 @@ public class PlayerSetup : NetworkBehaviour {
 			gameObject.transform.Find ("PlayerCamera/Gamer").gameObject.SetActive (false);
 			gameObject.transform.Find ("GvrControllerPointer/Controller/ddcontroller").gameObject.SetActive (false);
 			// Disable tracking
-			ViconActor tracking = gameObject.GetComponent<ViconActor> ();
-			tracking.track = false;
+			//ViconActor tracking = gameObject.GetComponent<ViconActor> ();
+			MQTTTrack tracking = gameObject.GetComponent<MQTTTrack>();
+			tracking.Track = false;
 		}
 	}
 
@@ -89,16 +90,24 @@ public class PlayerSetup : NetworkBehaviour {
 				hlrender = playerCameraObj.AddComponent<HighlightingRenderer> ();
 				hlrender.LoadPreset ("Speed");
 			}
-			ViconActor tracking = gameObject.GetComponent<ViconActor> ();
+//			ViconActor tracking = gameObject.GetComponent<ViconActor> ();
+			MQTTTrack tracking = gameObject.GetComponent<MQTTTrack>();
 			if (LocalPlayerOptions.singleton.trackLocalPlayer) {
 				// Turn on Holojam
-				Debug.Log("Turning on Holojam");
-				GameObject holojam = GameObject.FindGameObjectWithTag ("Holojam");
-				holojam.SetActive (true);
-				tracking.track = true;
-				tracking.SetLabel(LocalPlayerOptions.singleton.mocapName);
+//				Debug.Log("Turning on Holojam");
+//				GameObject holojam = GameObject.FindGameObjectWithTag ("Holojam");
+//				holojam.SetActive (true);
+//				tracking.track = true;
+//				tracking.SetLabel(LocalPlayerOptions.singleton.mocapName);
+
+				// Turn on MQTT
+				Debug.Log("Turning on MQTT");
+				GameObject mqtt = GameObject.FindGameObjectWithTag ("MQTT");
+				mqtt.SetActive (true);
+				tracking.SetLabel ("Update/" + LocalPlayerOptions.singleton.mocapName);
+				tracking.Track = true;
 			} else {
-				tracking.track = false;
+				tracking.Track = false;
 			}
 		}
 

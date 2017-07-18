@@ -273,12 +273,13 @@ public class GvrAudioSource : MonoBehaviour {
   private bool isPaused = false;
 
   void Awake () {
+	audioSource = gameObject.GetComponent<AudioSource> ();
     if (audioSource == null) {
       // Ensure the audio source gets created once.
       audioSource = gameObject.AddComponent<AudioSource>();
     }
     audioSource.enabled = false;
-    audioSource.hideFlags = HideFlags.HideInInspector | HideFlags.HideAndDontSave;
+    //audioSource.hideFlags = HideFlags.HideInInspector | HideFlags.HideAndDontSave;
     audioSource.playOnAwake = false;
     audioSource.bypassReverbZones = true;
 #if UNITY_5_5_OR_NEWER
@@ -440,7 +441,8 @@ public class GvrAudioSource : MonoBehaviour {
     if (audioSource != null) {
       audioSource.Stop();
       ShutdownSource();
-      isPaused = false;
+//      isPaused = false;
+		isPaused = true;
     }
   }
 
@@ -471,11 +473,13 @@ public class GvrAudioSource : MonoBehaviour {
         audioSource.SetSpatializerFloat((int) GvrAudio.SpatializerData.Id, (float) id);
       }
     }
+		Debug.Log ("the id is " + id);
     return id >= 0;
   }
 
   // Shuts down the source.
   private void ShutdownSource () {
+		Debug.Log ("Shutdown source");
     if (id >= 0) {
       audioSource.SetSpatializerFloat((int) GvrAudio.SpatializerData.Id, -1.0f);
       // Ensure that the output is zeroed after shutdown.

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,7 +22,7 @@ public class NonVerbalActs : SoundObjectActs
 
 	// Use this for initialization
 	void Awake () {
-		m_wordSource = GetComponent<GvrAudioSource> ();
+		m_wordSource = GetComponent<AudioSource> ();
 		m_wordSource.loop = true;
 		m_highlight = GetComponent<Highlighter> ();
 		m_highlight.ConstantParams (HighlightColour);
@@ -116,8 +116,8 @@ public class NonVerbalActs : SoundObjectActs
 	protected override void setVolumeFromHeight(float y) {
 		float dbvol = Mathf.Clamp(-50+y/1.8f*56f, -50f,6f);
 		float vol = Mathf.Pow(10.0f, dbvol/20.0f);
-		// m_wordSource.volume = vol;
-		m_wordSource.gainDb = dbvol;
+		m_wordSource.volume = vol;
+		//m_wordSource.gainDb = dbvol;
 	}
 
 	void fetchAudio(string filename) {

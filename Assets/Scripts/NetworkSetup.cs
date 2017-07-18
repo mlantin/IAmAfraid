@@ -12,7 +12,6 @@ public class NetworkSetup : MonoBehaviour {
 	public Canvas m_inputCanvas;
 	public GameObject m_inputManager;
 	public GameObject m_UICamera;
-	public GameObject m_holojam;
 
 	bool m_networkstarted = false;
 	bool m_host = false;
@@ -26,15 +25,6 @@ public class NetworkSetup : MonoBehaviour {
 //		NetworkManager.singleton.StartClient();
 //		Debug.Log("starting client");
 //		#endif
-	}
-
-	public void setMocap(bool mocap) {
-		if (mocap)
-			m_holojam.SetActive (true);
-		else
-			m_holojam.SetActive (false);
-
-		IAAPlayer.localPlayer.playerTracked = mocap;
 	}
 
 	public void setServerIP(string ip) {

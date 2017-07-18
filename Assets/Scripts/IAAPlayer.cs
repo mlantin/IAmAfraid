@@ -23,16 +23,15 @@ public class IAAPlayer : NetworkBehaviour {
 	public bool m_drawingsequence = false;
 
 	bool m_isObserver = false;
-	bool m_playerTracked = false;
-	string m_mocapName;
-	ViconActor m_tracker = null;
+
+	//ViconActor m_tracker = null;
+	MQTTTrack m_tracker = null;
 
 	public override void OnStartLocalPlayer() {
 		localPlayer = this;
-		m_tracker = playerObject.GetComponent<ViconActor> ();
-		m_playerTracked = LocalPlayerOptions.singleton.trackLocalPlayer;
-		if (m_playerTracked)
-			m_mocapName = LocalPlayerOptions.singleton.mocapName;
+		//m_tracker = playerObject.GetComponent<ViconActor> ();
+		m_tracker = playerObject.GetComponent<MQTTTrack>();
+
 		m_isObserver = LocalPlayerOptions.singleton.observer;
 		cm_playerObject = gameObject;
 
@@ -44,18 +43,9 @@ public class IAAPlayer : NetworkBehaviour {
 		#if UNITY_ANDROID
 		if (!isLocalPlayer) return;
 		// Listen for recentering events and tell the tracker
-		if (m_tracker != null && m_tracker.track && GvrController.Recentered)
+		if (m_tracker != null && m_tracker.Track && GvrController.Recentered)
 			m_tracker.rotCorrected = false;
 		#endif
-	}
-
-	public bool playerTracked {
-		get {
-			return m_playerTracked;
-		}
-		set {
-			m_playerTracked = value;
-		}
 	}
 
 	public bool isObserver {
@@ -63,13 +53,7 @@ public class IAAPlayer : NetworkBehaviour {
 			return m_isObserver;
 		}
 	}
-
-	public string mocapName {
-		get {
-			return m_mocapName;
-		}
-	}
-
+		
 	static public GameObject playerObject {
 		get { 
 			if (cm_playerObject != null) {
