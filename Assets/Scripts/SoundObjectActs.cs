@@ -189,7 +189,11 @@ public class SoundObjectActs : NetworkBehaviour
 	
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 	public virtual void OnGvrPointerHover(PointerEventData eventData) {
-		Debug.Log ("Should not be called");
+		Vector3 reticleInWord;
+		Vector3 reticleLocal;
+		reticleInWord = eventData.pointerCurrentRaycast.worldPosition;
+		reticleLocal = transform.InverseTransformPoint (reticleInWord);
+		//m_debugText.text = "x: " + reticleLocal.x / bbdim.x + " y: " + reticleLocal.y/bbdim.y;
 	}
 
 	public virtual void OnPointerEnter (PointerEventData eventData) {
@@ -251,6 +255,15 @@ public class SoundObjectActs : NetworkBehaviour
 
 	public void setDrawingSequence(bool val) {
 		m_drawingSequence = val;
+	}
+
+	public bool saved {
+		get {
+			return m_saved;
+		}
+		set {
+			m_saved = value;
+		}
 	}
 
 	// Proxy Functions (END)

@@ -11,6 +11,7 @@ public class WordActs : SoundObjectActs
 {
 	
 	private GvrAudioSource m_wordSource;
+	private WordSequencer m_sequencer;
 	private int m_granularSlot;
 	[SyncVar]
 	private float m_granOffset = 0;
@@ -21,26 +22,20 @@ public class WordActs : SoundObjectActs
 	[HideInInspector]
 	public Vector3 bbdim = new Vector3(0.0f,0.0f,0.0f);
 
+	[HideInInspector][SyncVar]
+	public string m_wordstr = "";
+	[HideInInspector][SyncVar]
+	public float m_scale = 1.0f;
+	private Vector3 extent_i, position_i; // Using 'i' as a base char to correct shifting
+
 	public GameObject alphabet;
 	public float m_destroyDelay = 360; // The average amount of time in seconds to way for letters to die.
-
 
 	// This indicates that the word was preloaded. It's not a SyncVar
 	// so it's only valid on the server which is ok because only
 	// the server needs to know. The variable is used to prevent
 	// audio clip deletion.
-	[HideInInspector]
-	public bool m_preloaded = false;
-	[HideInInspector][SyncVar]
-	public string m_wordstr = "";
-	[HideInInspector][SyncVar]
-	public float m_scale = 1.0f;
-
-	private WordSequencer m_sequencer;
-
-	// Using 'i' as a base char to correct shifting
-	private Vector3 extent_i, position_i;
-
+	// [HideInInspector] public bool m_preloaded = false;
 
 	// Use this for initialization
 	void Awake () {
@@ -119,8 +114,6 @@ public class WordActs : SoundObjectActs
 			}
 		}
 	}
-
-
 	#endif
 
 	void FixedUpdate() {
@@ -168,28 +161,17 @@ public class WordActs : SoundObjectActs
 		GranularUploadHandler.singleton.setSlotToEmpty (m_granularSlot);
 		m_mixer.SetFloat ("Rate", 0f);
 		Debug.Log ("EXTERMINATE!");
-		if (isServer) {
-			Debug.Log ("Exterminating");
-			if (!m_preloaded && !m_saved)
-				Webserver.singleton.DeleteAudioClipNoCheck (m_serverFileName);
-		}
-	}
-
-	public bool saved {
-		get {
-			return m_saved;
-		}
-		set {
-			m_saved = value;
-		}
+//		if (isServer) {
+//			Debug.Log ("Exterminating");
+//			if (!m_preloaded && !m_saved)
+//				Webserver.singleton.DeleteAudioClipNoCheck (m_serverFileName);
+//		}
 	}
 		
 	// Proxy Functions (START)
 	// These are only called from the LocalPlayer proxy server command
-
 		
 	// Proxy Functions (END)
-
 
 	// Hook Functions (START)
 

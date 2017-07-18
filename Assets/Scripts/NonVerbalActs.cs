@@ -9,20 +9,16 @@ using HighlightingSystem;
 public class NonVerbalActs : SoundObjectActs
 {
 
-
 	public Text m_DebugText;
-
-	GvrAudioSource m_wordSource;
+	private GvrAudioSource m_wordSource;
 	private NonVerbalSequencer m_sequencer;
+	private Vector3 m_pathNormal = new Vector3(); // we'll set this to be the vector from the object to the camera.
 
 	// This indicates that the word was preloaded. It's not a SyncVar
 	// so it's only valid on the server which is ok because only
 	// the server needs to know. The variable is used to prevent
 	// audio clip deletion.
-	public bool m_preloaded = false;
-
-	Vector3 m_pathNormal = new Vector3(); // we'll set this to be the vector from the object to the camera.
-
+	// public bool m_preloaded = false;
 
 	// Use this for initialization
 	void Awake () {
@@ -30,7 +26,6 @@ public class NonVerbalActs : SoundObjectActs
 		m_wordSource.loop = true;
 		m_highlight = GetComponent<Highlighter> ();
 		m_highlight.ConstantParams (HighlightColour);
-
 		m_sequencer = GetComponent<NonVerbalSequencer> ();
 	}
 
@@ -52,14 +47,6 @@ public class NonVerbalActs : SoundObjectActs
 	}
 
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-	public override void OnGvrPointerHover(PointerEventData eventData) {
-		Vector3 reticleInWord;
-		Vector3 reticleLocal;
-		reticleInWord = eventData.pointerCurrentRaycast.worldPosition;
-		reticleLocal = transform.InverseTransformPoint (reticleInWord);
-		//m_debugText.text = "x: " + reticleLocal.x / bbdim.x + " y: " + reticleLocal.y/bbdim.y;
-	}
-
 	public override void OnPointerEnter (PointerEventData eventData) {
 		m_target = true;
 		if (m_positioned) {
@@ -113,24 +100,6 @@ public class NonVerbalActs : SoundObjectActs
 		fetchAudio (m_serverFileName);
 	}
 
-	public override void OnNetworkDestroy() {
-		Debug.Log ("EXTERMINATE!");
-		if (isServer) {
-			Debug.Log ("Exterminating");
-			if (!m_preloaded && !m_saved)
-				Webserver.singleton.DeleteAudioClipNoCheck (m_serverFileName);
-		}
-	}
-
-	public bool saved {
-		get {
-			return m_saved;
-		}
-		set {
-			m_saved = value;
-		}
-	}
-
 	// Proxy Functions (END)
 
 	public override void playSound(bool hit) {
@@ -152,7 +121,6 @@ public class NonVerbalActs : SoundObjectActs
 	}
 
 	void fetchAudio(string filename) {
-		randomizePaperBall ();
 //		if (hasAuthority || (isServer && isClient)) { // we created the sound clip so it's probably still in memory
 			// Unfortunately hasAuthority is never true because authority is assigned after object creation.
 			// There may be another way of telling ourselves that the audioclip is ours but I don't know what

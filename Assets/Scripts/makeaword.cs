@@ -27,7 +27,7 @@ public class makeaword : NetworkBehaviour {
 			// Right now it only gets here when it's a preload so we can assume that it is a preload
 			// and set the variable in the gameobject indicating that.
 			wordscript.m_positioned = true;
-			wordscript.m_preloaded = true;
+			// wordscript.m_preloaded = true;
 		}
 
 		if (owned)
