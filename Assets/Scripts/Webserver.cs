@@ -43,7 +43,7 @@ public class Webserver : MonoBehaviour {
 		yield return www.Send();
 		//www.Send();
 
-		if(www.isError) {
+		if(www.isNetworkError) {
 			Debug.Log("There was an error uploading: "+www.error);
 		}
 		else {
@@ -83,12 +83,12 @@ public class Webserver : MonoBehaviour {
 
 	public IEnumerator GetAudioClip(string fileName, System.Action<AudioClip> callback) {
 		string url = "http://" + m_serverIP + ":" + m_serverPort + "/" + fileName + ".wav";
-		using(UnityWebRequest www = UnityWebRequest.GetAudioClip(url, AudioType.WAV)) {
+		using(UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(url, AudioType.WAV)) {
 			yield return www.Send();
 			if (!www.downloadHandler.isDone)
 				yield return new WaitUntil(() => www.downloadHandler.isDone == true);
 
-			if(www.isError) {
+			if(www.isNetworkError) {
 				Debug.Log("Download error: " + www.error);
 			}
 			else {
@@ -110,7 +110,7 @@ public class Webserver : MonoBehaviour {
 		UnityWebRequest www = UnityWebRequest.Delete ("http://" + m_serverIP + ":" + m_serverPort + "?fn=" + fileName);
 		www.downloadHandler = new DownloadHandlerBuffer();
 		yield return www.Send ();
-		if (www.isError) {
+		if (www.isNetworkError) {
 			Debug.Log (www.error);
 		} else {
 			string result = DownloadHandlerBuffer.GetContent (www);
@@ -140,7 +140,7 @@ public class Webserver : MonoBehaviour {
 
 		WWW www = new WWW ("http://" + m_serverIP + ":" + m_serverPort + "/scenes/");
 		yield return www;
-		if (www.error == null) {
+		if (string.IsNullOrEmpty(www.error)) {
 			Debug.Log (www.text);
 			SceneInfoList sceneList = SceneInfoList.CreateFromJSON (www.text);
 			LocalPlayerOptions playerOptions = LocalPlayerOptions.singleton;
@@ -168,7 +168,7 @@ public class Webserver : MonoBehaviour {
 		UnityWebRequest www = UnityWebRequest.Put(url, json);
 		yield return www.Send();
 
-		if(www.isError) {
+		if(www.isNetworkError) {
 			Debug.Log("There was an error uploading: "+www.error);
 		}
 		else {
