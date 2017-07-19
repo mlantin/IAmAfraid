@@ -77,6 +77,18 @@ public class SoundObjectActs : NetworkBehaviour
 		}
 	}
 
+	public bool getLoopStatus() {
+		return m_looping;
+	}
+
+	public virtual List<int> getSequenceTrigger() {
+		return null;
+	}
+
+	public virtual List<Vector3> getSequencePath() {
+		return null;
+	}
+
 	protected virtual void Update() {
 		if (!isClient)
 			return;

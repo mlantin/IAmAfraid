@@ -20,6 +20,7 @@ public class NonVerbalActs : SoundObjectActs
 	// audio clip deletion.
 	// public bool m_preloaded = false;
 
+
 	// Use this for initialization
 	void Awake () {
 		m_wordSource = GetComponent<AudioSource> ();
@@ -44,6 +45,14 @@ public class NonVerbalActs : SoundObjectActs
 	}
 	protected override void tmpEndSequence() {
 		m_sequencer.endSequence ();
+	}
+
+	public override List<int> getSequenceTrigger() {
+		return m_sequencer.playtriggers;
+	}
+
+	public override List<Vector3> getSequencePath() {
+		return m_sequencer.path;
 	}
 
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)

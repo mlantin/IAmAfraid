@@ -14,8 +14,8 @@ public class NonVerbalSequencer : NetworkBehaviour {
 
 	NonVerbalActs m_nvActs;
 
-	List<int> playtriggers = new List<int> (); // A list of indices for when looping should be triggered. Anchored to path.
-	List<Vector3> path = new List<Vector3>(); // A list of positions on the path, one for each fixed update
+	public List<int> playtriggers = new List<int> (); // A list of indices for when looping should be triggered. Anchored to path.
+	public List<Vector3> path = new List<Vector3>(); // A list of positions on the path, one for each fixed update
 
 	int nextInOut;
 	int nextPos;
