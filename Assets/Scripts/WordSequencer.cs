@@ -9,8 +9,8 @@ public class WordSequencer : NetworkBehaviour {
 
 	WordActs m_WordActs;
 
-	List<int> playtriggers = new List<int> (); // A list of indices for when looping should be triggered. Anchored to path.
-	List<Vector3> path = new List<Vector3>(); // A list of positions on the path, one for each fixed update
+	public List<int> playtriggers = new List<int> (); // A list of indices for when looping should be triggered. Anchored to path.
+	public List<Vector3> path = new List<Vector3>(); // A list of positions on the path, one for each fixed update
 	// A list of scrub values. Note this list is not the same length as the path
 	// because we don't store the values when the path is not in the word
 	List<float> scrubs = new List<float> (); 

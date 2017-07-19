@@ -55,14 +55,16 @@ public class WordActs : SoundObjectActs
 
 		m_highlight = GetComponent<Highlighter> ();
 		m_highlight.ConstantParams (HighlightColour);
-
 		m_sequencer = GetComponent<WordSequencer> ();
+
 	}
 
 	void Start() {
 		addLetters (m_wordstr);
 		fetchAudio (m_serverFileName);
+
 		if (m_looping) {
+			Debug.LogWarning ("Word" + netId);
 			m_highlight.ConstantOnImmediate (HighlightColour);
 			m_sequencer.setCometVisibility (true);
 			IAAPlayer.localPlayer.CmdGetWordSequencePath (netId);
@@ -76,6 +78,14 @@ public class WordActs : SoundObjectActs
 	}
 	protected override void tmpEndSequence() {
 		m_sequencer.endSequence ();
+	}
+
+	public override List<int> getSequenceTrigger() {
+		return m_sequencer.playtriggers;
+	}
+
+	public override List<Vector3> getSequencePath() {
+		return m_sequencer.path;
 	}
 
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
@@ -186,6 +196,10 @@ public class WordActs : SoundObjectActs
 
 	public override void setLooping(bool loop) {
 		m_looping = loop;
+		if (IAAPlayer.localPlayer == null) {
+			Debug.LogWarning ("Quit set looping hook" + netId);
+			return;
+		}
 		if (m_looping) {
 			m_highlight.ConstantOnImmediate (HighlightColour);
 			IAAPlayer.localPlayer.CmdWordStartSequencer(netId);

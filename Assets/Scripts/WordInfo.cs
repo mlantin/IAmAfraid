@@ -42,6 +42,7 @@ public class WordInfo {
 	public float scale;
 	public Vector3 pos;
 	public Quaternion rot;
+	public bool looping;
 	public List<int> playTriggers;
 	public List<Vector3> path;
 
@@ -52,8 +53,11 @@ public class WordInfo {
 		this.scale = scale;
 		this.pos = pos;
 		this.rot = rot;
-		this.playTriggers = playTriggers;
-		this.path = path;
+		this.looping = looping;
+		if (looping) {
+			this.playTriggers = playTriggers;
+			this.path = path;
+		}
 	}
 	/*
 	// Main Getter utility method - reads json into list of word info objects

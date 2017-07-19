@@ -28,6 +28,10 @@ public class NonVerbalActs : SoundObjectActs
 		m_highlight = GetComponent<Highlighter> ();
 		m_highlight.ConstantParams (HighlightColour);
 		m_sequencer = GetComponent<NonVerbalSequencer> ();
+//		if (m_looping) {
+//			m_sequencer.path = tmpPath;
+//			m_sequencer.playtriggers = tmpPlayerTrigger;
+//		}
 	}
 
 	public override void OnStartClient() {
@@ -168,7 +172,10 @@ public class NonVerbalActs : SoundObjectActs
 
 	public override void setLooping(bool val) {
 		m_looping = val;
-
+		if (IAAPlayer.localPlayer == null) {
+			Debug.Log ("Quit set looping hook");
+			return;
+		}
 		if (m_looping) {
 			m_highlight.ConstantOnImmediate (HighlightColour);
 			IAAPlayer.localPlayer.CmdObjectStartSequencer(netId);

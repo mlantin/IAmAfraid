@@ -42,7 +42,7 @@ public class SoundObjectActs : NetworkBehaviour
 	[SyncVar (hook = "playSoundHook")]
 	protected bool objectHit = false;
 	[SyncVar (hook = "setLoopingHook")]
-	protected bool m_looping = false;
+	public bool m_looping = false;
 	[SyncVar (hook = "setDrawingHighlight")]
 	protected bool m_drawingSequence = false;
 
@@ -75,10 +75,6 @@ public class SoundObjectActs : NetworkBehaviour
 			}
 			return m_controller;
 		}
-	}
-
-	public bool getLoopStatus() {
-		return m_looping;
 	}
 
 	public virtual List<int> getSequenceTrigger() {
@@ -164,28 +160,28 @@ public class SoundObjectActs : NetworkBehaviour
 						m_drawingPath = true;
 					}
 				}
-			}
-		} else if (GvrController.ClickButtonUp) {
-			// We put this here because we could be releasing outside of the original target
-			if (GvrController.TouchPos.x > .85f) {
-				if (m_drawingPath) {
-					// TODO: refactor sequencer
-					tmpEndSequence();// m_sequencer.endSequence();
-					m_drawingPath = false;
-					IAAPlayer.localPlayer.CmdSetSoundObjectDrawingSequence(netId,false);
-					if (!m_looping)
-						IAAPlayer.localPlayer.CmdToggleSoundObjectLoopingState(netId);
-					if (this.GetType().Equals(typeof(WordActs))) {
-						IAAPlayer.removeAuthority(netId);
-					}
-				} else if (m_target) {
-					IAAPlayer.localPlayer.CmdToggleSoundObjectLoopingState (netId);
-					if (this.GetType().Equals(typeof(WordActs))) {
-						IAAPlayer.removeAuthority(netId);
+			} else if (GvrController.ClickButtonUp) {
+				// We put this here because we could be releasing outside of the original target
+				if (GvrController.TouchPos.x > .85f) {
+					if (m_drawingPath) {
+						// TODO: refactor sequencer
+						tmpEndSequence();// m_sequencer.endSequence();
+						m_drawingPath = false;
+						IAAPlayer.localPlayer.CmdSetSoundObjectDrawingSequence(netId,false);
+						if (!m_looping)
+							IAAPlayer.localPlayer.CmdToggleSoundObjectLoopingState(netId);
+						if (this.GetType().Equals(typeof(WordActs))) {
+							IAAPlayer.removeAuthority(netId);
+						}
+					} else if (m_target) {
+						IAAPlayer.localPlayer.CmdToggleSoundObjectLoopingState (netId);
+						if (this.GetType().Equals(typeof(WordActs))) {
+							IAAPlayer.removeAuthority(netId);
+						}
 					}
 				}
+				m_presshold = false;
 			}
-			m_presshold = false;
 		}
 		#endif
 		if (volumeChanged)

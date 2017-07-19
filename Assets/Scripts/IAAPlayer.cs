@@ -14,7 +14,7 @@ public class SequenceMessage : MessageBase
 
 public class IAAPlayer : NetworkBehaviour {
 
-	static public IAAPlayer localPlayer;
+	static public IAAPlayer localPlayer = null;
 	static private GameObject cm_playerObject = null; // The local player object
 	static private AuthorityManager m_manager = null; // The Authority manager on the local player object
 
@@ -28,7 +28,9 @@ public class IAAPlayer : NetworkBehaviour {
 	MQTTTrack m_tracker = null;
 
 	public override void OnStartLocalPlayer() {
-		localPlayer = this;
+		
+		Debug.Log ("On Start Local Player");
+
 		//m_tracker = playerObject.GetComponent<ViconActor> ();
 		m_tracker = playerObject.GetComponent<MQTTTrack>();
 
@@ -37,6 +39,11 @@ public class IAAPlayer : NetworkBehaviour {
 
 		SequenceMessage.SequenceMessageID = MsgType.Highest + 1;
 		NetworkManager.singleton.client.RegisterHandler (SequenceMessage.SequenceMessageID, setSequence);
+
+	}
+
+	void Start() {
+		localPlayer = this;
 	}
 
 	public void Update() {

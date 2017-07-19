@@ -12,7 +12,10 @@ public class LoadAndSaveState : NetworkBehaviour {
 	public LocalPlayerOptions.SceneFile stateFile = new LocalPlayerOptions.SceneFile ("testscene", "Test Scene", false);
 
 	// Use this for initialization
-	public override void OnStartServer () {
+	// public override void OnStartServer () {
+	void Start() {
+		if (!isServer)
+			return;
 		if (!Loaded && LocalPlayerOptions.singleton.preload) {
 			stateFile = LocalPlayerOptions.singleton.PreloadFile;
 			string jsonText = "";
@@ -73,7 +76,7 @@ public class LoadAndSaveState : NetworkBehaviour {
 			wordscript = obj.GetComponent<WordActs> ();
 			stateList.Add(new WordInfo(wordscript.m_wordstr, wordscript.m_serverFileName, wordscript.m_scale,
 				obj.transform.position, obj.transform.rotation,
-				wordscript.getLoopStatus(), null, null));
+				wordscript.m_looping, wordscript.getSequenceTrigger(), wordscript.getSequencePath()));
 			wordscript.saved = true;
 		}
 		NonVerbalActs soundscript;
@@ -81,7 +84,7 @@ public class LoadAndSaveState : NetworkBehaviour {
 			soundscript = obj.GetComponent<NonVerbalActs> ();
 			stateList.Add (new WordInfo ("", soundscript.m_serverFileName, 1.0f,
 				obj.transform.position, obj.transform.rotation,
-				soundscript.getLoopStatus(), soundscript.getSequenceTrigger(), soundscript.getSequencePath()));
+				soundscript.m_looping, soundscript.getSequenceTrigger(), soundscript.getSequencePath()));
 			soundscript.saved = true;
 		}
 		/*
