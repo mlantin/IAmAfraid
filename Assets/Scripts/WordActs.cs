@@ -59,9 +59,15 @@ public class WordActs : SoundObjectActs
 		m_sequencer = GetComponent<WordSequencer> ();
 	}
 
+	public override void OnStartClient ()
+	{
+		base.OnStartClient ();
+		fetchAudio (m_serverFileName);
+	}
+
 	void Start() {
 		addLetters (m_wordstr);
-		fetchAudio (m_serverFileName);
+
 		if (m_looping) {
 			m_highlight.ConstantOnImmediate (HighlightColour);
 			m_sequencer.setCometVisibility (true);
@@ -186,6 +192,9 @@ public class WordActs : SoundObjectActs
 
 	public override void setLooping(bool loop) {
 		m_looping = loop;
+		if (IAAPlayer.localPlayer == null) {
+			return;
+		}
 		if (m_looping) {
 			m_highlight.ConstantOnImmediate (HighlightColour);
 			IAAPlayer.localPlayer.CmdWordStartSequencer(netId);
