@@ -69,9 +69,13 @@ public class WordActs : SoundObjectActs
 		addLetters (m_wordstr);
 
 		if (m_looping) {
+			// Debug.LogWarning ("Looping: " + netId);
 			m_highlight.ConstantOnImmediate (HighlightColour);
 			m_sequencer.setCometVisibility (true);
-			IAAPlayer.localPlayer.CmdGetWordSequencePath (netId);
+			if (!m_sequencer.loadedFromScene)
+				IAAPlayer.localPlayer.CmdGetWordSequencePath (netId);
+			else
+				IAAPlayer.localPlayer.CmdWordStartSequencer (netId);
 		} else if (m_drawingSequence) {
 			m_highlight.FlashingOn ();
 		}
@@ -122,6 +126,7 @@ public class WordActs : SoundObjectActs
 	#endif
 
 	void FixedUpdate() {
+		
 		if (m_drawingPath) {
 			// Get the point on the current plane
 			//m_sequencer.addPos (gameObject.transform.InverseTransformPoint (reticle.transform.position));
@@ -157,7 +162,7 @@ public class WordActs : SoundObjectActs
 		Vector3 raydir = (p - Camera.main.transform.position).normalized;
 		Ray pathray = new Ray (Camera.main.transform.position, raydir);
 		m_drawingPlane.Raycast (pathray, out enter);
-		return Camera.main.transform.position + raydir * enter;
+		return Camera.main.transform.position + raydir * enter; 
 	}
 
 
@@ -182,6 +187,10 @@ public class WordActs : SoundObjectActs
 
 	public override void playSound(bool hit) {
 		objectHit = hit;
+		// Debug.LogWarning ("Plaing sound for " + netId);
+		if (m_mixer == null) {
+			return;
+		}
 		if (hit) {
 			m_mixer.SetFloat ("Rate", 100f);
 		} else {
@@ -195,6 +204,7 @@ public class WordActs : SoundObjectActs
 		if (IAAPlayer.localPlayer == null) {
 			return;
 		}
+		Debug.LogWarning ("Seting Looping End");
 		if (m_looping) {
 			m_highlight.ConstantOnImmediate (HighlightColour);
 			IAAPlayer.localPlayer.CmdWordStartSequencer(netId);

@@ -15,11 +15,10 @@ public class MakeWords : NetworkBehaviour {
 	}
 
 	public void spawn(WordInfo word, bool own) {
-		Debug.Log (word);
 		if (word.word != "") {
-			m_wordCreator.spawnWord (word.word, word.scale, word.pos, word.rot, word.clipfn, false);
+			m_wordCreator.spawnWord (word, false);
 		} else {
-			m_soundCreator.spawnSoundObjectInPlace (word.clipfn, word.pos, word.rot);
+			m_soundCreator.spawnSoundObjectInPlace (word);
 		}
 	}
 }

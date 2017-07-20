@@ -14,6 +14,7 @@ public class WordSequencer : NetworkBehaviour {
 	// A list of scrub values. Note this list is not the same length as the path
 	// because we don't store the values when the path is not in the word
 	public List<float> scrubs = new List<float> (); 
+	public bool loadedFromScene = false;
 
 	int nextInOut;
 	int nextPos;

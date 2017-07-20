@@ -14,19 +14,24 @@ public class NonVerbalSequencer : NetworkBehaviour {
 
 	NonVerbalActs m_nvActs;
 
-	List<int> playtriggers = new List<int> (); // A list of indices for when looping should be triggered. Anchored to path.
-	List<Vector3> path = new List<Vector3>(); // A list of positions on the path, one for each fixed update
+	public List<int> playtriggers = new List<int> (); // A list of indices for when looping should be triggered. Anchored to path.
+	public List<Vector3> path = new List<Vector3>(); // A list of positions on the path, one for each fixed update
+	public bool loadedFromScene = false;
 
 	int nextInOut;
 	int nextPos;
 	bool active = false; // Whether sequence is playing
 	bool playstate = false; // whether the sound is playing or not
 
+	void Awake() {
+		m_nvActs = gameObject.GetComponent<NonVerbalActs> ();
+	}
+
 	// Use this for initialization
 	void Start () {
 		active = false;
 		comet.SetActive (false);
-		m_nvActs = gameObject.GetComponent<NonVerbalActs> ();
+
 	}
 
 	[ClientRpc]

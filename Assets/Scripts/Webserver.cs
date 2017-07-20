@@ -78,7 +78,7 @@ public class Webserver : MonoBehaviour {
 	}
 
 	static public string GenerateSceneName(string title) {
-		return title + LoadAndSaveState.sepString + System.DateTime.Now.ToString ("yyyy-MM-dd_HH-mm-ss");
+		return title + LoadAndSaveState.sepString + System.DateTime.Now.ToString ("yyyyMMdd_HHmmss");
 	}
 
 	public IEnumerator GetAudioClip(string fileName, System.Action<AudioClip> callback) {

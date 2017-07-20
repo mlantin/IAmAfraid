@@ -79,7 +79,7 @@ public class LoadAndSaveState : NetworkBehaviour {
 		foreach (GameObject obj in sounds) {
 			soundscript = obj.GetComponent<NonVerbalActs> ();
 			stateList.Add (new WordInfo ("", soundscript.m_serverFileName, 1.0f,
-				obj.transform.position, obj.transform.rotation));
+				obj.transform.position, obj.transform.rotation, soundscript.m_looping, soundscript.m_sequencer.playtriggers, soundscript.m_sequencer.path, null));
 			soundscript.saved = true;
 		}
 		/*
