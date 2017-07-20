@@ -13,7 +13,7 @@ public class WordSequencer : NetworkBehaviour {
 	public List<Vector3> path = new List<Vector3>(); // A list of positions on the path, one for each fixed update
 	// A list of scrub values. Note this list is not the same length as the path
 	// because we don't store the values when the path is not in the word
-	List<float> scrubs = new List<float> (); 
+	public List<float> scrubs = new List<float> (); 
 
 	int nextInOut;
 	int nextPos;
