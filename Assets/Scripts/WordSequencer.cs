@@ -68,7 +68,7 @@ public class WordSequencer : NetworkBehaviour {
 	public void RpcSyncPath(Vector3[] p, int[] ts, float[] sc) {
 //		if (objid == gameObject.GetInstanceID()) // We originated this data so no need to do a copy
 //			return; 
-
+		Debug.LogWarning("RPCSYNC for word" + m_WordActs.netId);
 		playtriggers.Clear ();
 		for (int i = 0; i < ts.Length; i++) {
 			playtriggers.Add (ts [i]);

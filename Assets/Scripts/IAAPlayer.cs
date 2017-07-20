@@ -152,6 +152,13 @@ public class IAAPlayer : NetworkBehaviour {
 	}
 
 	[Command]
+	public void CmdSetWordSequencePath(NetworkInstanceId objid, Vector3[] p, int[] ts, float[] sc) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		WordSequencer seq = obj.GetComponent<WordSequencer> ();
+		seq.RpcSyncPath (p,ts,sc);
+	}
+
+	[Command]
 	public void CmdObjectStartSequencer(NetworkInstanceId objid) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
 		NonVerbalSequencer seq = obj.GetComponent<NonVerbalSequencer> ();
@@ -186,13 +193,6 @@ public class IAAPlayer : NetworkBehaviour {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
 		WordSequencer seq = obj.GetComponent<WordSequencer> ();
 		seq.RpcStopSequencer ();
-	}
-
-	[Command]
-	public void CmdSetWordSequencePath(NetworkInstanceId objid, Vector3[] p, int[] ts, float[] sc) {
-		GameObject obj = NetworkServer.objects [objid].gameObject;
-		WordSequencer seq = obj.GetComponent<WordSequencer> ();
-		seq.RpcSyncPath (p,ts,sc);
 	}
 
 	[Command]
