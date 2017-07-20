@@ -10,7 +10,7 @@ using HighlightingSystem;
 public class WordActs : SoundObjectActs
 {
     private AudioSource m_wordSource;
-    private WordSequencer m_sequencer;
+    public WordSequencer m_sequencer;
     private int m_granularSlot;
 	[SyncVar]
 	private float m_granOffset = 0;

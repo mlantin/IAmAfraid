@@ -42,7 +42,7 @@ public class SoundObjectActs : NetworkBehaviour
 	[SyncVar (hook = "playSoundHook")]
 	protected bool objectHit = false;
 	[SyncVar (hook = "setLoopingHook")]
-	protected bool m_looping = false;
+	public bool m_looping = false;
 	[SyncVar (hook = "setDrawingHighlight")]
 	protected bool m_drawingSequence = false;
 
