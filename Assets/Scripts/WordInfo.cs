@@ -47,18 +47,12 @@ public class WordInfo {
 	public List<Vector3> path = null;
 	public List<float> scrubs = null;
 
-	public WordInfo(string word, string clipfn, float scale, Vector3 pos, Quaternion rot,
-		bool looping, List<int> playTriggers, List<Vector3> path) {
+	public WordInfo(string word, string clipfn, float scale, Vector3 pos, Quaternion rot) {
 		this.word = word;
 		this.clipfn = clipfn;
 		this.scale = scale;
 		this.pos = pos;
 		this.rot = rot;
-		this.looping = looping;
-		if (looping) {
-			this.playTriggers = playTriggers;
-			this.path = path;
-		}
 	}
 
 	public WordInfo(string word, string clipfn, float scale, Vector3 pos, Quaternion rot, bool looping, List<int> triggers, List<Vector3> path, List<float>scrubs) {

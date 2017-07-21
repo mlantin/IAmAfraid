@@ -88,14 +88,6 @@ public class WordActs : SoundObjectActs
 		m_sequencer.endSequence ();
 	}
 
-	public override List<int> getSequenceTrigger() {
-		return m_sequencer.playtriggers;
-	}
-
-	public override List<Vector3> getSequencePath() {
-		return m_sequencer.path;
-	}
-
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 
 	public override void OnGvrPointerHover(PointerEventData eventData) {

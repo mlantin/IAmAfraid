@@ -28,10 +28,6 @@ public class NonVerbalActs : SoundObjectActs
 		m_highlight = GetComponent<Highlighter> ();
 		m_highlight.ConstantParams (HighlightColour);
 		m_sequencer = GetComponent<NonVerbalSequencer> ();
-//		if (m_looping) {
-//			m_sequencer.path = tmpPath;
-//			m_sequencer.playtriggers = tmpPlayerTrigger;
-//		}
 	}
 
 	public override void OnStartClient() {
@@ -62,15 +58,7 @@ public class NonVerbalActs : SoundObjectActs
 	protected override void tmpEndSequence() {
 		m_sequencer.endSequence ();
 	}
-
-	public override List<int> getSequenceTrigger() {
-		return m_sequencer.playtriggers;
-	}
-
-	public override List<Vector3> getSequencePath() {
-		return m_sequencer.path;
-	}
-
+		
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 	public override void OnPointerEnter (PointerEventData eventData) {
 		m_target = true;

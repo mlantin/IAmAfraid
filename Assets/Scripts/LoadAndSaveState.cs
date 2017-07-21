@@ -12,10 +12,7 @@ public class LoadAndSaveState : NetworkBehaviour {
 	public LocalPlayerOptions.SceneFile stateFile = new LocalPlayerOptions.SceneFile ("testscene", "Test Scene", false);
 
 	// Use this for initialization
-	// public override void OnStartServer () {
-	void Start() {
-		if (!isServer)
-			return;
+	public override void OnStartServer () {
 		if (!Loaded && LocalPlayerOptions.singleton.preload) {
 			stateFile = LocalPlayerOptions.singleton.PreloadFile;
 			string jsonText = "";

@@ -31,9 +31,6 @@ public class MakeSoundObject : NetworkBehaviour {
 		NonVerbalActs soundscript = soundobj.GetComponent<NonVerbalActs> ();
 		soundscript.m_serverFileName = sound.clipfn;
 		soundscript.m_positioned = true;
-		//soundscript.m_looping = looping;
-		//soundscript.tmpPath = path;
-		//soundscript.tmpPlayerTrigger = playerTrigger;
 		// soundscript.m_preloaded = true;
 		if (sound.looping) {
 			soundscript.m_looping = true;
