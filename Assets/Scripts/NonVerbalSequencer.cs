@@ -3,92 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class NonVerbalSequencer : NetworkBehaviour {
-	
-	// this will alternate between looping and not looping, starting with looping.
-	// So the first value in the list is the amount of seconds to wait until the sound loop is turned off
-	// There is a local list of times and a list that will be synced to the server. This is so the list only
-	// gets sent once to the server once the drawing is done.
-
-	public GameObject comet; // The satellite that will trace the sequence path
-
-	NonVerbalActs m_nvActs;
-
-	public List<int> playtriggers = new List<int> (); // A list of indices for when looping should be triggered. Anchored to path.
-	public List<Vector3> path = new List<Vector3>(); // A list of positions on the path, one for each fixed update
-	public bool loadedFromScene = false;
-
-	int nextInOut;
-	int nextPos;
-	bool active = false; // Whether sequence is playing
-	bool playstate = false; // whether the sound is playing or not
-
-	void Awake() {
-		m_nvActs = gameObject.GetComponent<NonVerbalActs> ();
-	}
-
-	// Use this for initialization
-	void Start () {
-		active = false;
-		comet.SetActive (false);
-
-	}
-
-	[ClientRpc]
-	public void RpcStartSequencer() {
-		nextPos = 0;
-		if (path.Count > 0) {
-			comet.transform.localPosition = path [0];
-			setCometVisibility (true);
-		}
-		active = true;
-		nextInOut = 0;
-		playstate = true;
-		m_nvActs.playSound (false);
-		m_nvActs.playSound (true);
-	}
-
-	public void setCometVisibility(bool visible) {
-		comet.SetActive(visible);
-	}
-
-	[ClientRpc]
-	public void RpcStopSequencer() {
-		active = false;
-		playstate = false;
-		setCometVisibility (false);
-	}
-		
-	public void startNewSequence() {
-		IAAPlayer.localPlayer.CmdObjectStopSequencer (netId);
-		playtriggers.Clear ();
-		path.Clear ();
-	}
-
-	public void endSequence() {
-		if (!isServer) // In case we are a host...there is no point transfering data to ourselves
-			IAAPlayer.localPlayer.CmdSetObjectSequencePath (netId, path.ToArray(), playtriggers.ToArray ());
-	}
-		
-	[ClientRpc]
-	public void RpcSyncPath(Vector3[] p, int[] ts) {
-		playtriggers.Clear ();
-		for (int i = 0; i < ts.Length; i++) {
-			playtriggers.Add (ts [i]);
-		}
-		path.Clear ();
-		for (int i = 0; i < p.Length; i++) {
-			path.Add (p [i]);
-		}
-	}
-
-	public void addPos(Vector3 p) {
-		path.Add(p);
-	}
-
-	public void addTime() {
-		playtriggers.Add (path.Count-1);
-	}
+public class NonVerbalSequencer : SoundObjectSequencer {
 		
 	public void FixedUpdate() {
 		if (!active || path.Count < 1)
@@ -101,7 +16,7 @@ public class NonVerbalSequencer : NetworkBehaviour {
 				toggleplay = true;
 			if (toggleplay) {
 				playstate = !playstate;
-				m_nvActs.playSound (playstate);
+				m_acts.playSound (playstate);
 				nextInOut++;
 				if (nextInOut == playtriggers.Count) {
 					nextInOut--;
@@ -112,7 +27,7 @@ public class NonVerbalSequencer : NetworkBehaviour {
 		if (nextPos == path.Count) {
 			active = false;
 			if (isServer)
-				IAAPlayer.localPlayer.CmdObjectStartSequencer (netId);
+				IAAPlayer.localPlayer.CmdSoundObjectStartSequencer (netId);
 		}
 
 	}

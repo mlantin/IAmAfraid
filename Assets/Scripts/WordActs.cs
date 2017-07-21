@@ -73,9 +73,9 @@ public class WordActs : SoundObjectActs
 			m_highlight.ConstantOnImmediate (HighlightColour);
 			m_sequencer.setCometVisibility (true);
 			if (!m_sequencer.loadedFromScene)
-				IAAPlayer.localPlayer.CmdGetWordSequencePath (netId);
+				IAAPlayer.localPlayer.CmdGetSoundObjectSequencePath (netId);
 			else
-				IAAPlayer.localPlayer.CmdWordStartSequencer (netId);
+				IAAPlayer.localPlayer.CmdSoundObjectStartSequencer (netId);
 		} else if (m_drawingSequence) {
 			m_highlight.FlashingOn ();
 		}
@@ -207,10 +207,10 @@ public class WordActs : SoundObjectActs
 		Debug.LogWarning ("Seting Looping End");
 		if (m_looping) {
 			m_highlight.ConstantOnImmediate (HighlightColour);
-			IAAPlayer.localPlayer.CmdWordStartSequencer(netId);
+			IAAPlayer.localPlayer.CmdSoundObjectStartSequencer(netId);
 		} else {
 			m_highlight.ConstantOffImmediate ();
-			IAAPlayer.localPlayer.CmdWordStopSequencer(netId);
+			IAAPlayer.localPlayer.CmdSoundObjectStopSequencer(netId);
 		}
 	}
 

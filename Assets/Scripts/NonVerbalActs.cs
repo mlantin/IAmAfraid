@@ -42,10 +42,10 @@ public class NonVerbalActs : SoundObjectActs
 			m_highlight.ConstantOnImmediate (HighlightColour);
 			m_sequencer.setCometVisibility (true);
 			Debug.LogWarning (m_sequencer.path.Count);
-			if (m_sequencer.loadedFromScene || true) {
-				Debug.LogWarning ("Looping!: " + netId);
-				IAAPlayer.localPlayer.CmdObjectStartSequencer (netId);
-			}
+			if (!m_sequencer.loadedFromScene)
+				IAAPlayer.localPlayer.CmdGetSoundObjectSequencePath (netId);
+			else
+				IAAPlayer.localPlayer.CmdSoundObjectStartSequencer (netId);
 		} else if (m_drawingSequence) {
 			m_highlight.FlashingOn ();
 		}
@@ -173,10 +173,10 @@ public class NonVerbalActs : SoundObjectActs
 		}
 		if (m_looping) {
 			m_highlight.ConstantOnImmediate (HighlightColour);
-			IAAPlayer.localPlayer.CmdObjectStartSequencer(netId);
+			IAAPlayer.localPlayer.CmdSoundObjectStartSequencer(netId);
 		} else {
 			m_highlight.ConstantOffImmediate ();
-			IAAPlayer.localPlayer.CmdObjectStopSequencer(netId);
+			IAAPlayer.localPlayer.CmdSoundObjectStopSequencer(netId);
 		}
 	}
 
