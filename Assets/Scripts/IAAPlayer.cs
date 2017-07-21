@@ -28,9 +28,7 @@ public class IAAPlayer : NetworkBehaviour {
 	MQTTTrack m_tracker = null;
 
 	public override void OnStartLocalPlayer() {
-		
-		Debug.Log ("On Start Local Player");
-
+		// localPlayer = this;
 		//m_tracker = playerObject.GetComponent<ViconActor> ();
 		m_tracker = playerObject.GetComponent<MQTTTrack>();
 
@@ -39,11 +37,13 @@ public class IAAPlayer : NetworkBehaviour {
 
 		SequenceMessage.SequenceMessageID = MsgType.Highest + 1;
 		NetworkManager.singleton.client.RegisterHandler (SequenceMessage.SequenceMessageID, setSequence);
-
+		localPlayer = this;
 	}
 
 	void Start() {
-		localPlayer = this;
+		if (isLocalPlayer) {
+			
+		}
 	}
 
 	public void Update() {
@@ -145,24 +145,24 @@ public class IAAPlayer : NetworkBehaviour {
 	}
 
 	[Command]
-	public void CmdSetObjectSequencePath(NetworkInstanceId objid, Vector3[] p, int[] ts) {
+	public void CmdSetSoundObjectSequencePath(NetworkInstanceId objid, Vector3[] p, int[] ts, float[] sc) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
-		NonVerbalSequencer seq = obj.GetComponent<NonVerbalSequencer> ();
-		seq.RpcSyncPath (p,ts);
+		SoundObjectSequencer seq = obj.GetComponent<SoundObjectSequencer> ();
+		seq.RpcSyncPath (p,ts,sc);
 	}
 
 	[Command]
-	public void CmdObjectStartSequencer(NetworkInstanceId objid) {
+	public void CmdSoundObjectStartSequencer(NetworkInstanceId objid) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
-		NonVerbalSequencer seq = obj.GetComponent<NonVerbalSequencer> ();
+		SoundObjectSequencer seq = obj.GetComponent<SoundObjectSequencer> ();
 		seq.RpcStartSequencer ();
 		CmdSetSoundObjectHitState (objid, true);
 	}
 
 	[Command]
-	public void CmdObjectStopSequencer(NetworkInstanceId objid) {
+	public void CmdSoundObjectStopSequencer(NetworkInstanceId objid) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
-		NonVerbalSequencer seq = obj.GetComponent<NonVerbalSequencer> ();
+		SoundObjectSequencer seq = obj.GetComponent<SoundObjectSequencer> ();
 		seq.RpcStopSequencer ();
 	}
 		
@@ -172,33 +172,11 @@ public class IAAPlayer : NetworkBehaviour {
 		WordActs acts = obj.GetComponent<WordActs> ();
 		acts.setGranOffset (f);
 	}
-
-
+		
 	[Command]
-	public void CmdWordStartSequencer(NetworkInstanceId objid) {
+	public void CmdGetSoundObjectSequencePath(NetworkInstanceId objid) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
-		WordSequencer seq = obj.GetComponent<WordSequencer> ();
-		seq.RpcStartSequencer ();
-	}
-
-	[Command]
-	public void CmdWordStopSequencer(NetworkInstanceId objid) {
-		GameObject obj = NetworkServer.objects [objid].gameObject;
-		WordSequencer seq = obj.GetComponent<WordSequencer> ();
-		seq.RpcStopSequencer ();
-	}
-
-	[Command]
-	public void CmdSetWordSequencePath(NetworkInstanceId objid, Vector3[] p, int[] ts, float[] sc) {
-		GameObject obj = NetworkServer.objects [objid].gameObject;
-		WordSequencer seq = obj.GetComponent<WordSequencer> ();
-		seq.RpcSyncPath (p,ts,sc);
-	}
-
-	[Command]
-	public void CmdGetWordSequencePath(NetworkInstanceId objid) {
-		GameObject obj = NetworkServer.objects [objid].gameObject;
-		WordSequencer seq = obj.GetComponent<WordSequencer> ();
+		SoundObjectSequencer seq = obj.GetComponent<SoundObjectSequencer> ();
 		SequenceMessage msg;
 		seq.fillSequenceMessage (out msg);
 		msg.netId = objid;
@@ -208,8 +186,8 @@ public class IAAPlayer : NetworkBehaviour {
 
 	public void setSequence(NetworkMessage seqmsg) {
 		var msg = seqmsg.ReadMessage<SequenceMessage>();
-		var wordobj = ClientScene.FindLocalObject(msg.netId);
-		wordobj.GetComponent<WordSequencer>().syncPath(msg.path,msg.playtriggers,msg.scrubs);
+		var soundObj = ClientScene.FindLocalObject(msg.netId);
+		soundObj.GetComponent<SoundObjectSequencer>().syncPath(msg.path,msg.playtriggers,msg.scrubs);
 	}
 
 	//	[Command]

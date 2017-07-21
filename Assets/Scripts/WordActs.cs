@@ -10,7 +10,7 @@ using HighlightingSystem;
 public class WordActs : SoundObjectActs
 {
     private AudioSource m_wordSource;
-    private WordSequencer m_sequencer;
+    public WordSequencer m_sequencer;
     private int m_granularSlot;
 	[SyncVar]
 	private float m_granOffset = 0;
@@ -59,15 +59,23 @@ public class WordActs : SoundObjectActs
 
 	}
 
+	public override void OnStartClient ()
+	{
+		base.OnStartClient ();
+		fetchAudio (m_serverFileName);
+	}
+
 	void Start() {
 		addLetters (m_wordstr);
-		fetchAudio (m_serverFileName);
 
 		if (m_looping) {
-			Debug.LogWarning ("Word" + netId);
+			// Debug.LogWarning ("Looping: " + netId);
 			m_highlight.ConstantOnImmediate (HighlightColour);
 			m_sequencer.setCometVisibility (true);
-			IAAPlayer.localPlayer.CmdGetWordSequencePath (netId);
+			if (!m_sequencer.loadedFromScene)
+				IAAPlayer.localPlayer.CmdGetSoundObjectSequencePath (netId);
+			else
+				IAAPlayer.localPlayer.CmdSoundObjectStartSequencer (netId);
 		} else if (m_drawingSequence) {
 			m_highlight.FlashingOn ();
 		}
@@ -126,6 +134,7 @@ public class WordActs : SoundObjectActs
 	#endif
 
 	void FixedUpdate() {
+		
 		if (m_drawingPath) {
 			// Get the point on the current plane
 			//m_sequencer.addPos (gameObject.transform.InverseTransformPoint (reticle.transform.position));
@@ -161,7 +170,7 @@ public class WordActs : SoundObjectActs
 		Vector3 raydir = (p - Camera.main.transform.position).normalized;
 		Ray pathray = new Ray (Camera.main.transform.position, raydir);
 		m_drawingPlane.Raycast (pathray, out enter);
-		return Camera.main.transform.position + raydir * enter;
+		return Camera.main.transform.position + raydir * enter; 
 	}
 
 
@@ -186,6 +195,10 @@ public class WordActs : SoundObjectActs
 
 	public override void playSound(bool hit) {
 		objectHit = hit;
+		// Debug.LogWarning ("Plaing sound for " + netId);
+		if (m_mixer == null) {
+			return;
+		}
 		if (hit) {
 			m_mixer.SetFloat ("Rate", 100f);
 		} else {
@@ -197,15 +210,15 @@ public class WordActs : SoundObjectActs
 	public override void setLooping(bool loop) {
 		m_looping = loop;
 		if (IAAPlayer.localPlayer == null) {
-			Debug.LogWarning ("Quit set looping hook" + netId);
 			return;
 		}
+		Debug.LogWarning ("Seting Looping End");
 		if (m_looping) {
 			m_highlight.ConstantOnImmediate (HighlightColour);
-			IAAPlayer.localPlayer.CmdWordStartSequencer(netId);
+			IAAPlayer.localPlayer.CmdSoundObjectStartSequencer(netId);
 		} else {
 			m_highlight.ConstantOffImmediate ();
-			IAAPlayer.localPlayer.CmdWordStopSequencer(netId);
+			IAAPlayer.localPlayer.CmdSoundObjectStopSequencer(netId);
 		}
 	}
 

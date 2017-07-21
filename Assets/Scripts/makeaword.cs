@@ -11,23 +11,26 @@ public class makeaword : NetworkBehaviour {
 
 	[Command]
 	public void CmdSpawnWord(string word, float scale, Vector3 pos, Quaternion rot, string clipfn, bool owned) {
-		spawnWord (word, scale, pos, rot, clipfn, false, null, null, owned);
+		WordInfo tmpWord = new WordInfo (word, clipfn, scale, pos, rot);
+		spawnWord (tmpWord, owned);
 	}
 
-	public void spawnWord(string word, float scale, Vector3 pos, Quaternion rot, string clipfn, bool looping, List<int> playTrigger, List<Vector3> path, bool owned) {
+	public void spawnWord(WordInfo word, bool owned) {
 		Debug.Log ("Spawning");
 
 		GameObject newwordTrans  = (GameObject)Instantiate(wordPrefab);		
-		newwordTrans.transform.position = pos;
-		newwordTrans.transform.rotation = rot;
+		newwordTrans.transform.position = word.pos;
+		newwordTrans.transform.rotation = word.rot;
 
 		WordActs wordscript = newwordTrans.GetComponent<WordActs> ();
-		wordscript.m_scale = scale;
-		wordscript.m_wordstr = word;
-		wordscript.m_serverFileName = clipfn;
-		//wordscript.m_looping = looping;
-		//wordscript.tmpPath = path;
-		//wordscript.tmpPlayerTrigger = playTrigger;
+		wordscript.m_scale = word.scale;
+		wordscript.m_wordstr = word.word;
+		wordscript.m_serverFileName = word.clipfn;
+		wordscript.m_looping = word.looping;
+		wordscript.m_sequencer.playtriggers = word.playerTriggers;
+		wordscript.m_sequencer.path = word.path;
+		wordscript.m_sequencer.scrubs = word.scrubs;
+		wordscript.m_sequencer.loadedFromScene = true;
 		if (!owned) {
 			// Right now it only gets here when it's a preload so we can assume that it is a preload
 			// and set the variable in the gameobject indicating that.

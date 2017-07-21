@@ -11,7 +11,7 @@ public class NonVerbalActs : SoundObjectActs
 
 	public Text m_DebugText;
 	private AudioSource m_wordSource;
-	private NonVerbalSequencer m_sequencer;
+	public NonVerbalSequencer m_sequencer;
 	private Vector3 m_pathNormal = new Vector3(); // we'll set this to be the vector from the object to the camera.
 
 	// This indicates that the word was preloaded. It's not a SyncVar
@@ -36,9 +36,21 @@ public class NonVerbalActs : SoundObjectActs
 
 	public override void OnStartClient() {
 		//Make sure we are highlighted if we're looping or drawing at startup.
+		base.OnStartClient();
+		fetchAudio (m_serverFileName);
+	}
+
+	void Start() {
+		randomizePaperBall ();
 		if (m_looping) {
+			Debug.LogWarning ("Looping: " + netId);
 			m_highlight.ConstantOnImmediate (HighlightColour);
 			m_sequencer.setCometVisibility (true);
+			Debug.LogWarning (m_sequencer.path.Count);
+			if (!m_sequencer.loadedFromScene)
+				IAAPlayer.localPlayer.CmdGetSoundObjectSequencePath (netId);
+			else
+				IAAPlayer.localPlayer.CmdSoundObjectStartSequencer (netId);
 		} else if (m_drawingSequence) {
 			m_highlight.FlashingOn ();
 		}
@@ -108,11 +120,6 @@ public class NonVerbalActs : SoundObjectActs
 //		return m_drawingPlaneOrig + vperp;
 //	}
 
-	void Start() {
-		randomizePaperBall ();
-		fetchAudio (m_serverFileName);
-	}
-
 	// Proxy Functions (END)
 
 	public override void playSound(bool hit) {
@@ -172,16 +179,17 @@ public class NonVerbalActs : SoundObjectActs
 
 	public override void setLooping(bool val) {
 		m_looping = val;
+		if (val) 
+			Debug.LogWarning ("Set looping" + netId.Value.ToString());
 		if (IAAPlayer.localPlayer == null) {
-			Debug.Log ("Quit set looping hook");
 			return;
 		}
 		if (m_looping) {
 			m_highlight.ConstantOnImmediate (HighlightColour);
-			IAAPlayer.localPlayer.CmdObjectStartSequencer(netId);
+			IAAPlayer.localPlayer.CmdSoundObjectStartSequencer(netId);
 		} else {
 			m_highlight.ConstantOffImmediate ();
-			IAAPlayer.localPlayer.CmdObjectStopSequencer(netId);
+			IAAPlayer.localPlayer.CmdSoundObjectStopSequencer(netId);
 		}
 	}
 
