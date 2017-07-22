@@ -25,11 +25,14 @@ public class makeaword : NetworkBehaviour {
 		wordscript.m_scale = word.scale;
 		wordscript.m_wordstr = word.word;
 		wordscript.m_serverFileName = word.clipfn;
-		wordscript.m_looping = word.looping;
-		wordscript.m_sequencer.playtriggers = word.playerTriggers;
-		wordscript.m_sequencer.path = word.path;
-		wordscript.m_sequencer.scrubs = word.scrubs;
-		wordscript.m_sequencer.loadedFromScene = true;
+		if (word.looping) {
+			wordscript.m_looping = word.looping;
+			wordscript.m_sequencer.playtriggers = word.playerTriggers;
+			wordscript.m_sequencer.path = word.path;
+			wordscript.m_sequencer.scrubs = word.scrubs;
+			wordscript.m_sequencer.loadedFromScene = true;
+		}
+
 		if (!owned) {
 			// Right now it only gets here when it's a preload so we can assume that it is a preload
 			// and set the variable in the gameobject indicating that.
