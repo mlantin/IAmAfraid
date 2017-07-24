@@ -10,24 +10,12 @@ public class NonVerbalActs : SoundObjectActs
 {
 
 	public Text m_DebugText;
-	private AudioSource m_wordSource;
-	public NonVerbalSequencer m_sequencer;
 	private Vector3 m_pathNormal = new Vector3(); // we'll set this to be the vector from the object to the camera.
-
-	// This indicates that the word was preloaded. It's not a SyncVar
-	// so it's only valid on the server which is ok because only
-	// the server needs to know. The variable is used to prevent
-	// audio clip deletion.
-	// public bool m_preloaded = false;
-
 
 	// Use this for initialization
 	void Awake () {
-		m_wordSource = GetComponent<AudioSource> ();
+		base.Awake ();
 		m_wordSource.loop = true;
-		m_highlight = GetComponent<Highlighter> ();
-		m_highlight.ConstantParams (HighlightColour);
-		m_sequencer = GetComponent<NonVerbalSequencer> ();
 	}
 
 	public override void OnStartClient() {
@@ -51,38 +39,7 @@ public class NonVerbalActs : SoundObjectActs
 			m_highlight.FlashingOn ();
 		}
 	}
-
-	protected override void tmpStartNewSequence() {
-		m_sequencer.startNewSequence ();
-	}
-	protected override void tmpEndSequence() {
-		m_sequencer.endSequence ();
-	}
 		
-	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-	public override void OnPointerEnter (PointerEventData eventData) {
-		m_target = true;
-		if (m_positioned) {
-			if (!m_looping)
-				IAAPlayer.localPlayer.CmdSetSoundObjectHitState (netId, true);
-			if (m_drawingPath) {
-				m_sequencer.addTime ();
-			}
-		}
-	}
-
-	public override void OnPointerExit(PointerEventData eventData){
-		m_target = false;
-		if (m_positioned) {
-			if (!m_looping)
-				IAAPlayer.localPlayer.CmdSetSoundObjectHitState (netId, false);
-			if (m_drawingPath) {
-				m_sequencer.addTime ();
-			}
-		}
-	}
-
-	#endif
 	void FixedUpdate() {
 		if (m_drawingPath) {
 			// Get the point on the current plane
@@ -167,8 +124,7 @@ public class NonVerbalActs : SoundObjectActs
 
 	public override void setLooping(bool val) {
 		m_looping = val;
-		if (val) 
-			Debug.LogWarning ("Set looping" + netId.Value.ToString());
+		Debug.LogWarning ("Set looping" + netId.Value.ToString());
 		if (IAAPlayer.localPlayer == null) {
 			return;
 		}

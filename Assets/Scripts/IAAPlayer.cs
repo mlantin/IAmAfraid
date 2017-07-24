@@ -118,9 +118,13 @@ public class IAAPlayer : NetworkBehaviour {
 
 	[Command]
 	public void CmdSetSoundObjectHitState(NetworkInstanceId objid, bool state) {
-		GameObject obj = NetworkServer.objects [objid].gameObject;
-		SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
-		acts.setHit (state);
+		try {
+			GameObject obj = NetworkServer.objects [objid].gameObject;
+			SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
+			acts.setHit (state);
+		} catch (KeyNotFoundException e) {
+		}
+
 	}
 
 	[Command]

@@ -9,8 +9,7 @@ using HighlightingSystem;
 
 public class WordActs : SoundObjectActs
 {
-    private AudioSource m_wordSource;
-    public WordSequencer m_sequencer;
+    
     private int m_granularSlot;
 	[SyncVar]
 	private float m_granOffset = 0;
@@ -20,7 +19,6 @@ public class WordActs : SoundObjectActs
 	private float m_xspace = 0;
 	[HideInInspector]
 	public Vector3 bbdim = new Vector3(0.0f,0.0f,0.0f);
-
 	[HideInInspector][SyncVar]
 	public string m_wordstr = "";
 	[HideInInspector][SyncVar]
@@ -30,15 +28,9 @@ public class WordActs : SoundObjectActs
 	public GameObject alphabet;
 	public float m_destroyDelay = 360; // The average amount of time in seconds to way for letters to die.
 
-	// This indicates that the word was preloaded. It's not a SyncVar
-	// so it's only valid on the server which is ok because only
-	// the server needs to know. The variable is used to prevent
-	// audio clip deletion.
-	// [HideInInspector] public bool m_preloaded = false;
-
 	// Use this for initialization
 	void Awake () {
-		m_wordSource = GetComponent<AudioSource> ();
+		base.Awake ();
 		m_wordSource.loop = false;
 
 		string ci = "i";
@@ -52,11 +44,6 @@ public class WordActs : SoundObjectActs
 			}
 		}
 		m_xspace = extent_i.x/2.5f;
-
-		m_highlight = GetComponent<Highlighter> ();
-		m_highlight.ConstantParams (HighlightColour);
-		m_sequencer = GetComponent<WordSequencer> ();
-
 	}
 
 	public override void OnStartClient ()
@@ -81,13 +68,6 @@ public class WordActs : SoundObjectActs
 		}
 	}
 
-	protected override void tmpStartNewSequence() {
-		m_sequencer.startNewSequence ();
-	}
-	protected override void tmpEndSequence() {
-		m_sequencer.endSequence ();
-	}
-
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 
 	public override void OnGvrPointerHover(PointerEventData eventData) {
@@ -97,32 +77,6 @@ public class WordActs : SoundObjectActs
 		}
 	}
 
-	public override void OnPointerEnter (PointerEventData eventData) {
-		m_target = true;
-		if (m_positioned) {
-			m_target = true;
-			if (!m_looping) {
-				IAAPlayer.localPlayer.CmdSetSoundObjectHitState (netId, true);
-				IAAPlayer.getAuthority (netId);
-			}
-			if (m_drawingPath) {
-				m_sequencer.addTime ();
-			}
-		}
-	}
-
-	public override void OnPointerExit(PointerEventData eventData){
-		m_target = false;
-		if (m_positioned) {
-			if (!m_looping) {
-				IAAPlayer.localPlayer.CmdSetSoundObjectHitState (netId, false);
-				IAAPlayer.removeAuthority (netId);
-			}
-			if (m_drawingPath) {
-				m_sequencer.addTime ();
-			}
-		}
-	}
 	#endif
 
 	void FixedUpdate() {
@@ -204,7 +158,7 @@ public class WordActs : SoundObjectActs
 		if (IAAPlayer.localPlayer == null) {
 			return;
 		}
-		Debug.LogWarning ("Seting Looping End");
+		Debug.LogWarning ("Seting Looping End" + netId);
 		if (m_looping) {
 			m_highlight.ConstantOnImmediate (HighlightColour);
 			IAAPlayer.localPlayer.CmdSoundObjectStartSequencer(netId);
