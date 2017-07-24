@@ -158,7 +158,6 @@ public class WordActs : SoundObjectActs
 		if (IAAPlayer.localPlayer == null) {
 			return;
 		}
-		Debug.LogWarning ("Seting Looping End" + netId);
 		if (m_looping) {
 			m_highlight.ConstantOnImmediate (HighlightColour);
 			IAAPlayer.localPlayer.CmdSoundObjectStartSequencer(netId);

@@ -35,8 +35,8 @@ public class SoundObjectActs : NetworkBehaviour
 	protected Vector3 m_originalHitPointLocal, m_hitPointToController;
 	protected Quaternion m_originalControllerRotation, m_originalLaserRotation;
 
-	public		SoundObjectSequencer m_sequencer;
-	protected	AudioSource m_wordSource;
+	public SoundObjectSequencer m_sequencer;
+	protected AudioSource m_wordSource;
 	[HideInInspector][SyncVar]
 	public string m_serverFileName = "";
 	[HideInInspector][SyncVar]
@@ -159,6 +159,43 @@ public class SoundObjectActs : NetworkBehaviour
 		if (volumeChanged)
 			setVolumeFromHeight (transform.position.y);
 	}
+
+	private void moveObject() {
+		Transform letterTrans = transform.Find("Letters");
+		// We have picked an object and we're moving it...
+		Vector3 newdir = m_rotq*laser.transform.forward;
+		Vector3 newpos = laser.transform.position+newdir*m_distanceFromPointer;
+		if (this.GetType().Equals(typeof(WordActs))) {
+			Quaternion deltaRotation = controller.transform.rotation * Quaternion.Inverse(m_originalControllerRotation);
+			Vector3 tGlobal = transform.TransformPoint(m_originalHitPointLocal);
+			transform.position = tGlobal; 
+			letterTrans.localPosition -= m_originalHitPointLocal;
+			Vector3 newPosOffset = deltaRotation * m_hitPointToController;
+			newpos = controller.transform.position + newPosOffset;
+		}
+		// Make sure we don't go through the floor
+		if (newpos.y < 0.05f)
+			newpos.y = 0.05f;
+		transform.position = newpos;
+		transform.rotation = GvrController.Orientation;
+
+		if (this.GetType().Equals(typeof(WordActs))) {
+			letterTrans.localPosition += m_originalHitPointLocal;
+			transform.position = transform.TransformPoint(-m_originalHitPointLocal);
+		}
+	}
+
+	private void saveMovingInfo(PointerEventData eventData) {
+		m_originalControllerRotation = controller.transform.rotation;
+		m_originalLaserRotation = laser.transform.rotation;
+		m_originalHitPoint = eventData.pointerCurrentRaycast.worldPosition;
+		m_hitPointToController = m_originalHitPoint - controller.transform.position;
+		m_originalHitPointLocal = transform.InverseTransformPoint(m_originalHitPoint);
+
+		Vector3 intersectionLaser = gameObject.transform.position - laser.transform.position;
+		m_rotq = Quaternion.FromToRotation (laser.transform.forward, intersectionLaser);
+		m_distanceFromPointer = intersectionLaser.magnitude;
+	}
 	
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 	public virtual void OnGvrPointerHover(PointerEventData eventData) {
@@ -198,55 +235,20 @@ public class SoundObjectActs : NetworkBehaviour
 	}
 
 	public virtual void OnPointerClick (PointerEventData eventData) {
-		if (!m_positioned)
+		if (!m_positioned) {
 			return;
+		}
 		//get the coordinates of the trackpad so we know what kind of event we want to trigger
 		if (GvrController.TouchPos.y > .85f) {
-			IAAPlayer.localPlayer.CmdActivateTimedDestroy (netId);
+			if (this is WordActs) {
+				IAAPlayer.localPlayer.CmdDestroyObject (netId);
+			} else {
+				IAAPlayer.localPlayer.CmdActivateTimedDestroy (netId);
+			}
 		}
-	}
-
-	private void moveObject() {
-		Transform letterTrans = transform.Find("Letters");
-		// We have picked an object and we're moving it...
-		Vector3 newdir = m_rotq*laser.transform.forward;
-		Vector3 newpos = laser.transform.position+newdir*m_distanceFromPointer;
-		if (this.GetType().Equals(typeof(WordActs))) {
-			Quaternion deltaRotation = controller.transform.rotation * Quaternion.Inverse(m_originalControllerRotation);
-			Vector3 tGlobal = transform.TransformPoint(m_originalHitPointLocal);
-			transform.position = tGlobal; 
-			letterTrans.localPosition -= m_originalHitPointLocal;
-			Vector3 newPosOffset = deltaRotation * m_hitPointToController;
-			newpos = controller.transform.position + newPosOffset;
-		}
-		// Make sure we don't go through the floor
-		if (newpos.y < 0.05f)
-			newpos.y = 0.05f;
-		transform.position = newpos;
-		transform.rotation = GvrController.Orientation;
-
-		if (this.GetType().Equals(typeof(WordActs))) {
-			letterTrans.localPosition += m_originalHitPointLocal;
-			transform.position = transform.TransformPoint(-m_originalHitPointLocal);
-		}
-	}
-
-	private void saveMovingInfo(PointerEventData eventData) {
-		m_originalControllerRotation = controller.transform.rotation;
-		m_originalLaserRotation = laser.transform.rotation;
-		m_originalHitPoint = eventData.pointerCurrentRaycast.worldPosition;
-		m_hitPointToController = m_originalHitPoint - controller.transform.position;
-		m_originalHitPointLocal = transform.InverseTransformPoint(m_originalHitPoint);
-
-		Vector3 intersectionLaser = gameObject.transform.position - laser.transform.position;
-		m_rotq = Quaternion.FromToRotation (laser.transform.forward, intersectionLaser);
-		m_distanceFromPointer = intersectionLaser.magnitude;
 	}
 
 	public virtual void OnPointerDown (PointerEventData eventData) {
-		if (hasAuthority) {
-			Debug.LogWarning ("Not server has authority");
-		}
 		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
 			saveMovingInfo (eventData);
 			m_positioned = false;

@@ -124,7 +124,6 @@ public class NonVerbalActs : SoundObjectActs
 
 	public override void setLooping(bool val) {
 		m_looping = val;
-		Debug.LogWarning ("Set looping" + netId.Value.ToString());
 		if (IAAPlayer.localPlayer == null) {
 			return;
 		}
