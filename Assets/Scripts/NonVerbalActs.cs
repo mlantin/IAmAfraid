@@ -41,7 +41,7 @@ public class NonVerbalActs : SoundObjectActs
 	}
 		
 	void FixedUpdate() {
-		if (m_drawingPath) {
+		if (m_opstate == OpState.Op_Recording) {
 			// Get the point on the current plane
 			//m_sequencer.addPos (gameObject.transform.InverseTransformPoint (reticle.transform.position));
 			m_sequencer.addPos (gameObject.transform.InverseTransformPoint (RayDrawingPlaneIntersect(reticle.transform.position)));

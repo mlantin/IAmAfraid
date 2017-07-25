@@ -81,7 +81,7 @@ public class WordActs : SoundObjectActs
 
 	void FixedUpdate() {
 		
-		if (m_drawingPath) {
+		if (m_opstate == OpState.Op_Recording) {
 			// Get the point on the current plane
 			//m_sequencer.addPos (gameObject.transform.InverseTransformPoint (reticle.transform.position));
 			m_sequencer.addPos (gameObject.transform.InverseTransformPoint (RayDrawingPlaneIntersect (reticle.transform.position)));
@@ -248,6 +248,7 @@ public class WordActs : SoundObjectActs
 	protected override void setVolumeFromHeight(float y) {
 		float vol = Mathf.Clamp(-50+y/1.8f*56f, -50f,6f);
 		// Debug.Log ("y = " + y + " Vol = " + vol);
+		if (m_mixer == null) return;
 		m_mixer.SetFloat("Volume", vol);
 	}
 		

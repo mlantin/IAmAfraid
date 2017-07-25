@@ -104,17 +104,17 @@ public class IAAPlayer : NetworkBehaviour {
 			destroyscript.RpcActivate ();
 	}
 
-	[Command]
-	public void CmdSetSoundObjectPositioned(NetworkInstanceId objid, bool state) {
-		NetworkIdentity netid = NetworkServer.objects [objid];
-		GameObject obj = netid.gameObject;
-		SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
-		acts.m_positioned = state;
-		if (!state)
-			netid.AssignClientAuthority (connectionToClient);
-		else
-			netid.RemoveClientAuthority (connectionToClient);
-	}
+//	[Command]
+//	public void CmdSetSoundObjectPositioned(NetworkInstanceId objid, bool state) {
+//		NetworkIdentity netid = NetworkServer.objects [objid];
+//		GameObject obj = netid.gameObject;
+//		SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
+//		acts.m_positioned = state;
+//		if (!state)
+//			netid.AssignClientAuthority (connectionToClient);
+//		else
+//			netid.RemoveClientAuthority (connectionToClient);
+//	}
 
 	[Command]
 	public void CmdSetSoundObjectHitState(NetworkInstanceId objid, bool state) {
@@ -127,12 +127,12 @@ public class IAAPlayer : NetworkBehaviour {
 
 	}
 
-	[Command]
-	public void CmdSetSoundObjectMovingState(NetworkInstanceId objid, bool state) {
-		GameObject obj = NetworkServer.objects [objid].gameObject;
-		SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
-		acts.setMovingState (state);
-	}
+//	[Command]
+//	public void CmdSetSoundObjectMovingState(NetworkInstanceId objid, bool state) {
+//		GameObject obj = NetworkServer.objects [objid].gameObject;
+//		SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
+//		acts.setMovingState (state);
+//	}
 
 	[Command]
 	public void CmdToggleSoundObjectLoopingState(NetworkInstanceId objid) {

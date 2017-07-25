@@ -30,7 +30,8 @@ public class MakeSoundObject : NetworkBehaviour {
 		soundobj.transform.rotation = sound.rot;
 		NonVerbalActs soundscript = soundobj.GetComponent<NonVerbalActs> ();
 		soundscript.m_serverFileName = sound.clipfn;
-		soundscript.m_positioned = true;
+		// TODO: state for new objects
+		// soundscript.m_positioned = true;
 		// soundscript.m_preloaded = true;
 		if (sound.looping) {
 			soundscript.m_looping = true;
