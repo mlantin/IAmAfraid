@@ -35,6 +35,9 @@ public class SoundObjectActs : NetworkBehaviour
 	protected Vector3 m_originalHitPointLocal, m_hitPointToController;
 	protected Quaternion m_originalControllerRotation, m_originalLaserRotation;
 
+	// sound stuff
+	protected GvrAudioSource m_wordSource;
+
 	[HideInInspector][SyncVar]
 	public string m_serverFileName = "";
 	[HideInInspector][SyncVar]
@@ -75,6 +78,10 @@ public class SoundObjectActs : NetworkBehaviour
 			}
 			return m_controller;
 		}
+	}
+
+	protected virtual void Awake() {
+		m_wordSource = GetComponent<GvrAudioSource> ();
 	}
 
 	protected virtual void Update() {
@@ -285,6 +292,12 @@ public class SoundObjectActs : NetworkBehaviour
 		}
 	}
 
+	public void setVolumeFromHeight(float y) {
+		float vol = Mathf.Clamp(-50+y/1.8f*56f, -50f,6f);
+		Debug.Log ("y = " + y + " Vol = " + vol);
+		m_wordSource.gainDb = vol;
+	}
+		
 	public virtual void playSound(bool state) {
 		Debug.Log ("This should not be called");
 	}
@@ -293,7 +306,4 @@ public class SoundObjectActs : NetworkBehaviour
 		Debug.Log ("This should not be called");
 	}
 
-	protected virtual void setVolumeFromHeight(float y) {
-		Debug.Log ("This should not be called");
-	}
 }

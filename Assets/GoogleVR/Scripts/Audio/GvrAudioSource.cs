@@ -258,7 +258,7 @@ public class GvrAudioSource : MonoBehaviour {
 
   // Unity audio source attached to the game object.
   [SerializeField]
-  public AudioSource audioSource = null;
+  private AudioSource audioSource = null;
 
   // Unique source id.
   private int id = -1;
@@ -441,8 +441,7 @@ public class GvrAudioSource : MonoBehaviour {
     if (audioSource != null) {
       audioSource.Stop();
       ShutdownSource();
-//      isPaused = false;
-		isPaused = true;
+      isPaused = true;
     }
   }
 
@@ -473,13 +472,11 @@ public class GvrAudioSource : MonoBehaviour {
         audioSource.SetSpatializerFloat((int) GvrAudio.SpatializerData.Id, (float) id);
       }
     }
-		Debug.Log ("the id is " + id);
     return id >= 0;
   }
 
   // Shuts down the source.
   private void ShutdownSource () {
-		Debug.Log ("Shutdown source");
     if (id >= 0) {
       audioSource.SetSpatializerFloat((int) GvrAudio.SpatializerData.Id, -1.0f);
       // Ensure that the output is zeroed after shutdown.

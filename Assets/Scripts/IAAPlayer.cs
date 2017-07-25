@@ -102,6 +102,8 @@ public class IAAPlayer : NetworkBehaviour {
 		TimedDestroy destroyscript = obj.GetComponent<TimedDestroy> ();
 		if (destroyscript)
 			destroyscript.RpcActivate ();
+		else
+			CmdDestroyObject (objid);
 	}
 
 	[Command]

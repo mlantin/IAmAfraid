@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Networking;
@@ -8,9 +9,6 @@ using HighlightingSystem;
 
 public class NonVerbalActs : SoundObjectActs
 {
-
-	public Text m_DebugText;
-	private AudioSource m_wordSource;
 	public NonVerbalSequencer m_sequencer;
 	private Vector3 m_pathNormal = new Vector3(); // we'll set this to be the vector from the object to the camera.
 
@@ -23,8 +21,7 @@ public class NonVerbalActs : SoundObjectActs
 
 	// Use this for initialization
 	void Awake () {
-		m_wordSource = GetComponent<AudioSource> ();
-		m_wordSource.loop = true;
+		base.Awake ();
 		m_highlight = GetComponent<Highlighter> ();
 		m_highlight.ConstantParams (HighlightColour);
 		m_sequencer = GetComponent<NonVerbalSequencer> ();
@@ -121,13 +118,6 @@ public class NonVerbalActs : SoundObjectActs
 		}
 	}
 
-	protected override void setVolumeFromHeight(float y) {
-		float dbvol = Mathf.Clamp(-50+y/1.8f*56f, -50f,6f);
-		float vol = Mathf.Pow(10.0f, dbvol/20.0f);
-		m_wordSource.volume = vol;
-		//m_wordSource.gainDb = dbvol;
-	}
-
 	void fetchAudio(string filename) {
 //		if (hasAuthority || (isServer && isClient)) { // we created the sound clip so it's probably still in memory
 			// Unfortunately hasAuthority is never true because authority is assigned after object creation.
@@ -139,10 +129,14 @@ public class NonVerbalActs : SoundObjectActs
 			// out if there is only one client.
 		if (hasAuthority) {
 			m_wordSource.clip = NonVerbalRecord.singleton.mostRecentClip;
+			m_wordSource.loop = true;
 			setVolumeFromHeight (transform.position.y);
 		} else {
 			StartCoroutine(Webserver.singleton.GetAudioClip (filename, 
-				(newclip) => { m_wordSource.clip = newclip; setVolumeFromHeight(transform.position.y);}));
+				(newclip) => { 
+					m_wordSource.clip = newclip; 
+					m_wordSource.loop = true;
+					setVolumeFromHeight (transform.position.y);}));
 		}
 	}
 
