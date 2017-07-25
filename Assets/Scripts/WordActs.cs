@@ -197,10 +197,12 @@ public class WordActs : SoundObjectActs
 			return;
 		}
 		if (hit) {
-			//m_wordSource.Play ();
+			m_wordSource.Play ();
+			Debug.Log ("Setting metro to 1");
 			granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Metro, 1.0f);
 		} else {
-			//m_wordSource.Stop ();
+			m_wordSource.Stop ();
+			Debug.Log ("Setting metro to 0");
 			granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Metro, 0.0f);
 		}
 	}
@@ -325,8 +327,9 @@ public class WordActs : SoundObjectActs
 					granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainrate_vari, 1.0f);
 					granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainrate, 1.0f);
 					setVolumeFromHeight (transform.position.y);
-					m_wordSource.Play();
-					m_wordSource.loop = true;
+					m_wordSource.Stop();
+//					m_wordSource.Play();
+//					m_wordSource.loop = true;
 				}));
 		}
 	}

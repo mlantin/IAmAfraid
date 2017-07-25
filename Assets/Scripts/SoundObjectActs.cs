@@ -36,7 +36,8 @@ public class SoundObjectActs : NetworkBehaviour
 	protected Quaternion m_originalControllerRotation, m_originalLaserRotation;
 
 	// sound stuff
-	protected GvrAudioSource m_wordSource;
+	//protected GvrAudioSource m_wordSource;
+	protected AudioSource m_wordSource;
 
 	[HideInInspector][SyncVar]
 	public string m_serverFileName = "";
@@ -81,7 +82,7 @@ public class SoundObjectActs : NetworkBehaviour
 	}
 
 	protected virtual void Awake() {
-		m_wordSource = GetComponent<GvrAudioSource> ();
+		m_wordSource = GetComponent<AudioSource> ();
 	}
 
 	protected virtual void Update() {
@@ -295,7 +296,8 @@ public class SoundObjectActs : NetworkBehaviour
 	public void setVolumeFromHeight(float y) {
 		float vol = Mathf.Clamp(-50+y/1.8f*56f, -50f,6f);
 		Debug.Log ("y = " + y + " Vol = " + vol);
-		m_wordSource.gainDb = vol;
+//		m_wordSource.gainDb = vol;
+		m_wordSource.volume = y/1.8f;
 	}
 		
 	public virtual void playSound(bool state) {

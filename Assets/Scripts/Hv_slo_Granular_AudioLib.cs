@@ -150,6 +150,15 @@ public class Hv_slo_Granular_Editor : Editor {
     }
     GUILayout.EndHorizontal();
     
+    // grainVolume
+    GUILayout.BeginHorizontal();
+    float grainVolume = _dsp.GetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainvolume);
+    float newGrainvolume = EditorGUILayout.Slider("grainVolume", grainVolume, 0.0f, 100.0f);
+    if (grainVolume != newGrainvolume) {
+      _dsp.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainvolume, newGrainvolume);
+    }
+    GUILayout.EndHorizontal();
+    
     // metro
     GUILayout.BeginHorizontal();
     float metro = _dsp.GetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Metro);
@@ -206,6 +215,7 @@ public class Hv_slo_Granular_AudioLib : MonoBehaviour {
     Grainposition = 0x3283ACD4,
     Grainrate = 0x5B7EAA71,
     Grainrate_vari = 0x9EAAFCD9,
+    Grainvolume = 0xC20246C1,
     Metro = 0x9E78BC0,
     Source_length = 0xB8856A5E,
   }
@@ -242,6 +252,7 @@ public class Hv_slo_Granular_AudioLib : MonoBehaviour {
   public float grainPosition = 0.5f;
   public float grainRate = 1.0f;
   public float grainRate_vari = 50.0f;
+  public float grainVolume = 100.0f;
   public float metro = 0.0f;
   public float source_Length = 441000.0f;
 
@@ -272,6 +283,7 @@ public class Hv_slo_Granular_AudioLib : MonoBehaviour {
       case Parameter.Grainposition: return grainPosition;
       case Parameter.Grainrate: return grainRate;
       case Parameter.Grainrate_vari: return grainRate_vari;
+      case Parameter.Grainvolume: return grainVolume;
       case Parameter.Metro: return metro;
       case Parameter.Source_length: return source_Length;
       default: return 0.0f;
@@ -320,6 +332,11 @@ public class Hv_slo_Granular_AudioLib : MonoBehaviour {
         grainRate_vari = x;
         break;
       }
+      case Parameter.Grainvolume: {
+        x = Mathf.Clamp(x, 0.0f, 100.0f);
+        grainVolume = x;
+        break;
+      }
       case Parameter.Metro: {
         x = Mathf.Clamp(x, 0.0f, 1.0f);
         metro = x;
@@ -363,6 +380,7 @@ public class Hv_slo_Granular_AudioLib : MonoBehaviour {
     _context.SendFloatToReceiver((uint) Parameter.Grainposition, grainPosition);
     _context.SendFloatToReceiver((uint) Parameter.Grainrate, grainRate);
     _context.SendFloatToReceiver((uint) Parameter.Grainrate_vari, grainRate_vari);
+    _context.SendFloatToReceiver((uint) Parameter.Grainvolume, grainVolume);
     _context.SendFloatToReceiver((uint) Parameter.Metro, metro);
     _context.SendFloatToReceiver((uint) Parameter.Source_length, source_Length);
   }
