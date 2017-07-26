@@ -73,6 +73,7 @@ public class SoundObjectActs : NetworkBehaviour
 
 	[HideInInspector]
 	public SoundObjectSequencer m_sequencer;
+	public bool m_newSpawn = false;
 	protected AudioSource m_wordSource;
 	[HideInInspector][SyncVar]
 	public string m_serverFileName = "";
@@ -117,6 +118,14 @@ public class SoundObjectActs : NetworkBehaviour
 		m_sequencer = GetComponent<SoundObjectSequencer> ();
 		m_highlight = GetComponent<Highlighter> ();
 		m_highlight.ConstantParams (HighlightColour);
+	}
+
+	public override void OnStartClient() {
+		base.OnStartClient ();
+		if (m_newSpawn) {
+			saveMovingInfo (null);
+			m_opstate = OpState.Op_Moving;
+		}
 	}
 
 	protected OpState m_opstate {
@@ -330,12 +339,18 @@ public class SoundObjectActs : NetworkBehaviour
 	}
 
 	private void saveMovingInfo(PointerEventData eventData) {
+		Vector3 intersectionLaser;
 		m_originalControllerRotation = controller.transform.rotation;
 		m_originalLaserRotation = laser.transform.rotation;
-		m_originalHitPoint = eventData.pointerCurrentRaycast.worldPosition;
+		if (eventData == null) {
+			m_originalHitPoint = laser.transform.position + laser.transform.forward;
+			intersectionLaser = laser.transform.forward;
+		} else {
+			m_originalHitPoint = eventData.pointerCurrentRaycast.worldPosition;
+			intersectionLaser = gameObject.transform.position - laser.transform.position;
+		}
 		m_hitPointToController = m_originalHitPoint - controller.transform.position;
 		m_originalHitPointLocal = transform.InverseTransformPoint(m_originalHitPoint);
-		Vector3 intersectionLaser = gameObject.transform.position - laser.transform.position;
 		m_rotq = Quaternion.FromToRotation (laser.transform.forward, intersectionLaser);
 		m_distanceFromPointer = intersectionLaser.magnitude;
 	}

@@ -13,7 +13,7 @@ public class NonVerbalActs : SoundObjectActs
 	private Vector3 m_pathNormal = new Vector3(); // we'll set this to be the vector from the object to the camera.
 
 	// Use this for initialization
-	void Awake () {
+	protected override void Awake () {
 		base.Awake ();
 		m_wordSource.loop = true;
 	}
@@ -29,7 +29,6 @@ public class NonVerbalActs : SoundObjectActs
 		if (m_looping) {
 			m_highlight.ConstantOnImmediate (HighlightColour);
 			m_sequencer.setCometVisibility (true);
-			Debug.LogWarning (m_sequencer.path.Count);
 			if (!m_sequencer.loadedFromScene)
 				IAAPlayer.localPlayer.CmdGetSoundObjectSequencePath (netId);
 			else

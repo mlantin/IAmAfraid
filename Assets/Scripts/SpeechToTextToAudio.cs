@@ -13,7 +13,7 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 	
 	static public SpeechToTextToAudio singleton = null;
 
-	private makeaword m_wordmakerScript = null;
+	private MakeSoundObject m_wordmakerScript = null;
 
 	private int m_RecordingRoutine = 0;
 	private string m_MicrophoneID = null;
@@ -32,10 +32,10 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 
 	private SpeechToText m_SpeechToText = new SpeechToText();
 
-	private makeaword wordMakerScript {
+	private MakeSoundObject wordMakerScript {
 		get {
 			if (m_wordmakerScript == null)
-				m_wordmakerScript = IAAPlayer.playerObject.GetComponent<makeaword> ();
+				m_wordmakerScript = IAAPlayer.playerObject.GetComponent<MakeSoundObject> ();
 			return m_wordmakerScript;
 		}
 	}
@@ -240,6 +240,6 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 		pos = Vector3.forward*2f;
 		rot = Quaternion.identity;
 		#endif
-		wordMakerScript.CmdSpawnWord (m_mostRecentTranscript, 1f, pos, rot, m_mostRecentFilename, true);
+		wordMakerScript.CmdSpawnSoundObject (m_mostRecentTranscript, 1f, pos, rot, m_mostRecentFilename, true);
 	}
 }

@@ -80,7 +80,7 @@ public class NonVerbalRecord : MonoBehaviour {
 				//yield return new WaitUntil(() => handler.isDone == true);
 
 				// create a new sound object
-				IAAPlayer.playerObject.GetComponent<MakeSoundObject>().CmdSpawnSoundObject(filename);
+				IAAPlayer.playerObject.GetComponent<MakeSoundObject>().CmdSpawnSoundObject("", 1f, Vector3.one, Quaternion.identity, filename, true);
 				yield break;
 
 			} else {

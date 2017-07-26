@@ -30,7 +30,7 @@ public class WordActs : SoundObjectActs
 	public float m_destroyDelay = 360;
 
 	// Use this for initialization
-	void Awake () {
+	protected override void Awake () {
 		base.Awake ();
 		m_wordSource.loop = false;
 

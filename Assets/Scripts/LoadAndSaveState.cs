@@ -46,12 +46,12 @@ public class LoadAndSaveState : NetworkBehaviour {
 			}
 
 			List<WordInfo> wordlist = IAAScene.fromJSON(jsonText).wordInfoList;
-			MakeWords creatorObject = GetComponent<MakeWords> ();
+			MakeSoundObject creatorObject = GetComponent<MakeSoundObject> ();
 
 			if (wordlist != null) {
 				
 				wordlist.ForEach (x => {
-					creatorObject.spawn (x, false);
+					creatorObject.spawnSoundObject (x, false);
 				});
 			}
 
