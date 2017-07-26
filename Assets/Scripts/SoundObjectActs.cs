@@ -31,6 +31,7 @@ public class SoundObjectActs : NetworkBehaviour
 	protected Vector3 m_originalHitPointLocal, m_hitPointToController;
 	protected Quaternion m_originalControllerRotation, m_originalLaserRotation;
 
+	[HideInInspector]
 	public SoundObjectSequencer m_sequencer;
 	protected AudioSource m_wordSource;
 	[HideInInspector][SyncVar]
@@ -83,12 +84,22 @@ public class SoundObjectActs : NetworkBehaviour
 
 	protected enum OpState : byte { Op_Default, Op_PressAndHoldCandidate, Op_Recording, Op_AdjustDistance, Op_Moving, Op_Disabled };
 	private OpState m_opstate_internal = OpState.Op_Default;
+	private Vector2 m_adjustDistanceTouchPos = new Vector2 (0f, 0f);
+	private float m_adjustDistanceCount = 0;
+	private float m_adjustLiftTime = 0;
+	private bool m_adjustDistanceCandidate = false;
+	private float MinDeltaXToDisable = 0.1f;
+	private float MinDeltaYThatCount = 0.01f;
+	public float AdjustMinDistance = 0.3f;
+	public float AdjustMaxDistance = 5f;
+	public float MaxTimeBetweenLifting = 0.3f;
 	protected OpState m_opstate {
 		get {
 			return m_opstate_internal;
 		}
 		set {
 			if (value != m_opstate_internal) {
+				m_adjustDistanceCandidate = false;
 				Debug.Log ("From State: " + m_opstate_internal.ToString () + " To State: " + value.ToString ());
 			}
 			m_opstate_internal = value;
@@ -99,16 +110,41 @@ public class SoundObjectActs : NetworkBehaviour
 			}
 		}
 	}
-	private bool m_adjustingDistance = false;
+
 	void Transition() {
 		// TODO: back to default when lose / fail to get authority
+		Vector2 delta = new Vector2(0, 0);
+		if (m_adjustDistanceCandidate || m_opstate == OpState.Op_AdjustDistance) {
+			delta = IAAController.Position - m_adjustDistanceTouchPos;
+			m_adjustDistanceTouchPos = IAAController.Position;
+			if (IAAController.TouchDown) {
+				delta = new Vector2(0, 0);
+			}
+		}
+		if (m_adjustDistanceCandidate) {
+			Debug.Log (m_adjustDistanceCount);
+			if (!IAAController.IsTouching) {
+				m_adjustDistanceCandidate = false;
+			}
+			if (Mathf.Abs(delta.x) > MinDeltaXToDisable) {
+				m_adjustDistanceCandidate = false;
+				Debug.Log ("Adjust disabled");
+			}
+			if (delta.y * m_adjustDistanceCount > -1e-9) {
+				m_adjustDistanceCount += delta.y;
+			} else {
+				m_adjustDistanceCount = 0;
+			}
+			if (Mathf.Abs(m_adjustDistanceCount) > MinDeltaYThatCount) {
+				m_opstate = OpState.Op_AdjustDistance;
+			}
+		}
+
 		switch (m_opstate) {
 		case OpState.Op_Default:
-			if (m_adjustingDistance && m_target) {
-				m_opstate = OpState.Op_AdjustDistance;
-			} else if (IAAController.ClickButtonDown && IAAController.IsRightPress && m_target) {
+			if (m_target && IAAController.ClickButtonDown && IAAController.IsRightPress) {
 				m_opstate = OpState.Op_PressAndHoldCandidate;
-			} else if (IAAController.ClickButtonDown && IAAController.IsCenterPress && m_target) {
+			} else if (m_target && IAAController.ClickButtonDown && IAAController.IsCenterPress) {
 				m_opstate = OpState.Op_Moving;
 			}
 			break;
@@ -142,8 +178,17 @@ public class SoundObjectActs : NetworkBehaviour
 			}
 			break;
 		case OpState.Op_AdjustDistance:
-			if (!m_adjustingDistance) {
+			if (IAAController.IsPressed) {
 				m_opstate = OpState.Op_Default;
+			} else if (!IAAController.IsTouching) {
+				if (IAAController.TouchUp) {
+					m_adjustLiftTime = 0;
+				} else {
+					m_adjustLiftTime += Time.deltaTime;
+					if (m_adjustLiftTime > MaxTimeBetweenLifting) {
+						m_opstate = OpState.Op_Default;
+					}
+				}
 			}
 			break;
 		case OpState.Op_Moving:
@@ -154,8 +199,12 @@ public class SoundObjectActs : NetworkBehaviour
 		default:
 			break;
 		}
-	}
-	void StateWork() {
+		if (m_target && IAAController.TouchDown && m_opstate != OpState.Op_AdjustDistance) {
+			m_adjustDistanceCandidate = true;
+			m_adjustDistanceTouchPos = IAAController.Position;
+			m_adjustDistanceCount = 0;
+		}
+
 		switch (m_opstate) {
 		case OpState.Op_Default:
 			break;
@@ -164,6 +213,7 @@ public class SoundObjectActs : NetworkBehaviour
 		case OpState.Op_Recording:
 			break;
 		case OpState.Op_AdjustDistance:
+			adjustDistance (delta.y);
 			break;
 		case OpState.Op_Moving:
 			moveObject();
@@ -176,10 +226,21 @@ public class SoundObjectActs : NetworkBehaviour
 	protected virtual void Update() {
 		if (!isClient)
 			return;
-
 		Transition ();
-		StateWork ();
 		setVolumeFromHeight (transform.position.y);
+	}
+
+	private void adjustDistance(float deltaY) {
+		deltaY = -deltaY;
+		Vector3 deltaFromController = gameObject.transform.position - controller.transform.position;
+		float len = deltaFromController.magnitude;
+		deltaFromController = deltaFromController.normalized;
+		len += len * deltaY * deltaY * Mathf.Sign(deltaY) * 20f;
+		if (len > AdjustMaxDistance || len < AdjustMinDistance) {
+			return;
+		}
+		deltaFromController *= len;
+		gameObject.transform.position = controller.transform.position + deltaFromController;
 	}
 
 	private void moveObject() {
@@ -227,14 +288,12 @@ public class SoundObjectActs : NetworkBehaviour
 		m_target = true;
 		if (m_opstate != OpState.Op_Disabled) {
 			if (!m_looping) {
-				Debug.Log ("Setting hit");
 				IAAPlayer.localPlayer.CmdSetSoundObjectHitState (netId, true);
 				// Decided to not to get Authority until you click on a thing.
 				// To avoid unnatural behaviour when multiple people are pointing on a same object
 				// IAAPlayer.getAuthority (netId);
 			}
 			if (m_opstate == OpState.Op_Recording) {
-				Debug.Log ("Adding time");
 				m_sequencer.addTime ();
 			}
 		}
@@ -245,7 +304,6 @@ public class SoundObjectActs : NetworkBehaviour
 		if (m_opstate != OpState.Op_Disabled) {
 			if (!m_looping) {
 				IAAPlayer.localPlayer.CmdSetSoundObjectHitState (netId, false);
-				// IAAPlayer.removeAuthority (netId);
 			}
 			if (m_opstate == OpState.Op_Recording) {
 				m_sequencer.addTime ();
@@ -266,11 +324,6 @@ public class SoundObjectActs : NetworkBehaviour
 
 	public virtual void OnPointerDown (PointerEventData eventData) {
 		saveMovingInfo (eventData);
-		if ((GvrController.TouchPos - Vector2.one / 2f).sqrMagnitude < .09) {
-			
-//			IAAPlayer.localPlayer.CmdSetSoundObjectMovingState (netId,true);
-//			IAAPlayer.localPlayer.CmdSetSoundObjectPositioned(netId,false);
-		}
 	}
 	#endif
 
@@ -331,53 +384,5 @@ public class SoundObjectActs : NetworkBehaviour
 
 	protected virtual void setVolumeFromHeight(float y) {
 		Debug.Log ("This should not be called");
-	}
-}
-
-public static class IAAController {
-	public static bool ClickButtonUp {
-		get {
-			return GvrController.ClickButtonUp;
-		}
-	}
-	public static bool ClickButtonDown {
-		get {
-			return GvrController.ClickButtonDown;
-		}
-	}
-	public static bool IsPressed {
-		get {
-			return GvrController.ClickButton;
-		}
-	}
-	public static bool TouchUp {
-		get {
-			return GvrController.TouchUp;
-		}
-	}
-	public static bool TouchDown {
-		get {
-			return GvrController.TouchDown;
-		}
-	}
-	public static bool IsTouching {
-		get {
-			return GvrController.IsTouching;
-		}
-	}
-	public static Vector2 Position {
-		get {
-			return GvrController.TouchPos;
-		}
-	}
-	public static bool IsCenterPress {
-		get {
-			return ((Position - Vector2.one / 2f).sqrMagnitude < .09  && IsPressed);
-		}
-	}
-	public static bool IsRightPress {
-		get {
-			return (Position.x > .85f && IsPressed);
-		}
 	}
 }
