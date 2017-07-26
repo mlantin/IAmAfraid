@@ -27,7 +27,6 @@ public class NonVerbalActs : SoundObjectActs
 	void Start() {
 		randomizePaperBall ();
 		if (m_looping) {
-			Debug.LogWarning ("Looping: " + netId);
 			m_highlight.ConstantOnImmediate (HighlightColour);
 			m_sequencer.setCometVisibility (true);
 			Debug.LogWarning (m_sequencer.path.Count);

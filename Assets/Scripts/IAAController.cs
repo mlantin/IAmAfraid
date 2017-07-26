@@ -38,11 +38,17 @@ public static class IAAController {
 			return GvrController.TouchPos;
 		}
 	}
+	/// <summary>
+	/// If touch position is at center and the button is pressed down.
+	/// </summary>
 	public static bool IsCenterPress {
 		get {
 			return ((Position - Vector2.one / 2f).sqrMagnitude < .09  && IsPressed);
 		}
 	}
+	/// <summary>
+	/// If touch position is at right edge and the button is pressed down.
+	/// </summary>
 	public static bool IsRightPress {
 		get {
 			return (Position.x > .85f && IsPressed);

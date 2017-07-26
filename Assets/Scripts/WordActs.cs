@@ -26,7 +26,8 @@ public class WordActs : SoundObjectActs
 	private Vector3 extent_i, position_i; // Using 'i' as a base char to correct shifting
 
 	public GameObject alphabet;
-	public float m_destroyDelay = 360; // The average amount of time in seconds to way for letters to die.
+	[Tooltip("The average amount of time in seconds to way for letters to die.")]
+	public float m_destroyDelay = 360;
 
 	// Use this for initialization
 	void Awake () {

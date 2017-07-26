@@ -21,6 +21,8 @@ public class IAAPlayer : NetworkBehaviour {
 	// other actions can't take place while we're drawing a sequence on any of the objects or words
 	[HideInInspector]
 	public bool m_drawingsequence = false;
+	// Cannot control 2 objects at a time
+	private bool m_isControlling = false;
 
 	bool m_isObserver = false;
 
@@ -59,6 +61,19 @@ public class IAAPlayer : NetworkBehaviour {
 		get {
 			return m_isObserver;
 		}
+	}
+
+	public bool getUserAuth() {
+		if (m_isControlling) {
+			return false;
+		} else {
+			m_isControlling = true;
+			return true;
+		}
+	}
+
+	public void removeUserAuth() {
+		m_isControlling = false;
 	}
 		
 	static public GameObject playerObject {

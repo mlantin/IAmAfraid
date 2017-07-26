@@ -18,12 +18,52 @@ public class SoundObjectActs : NetworkBehaviour
 	protected float m_presstime = 0;
 	protected bool m_target = false; // Whether the reticle is on this object
 	protected const float m_holdtime = .5f; // seconds until we call it a press&hold.
+	protected enum OpState : byte { Op_Default, Op_PressAndHoldCandidate, Op_Recording, Op_AdjustDistance, Op_Moving, Op_Disabled };
+	private OpState m_opstate_internal = OpState.Op_Default;
+	/// <summary>
+	/// Touch position in last frame.
+	/// </summary>
+	private Vector2 m_adjustDistanceTouchPos = new Vector2 (0f, 0f);
+	/// <summary>
+	/// Delta of total movement in Y-axis.
+	/// </summary>
+	private float m_adjustDistanceCount = 0;
+	/// <summary>
+	/// The time after user lift finger in adjusting distance mode.
+	/// </summary>
+	private float m_adjustLiftTime = 0;
+	private bool m_adjustDistanceCandidate = false;
+	/// <summary>
+	/// Adjusting distance disabled when user moved more than this value in X-axis.
+	/// </summary>
+	private float MinDeltaXToDisable = 0.1f;
+	/// <summary>
+	/// Minimum movement to enable adjusting distance mode.
+	/// </summary>
+	private float MinDeltaYThatCount = 0.03f;
+	/// <summary>
+	/// Min distance between object and controller.
+	/// </summary>
+	[Tooltip("Min distance between object and controller")]
+	public float AdjustMinDistance = 0.3f;
+	/// <summary>
+	/// Max distance between object and controller.
+	/// </summary>
+	[Tooltip("Max distance between object and controller")]
+	public float AdjustMaxDistance = 4f;
+	/// <summary>
+	/// The max time between lifting without losing distance control of the object.
+	/// </summary>
+	private float MaxTimeBetweenLifting = 0.4f;
+	private int MaxFrameWaitingForAuthority = 25;
+	private int m_controlWithNoAuth = 0;
 
-	protected bool m_saved = false; // Whether the word is part of an environment that has been saved.
 	protected GameObject m_laser = null;
 	protected GameObject m_reticle = null;
 	protected GameObject m_controller = null;
 	protected GameObject m_tmpSphere = null;
+	protected Plane m_drawingPlane = new Plane ();
+	protected Highlighter m_highlight;
 
 	protected float m_distanceFromPointer = 1.0f;
 	protected Quaternion m_rotq;
@@ -44,9 +84,6 @@ public class SoundObjectActs : NetworkBehaviour
 	public bool m_looping = false;
 	[SyncVar (hook = "setDrawingHighlight")]
 	protected bool m_drawingSequence = false;
-
-	protected Plane m_drawingPlane = new Plane ();
-	protected Highlighter m_highlight;
 
 	protected GameObject laser {
 		get {
@@ -82,17 +119,6 @@ public class SoundObjectActs : NetworkBehaviour
 		m_highlight.ConstantParams (HighlightColour);
 	}
 
-	protected enum OpState : byte { Op_Default, Op_PressAndHoldCandidate, Op_Recording, Op_AdjustDistance, Op_Moving, Op_Disabled };
-	private OpState m_opstate_internal = OpState.Op_Default;
-	private Vector2 m_adjustDistanceTouchPos = new Vector2 (0f, 0f);
-	private float m_adjustDistanceCount = 0;
-	private float m_adjustLiftTime = 0;
-	private bool m_adjustDistanceCandidate = false;
-	private float MinDeltaXToDisable = 0.1f;
-	private float MinDeltaYThatCount = 0.01f;
-	public float AdjustMinDistance = 0.3f;
-	public float AdjustMaxDistance = 5f;
-	public float MaxTimeBetweenLifting = 0.3f;
 	protected OpState m_opstate {
 		get {
 			return m_opstate_internal;
@@ -102,18 +128,22 @@ public class SoundObjectActs : NetworkBehaviour
 				m_adjustDistanceCandidate = false;
 				Debug.Log ("From State: " + m_opstate_internal.ToString () + " To State: " + value.ToString ());
 			}
-			m_opstate_internal = value;
 			if (!hasAuthority && (value == OpState.Op_Moving || value == OpState.Op_AdjustDistance)) {
+				if (!IAAPlayer.localPlayer.getUserAuth())
+					return;
+				m_controlWithNoAuth = 0;
 				IAAPlayer.getAuthority (netId);
 			} else if (hasAuthority && (value != OpState.Op_Moving && value != OpState.Op_AdjustDistance)) {
+				IAAPlayer.localPlayer.removeUserAuth ();
 				IAAPlayer.removeAuthority (netId);
 			}
+			m_opstate_internal = value;
 		}
 	}
 
+	Vector2 delta = new Vector2(0, 0);
 	void Transition() {
 		// TODO: back to default when lose / fail to get authority
-		Vector2 delta = new Vector2(0, 0);
 		if (m_adjustDistanceCandidate || m_opstate == OpState.Op_AdjustDistance) {
 			delta = IAAController.Position - m_adjustDistanceTouchPos;
 			m_adjustDistanceTouchPos = IAAController.Position;
@@ -122,7 +152,7 @@ public class SoundObjectActs : NetworkBehaviour
 			}
 		}
 		if (m_adjustDistanceCandidate) {
-			Debug.Log (m_adjustDistanceCount);
+			// Debug.Log (m_adjustDistanceCount);
 			if (!IAAController.IsTouching) {
 				m_adjustDistanceCandidate = false;
 			}
@@ -179,7 +209,11 @@ public class SoundObjectActs : NetworkBehaviour
 			break;
 		case OpState.Op_AdjustDistance:
 			if (IAAController.IsPressed) {
-				m_opstate = OpState.Op_Default;
+				if (m_target) {
+					m_opstate = OpState.Op_Moving;
+				} else {
+					m_opstate = OpState.Op_Default;
+				}
 			} else if (!IAAController.IsTouching) {
 				if (IAAController.TouchUp) {
 					m_adjustLiftTime = 0;
@@ -190,11 +224,13 @@ public class SoundObjectActs : NetworkBehaviour
 					}
 				}
 			}
+			checkAuthority ();
 			break;
 		case OpState.Op_Moving:
 			if (IAAController.ClickButtonUp) {
 				m_opstate = OpState.Op_Default;
 			}
+			checkAuthority ();
 			break;
 		default:
 			break;
@@ -223,10 +259,35 @@ public class SoundObjectActs : NetworkBehaviour
 		}
 	}
 
+	private void checkAuthority() {
+		if (!hasAuthority) {
+			m_controlWithNoAuth++;
+			if (m_controlWithNoAuth > MaxFrameWaitingForAuthority) {
+				IAAPlayer.localPlayer.removeUserAuth ();
+				IAAPlayer.removeAuthority (netId);
+				m_opstate = OpState.Op_Default;
+			}
+		} else {
+			m_controlWithNoAuth = 0;
+		}
+	}
+
+	bool updated = false;
 	protected virtual void Update() {
 		if (!isClient)
 			return;
-		Transition ();
+		updated = false;
+		if (m_opstate == OpState.Op_Moving || m_opstate == OpState.Op_AdjustDistance) {
+			Transition ();
+			updated = true;
+		}
+	}
+
+	protected virtual void LateUpdate() {
+		if (!isClient)
+			return;
+		if (!updated)
+			Transition ();
 		setVolumeFromHeight (transform.position.y);
 	}
 
@@ -274,7 +335,6 @@ public class SoundObjectActs : NetworkBehaviour
 		m_originalHitPoint = eventData.pointerCurrentRaycast.worldPosition;
 		m_hitPointToController = m_originalHitPoint - controller.transform.position;
 		m_originalHitPointLocal = transform.InverseTransformPoint(m_originalHitPoint);
-
 		Vector3 intersectionLaser = gameObject.transform.position - laser.transform.position;
 		m_rotq = Quaternion.FromToRotation (laser.transform.forward, intersectionLaser);
 		m_distanceFromPointer = intersectionLaser.magnitude;
@@ -338,21 +398,8 @@ public class SoundObjectActs : NetworkBehaviour
 		objectHit = state;
 	}
 
-//	public void setMovingState(bool state) {
-//		m_moving = state;
-//	}
-
 	public void setDrawingSequence(bool val) {
 		m_drawingSequence = val;
-	}
-
-	public bool saved {
-		get {
-			return m_saved;
-		}
-		set {
-			m_saved = value;
-		}
 	}
 
 	// Proxy Functions (END)

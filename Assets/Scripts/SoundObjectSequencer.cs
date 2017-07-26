@@ -11,12 +11,17 @@ public class SoundObjectSequencer : NetworkBehaviour {
 	// gets sent once to the server once the drawing is done.
 
 	public GameObject comet; // The satellite that will trace the sequence path
+	[HideInInspector]
 	public SoundObjectActs m_acts;
+	[HideInInspector]
 	public List<int> playtriggers = new List<int> (); // A list of indices for when looping should be triggered. Anchored to path.
+	[HideInInspector]
 	public List<Vector3> path = new List<Vector3>(); // A list of positions on the path, one for each fixed update
+	[HideInInspector]
 	public bool loadedFromScene = false;
 	// A list of scrub values. Note this list is not the same length as the path
 	// because we don't store the values when the path is not in the word
+	[HideInInspector]
 	public List<float> scrubs = new List<float> (); 
 
 	protected int nextInOut;

@@ -18,9 +18,7 @@ public class LoadAndSaveState : NetworkBehaviour {
 			string jsonText = "";
 
 			if (stateFile.isOnServer) {
-				Debug.Log ("Scene name: " + stateFile.sceneName + "Title: " + stateFile.title);
 				jsonText = Webserver.singleton.getScene (stateFile.sceneName);
-				Debug.Log (jsonText);
 			} else {
 				/*
 				string fileLocation = Path.Combine(Path.Combine("scene", stateFile.sceneName), "config.json");
@@ -73,14 +71,12 @@ public class LoadAndSaveState : NetworkBehaviour {
 			wordscript = obj.GetComponent<WordActs> ();
 			stateList.Add(new WordInfo(wordscript.m_wordstr, wordscript.m_serverFileName, wordscript.m_scale,
 				obj.transform.position, obj.transform.rotation, wordscript.m_looping, wordscript.m_sequencer.playtriggers, wordscript.m_sequencer.path, wordscript.m_sequencer.scrubs));
-			wordscript.saved = true;
 		}
 		NonVerbalActs soundscript;
 		foreach (GameObject obj in sounds) {
 			soundscript = obj.GetComponent<NonVerbalActs> ();
 			stateList.Add (new WordInfo ("", soundscript.m_serverFileName, 1.0f,
 				obj.transform.position, obj.transform.rotation, soundscript.m_looping, soundscript.m_sequencer.playtriggers, soundscript.m_sequencer.path, null));
-			soundscript.saved = true;
 		}
 		/*
 		string filename = Application.persistentDataPath + "/" + Webserver.GenerateFileName ("state") + ".json";
