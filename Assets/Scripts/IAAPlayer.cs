@@ -63,17 +63,19 @@ public class IAAPlayer : NetworkBehaviour {
 		}
 	}
 
-	public bool getUserAuth() {
-		if (m_isControlling) {
+	public bool getUserAuth(NetworkInstanceId netId) {
+		if (m_isControlling != null && m_isControlling != netId) {
 			return false;
 		} else {
-			m_isControlling = true;
+			m_isControlling = netId;
 			return true;
 		}
 	}
 
-	public void removeUserAuth() {
-		m_isControlling = false;
+	public void removeUserAuth(NetworkInstanceId netId) {
+		if (m_isControlling == netId) {
+			m_isControlling = null;
+		}
 	}
 		
 	static public GameObject playerObject {
@@ -137,6 +139,17 @@ public class IAAPlayer : NetworkBehaviour {
 			GameObject obj = NetworkServer.objects [objid].gameObject;
 			SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
 			acts.setHit (state);
+		} catch (KeyNotFoundException e) {
+		}
+
+	}
+
+	[Command]
+	public void CmdSetSoundObjectOwnState(NetworkInstanceId objid, bool state) {
+		try {
+			GameObject obj = NetworkServer.objects [objid].gameObject;
+			SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
+			acts.setOwn (state);
 		} catch (KeyNotFoundException e) {
 		}
 

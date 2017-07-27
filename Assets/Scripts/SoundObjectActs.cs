@@ -146,6 +146,10 @@ public class SoundObjectActs : NetworkBehaviour
 				IAAPlayer.localPlayer.removeUserAuth ();
 				IAAPlayer.removeAuthority (netId);
 			}
+			if (value == OpState.Op_Default) {
+				IAAPlayer.localPlayer.removeUserAuth ();
+				IAAPlayer.removeAuthority (netId);
+			}
 			m_opstate_internal = value;
 		}
 	}
@@ -191,6 +195,7 @@ public class SoundObjectActs : NetworkBehaviour
 			if (IAAController.IsPressed) {
 				m_presstime += Time.deltaTime;
 				if (m_presstime > m_holdtime) {
+					m_presstime = 0;
 					m_opstate = OpState.Op_Recording;
 					m_drawingPlane.SetNormalAndPosition ((Camera.main.transform.position - reticle.transform.position).normalized, reticle.transform.position);
 					if (m_looping)
@@ -272,9 +277,8 @@ public class SoundObjectActs : NetworkBehaviour
 		if (!hasAuthority) {
 			m_controlWithNoAuth++;
 			if (m_controlWithNoAuth > MaxFrameWaitingForAuthority) {
-				IAAPlayer.localPlayer.removeUserAuth ();
-				IAAPlayer.removeAuthority (netId);
 				m_opstate = OpState.Op_Default;
+				m_controlWithNoAuth = 0;
 			}
 		} else {
 			m_controlWithNoAuth = 0;
@@ -411,6 +415,10 @@ public class SoundObjectActs : NetworkBehaviour
 
 	public void setHit(bool state) {
 		objectHit = state;
+	}
+
+	public void setOwn(bool state) {
+		m_owned = state;
 	}
 
 	public void setDrawingSequence(bool val) {
