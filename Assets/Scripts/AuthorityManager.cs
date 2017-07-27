@@ -9,7 +9,12 @@ public class AuthorityManager : NetworkBehaviour {
 	public void CmdAssignObjectAuthority(NetworkInstanceId netInstanceId)
 	{
 		// Assign authority of this objects network instance id to the client
-		bool success = NetworkServer.objects[netInstanceId].AssignClientAuthority(connectionToClient);
+		bool success = false;
+		GameObject obj = NetworkServer.objects [netInstanceId].gameObject;
+		SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
+		if (!acts.m_owned) {
+			success = NetworkServer.objects [netInstanceId].AssignClientAuthority (connectionToClient);
+		}
 		if (success)
 			Debug.Log ("Successfully assigned authority to " + netInstanceId);
 		else

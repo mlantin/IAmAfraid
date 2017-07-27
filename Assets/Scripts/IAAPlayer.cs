@@ -22,7 +22,7 @@ public class IAAPlayer : NetworkBehaviour {
 	[HideInInspector]
 	public bool m_drawingsequence = false;
 	// Cannot control 2 objects at a time
-	private bool m_isControlling = false;
+	private NetworkInstanceId m_isControlling = new NetworkInstanceId(0);
 
 	bool m_isObserver = false;
 
@@ -64,7 +64,8 @@ public class IAAPlayer : NetworkBehaviour {
 	}
 
 	public bool getUserAuth(NetworkInstanceId netId) {
-		if (m_isControlling != null && m_isControlling != netId) {
+		if (m_isControlling.Value != 0 && m_isControlling != netId) {
+			Debug.Log ("Get local Auth failed.");
 			return false;
 		} else {
 			m_isControlling = netId;
@@ -74,7 +75,7 @@ public class IAAPlayer : NetworkBehaviour {
 
 	public void removeUserAuth(NetworkInstanceId netId) {
 		if (m_isControlling == netId) {
-			m_isControlling = null;
+			m_isControlling = new NetworkInstanceId(0);
 		}
 	}
 		
@@ -141,7 +142,6 @@ public class IAAPlayer : NetworkBehaviour {
 			acts.setHit (state);
 		} catch (KeyNotFoundException e) {
 		}
-
 	}
 
 	[Command]
@@ -152,7 +152,6 @@ public class IAAPlayer : NetworkBehaviour {
 			acts.setOwn (state);
 		} catch (KeyNotFoundException e) {
 		}
-
 	}
 
 //	[Command]

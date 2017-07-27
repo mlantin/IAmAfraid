@@ -18,7 +18,8 @@ public class SoundObjectActs : NetworkBehaviour
 	protected float m_presstime = 0;
 	protected bool m_target = false; // Whether the reticle is on this object
 	protected const float m_holdtime = .5f; // seconds until we call it a press&hold.
-	protected enum OpState : byte { Op_Default, Op_PressAndHoldCandidate, Op_Recording, Op_AdjustDistance, Op_Moving, Op_Disabled };
+	protected enum OpState : byte { Op_Default, Op_PressAndHoldCandidate, Op_Recording, 
+		Op_AdjustDistance, Op_Moving, Op_NewSpawn, Op_Disabled };
 	private OpState m_opstate_internal = OpState.Op_Default;
 	/// <summary>
 	/// Touch position in last frame.
@@ -65,7 +66,7 @@ public class SoundObjectActs : NetworkBehaviour
 	protected Plane m_drawingPlane = new Plane ();
 	protected Highlighter m_highlight;
 
-	protected float m_distanceFromPointer = 1.0f;
+	// protected float m_distanceFromPointer = 1.0f;
 	protected Quaternion m_rotq;
 	protected Vector3 m_originalHitPoint;
 	protected Vector3 m_originalHitPointLocal, m_hitPointToController;
@@ -124,7 +125,7 @@ public class SoundObjectActs : NetworkBehaviour
 		base.OnStartClient ();
 		if (m_newSpawn) {
 			saveMovingInfo (null);
-			m_opstate = OpState.Op_Moving;
+			m_opstate = OpState.Op_NewSpawn;
 		}
 	}
 
@@ -137,17 +138,16 @@ public class SoundObjectActs : NetworkBehaviour
 				m_adjustDistanceCandidate = false;
 				Debug.Log ("From State: " + m_opstate_internal.ToString () + " To State: " + value.ToString ());
 			}
-			if (!hasAuthority && (value == OpState.Op_Moving || value == OpState.Op_AdjustDistance)) {
-				if (!IAAPlayer.localPlayer.getUserAuth())
+			if (!hasAuthority && (value == OpState.Op_Moving || value == OpState.Op_AdjustDistance || value == OpState.Op_NewSpawn)) {
+				if (m_owned) // We don't want to mess things up when others are recording
 					return;
+				if (!IAAPlayer.localPlayer.getUserAuth (netId)) {
+					return;
+				}
 				m_controlWithNoAuth = 0;
 				IAAPlayer.getAuthority (netId);
-			} else if (hasAuthority && (value != OpState.Op_Moving && value != OpState.Op_AdjustDistance)) {
-				IAAPlayer.localPlayer.removeUserAuth ();
-				IAAPlayer.removeAuthority (netId);
-			}
-			if (value == OpState.Op_Default) {
-				IAAPlayer.localPlayer.removeUserAuth ();
+			} else if (value == OpState.Op_Default || (hasAuthority && (value != OpState.Op_Moving && value != OpState.Op_AdjustDistance && value != OpState.Op_NewSpawn))) {
+				IAAPlayer.localPlayer.removeUserAuth (netId);
 				IAAPlayer.removeAuthority (netId);
 			}
 			m_opstate_internal = value;
@@ -157,7 +157,7 @@ public class SoundObjectActs : NetworkBehaviour
 	Vector2 delta = new Vector2(0, 0);
 	void Transition() {
 		// TODO: back to default when lose / fail to get authority
-		if (m_adjustDistanceCandidate || m_opstate == OpState.Op_AdjustDistance) {
+		if (m_adjustDistanceCandidate || m_opstate == OpState.Op_AdjustDistance || m_opstate == OpState.Op_NewSpawn) {
 			delta = IAAController.Position - m_adjustDistanceTouchPos;
 			m_adjustDistanceTouchPos = IAAController.Position;
 			if (IAAController.TouchDown) {
@@ -196,6 +196,7 @@ public class SoundObjectActs : NetworkBehaviour
 				m_presstime += Time.deltaTime;
 				if (m_presstime > m_holdtime) {
 					m_presstime = 0;
+					IAAPlayer.localPlayer.CmdSetSoundObjectOwnState (netId, true);
 					m_opstate = OpState.Op_Recording;
 					m_drawingPlane.SetNormalAndPosition ((Camera.main.transform.position - reticle.transform.position).normalized, reticle.transform.position);
 					if (m_looping)
@@ -214,6 +215,7 @@ public class SoundObjectActs : NetworkBehaviour
 			break;
 		case OpState.Op_Recording:
 			if (!IAAController.IsPressed) {
+				IAAPlayer.localPlayer.CmdSetSoundObjectOwnState (netId, false);
 				m_opstate = OpState.Op_Default;
 				m_sequencer.endSequence();
 				IAAPlayer.localPlayer.CmdSetSoundObjectDrawingSequence(netId,false);
@@ -246,6 +248,12 @@ public class SoundObjectActs : NetworkBehaviour
 			}
 			checkAuthority ();
 			break;
+		case OpState.Op_NewSpawn:
+			if (IAAController.ClickButtonDown) {
+				m_opstate = OpState.Op_Default;
+			}
+			checkAuthority ();
+			break;
 		default:
 			break;
 		}
@@ -268,6 +276,10 @@ public class SoundObjectActs : NetworkBehaviour
 		case OpState.Op_Moving:
 			moveObject();
 			break;
+		case OpState.Op_NewSpawn:
+			moveObject();
+			adjustDistance (delta.y);
+			break;
 		default:
 			break;
 		}
@@ -276,6 +288,7 @@ public class SoundObjectActs : NetworkBehaviour
 	private void checkAuthority() {
 		if (!hasAuthority) {
 			m_controlWithNoAuth++;
+			Debug.Log ("Waiting for auth: " + m_controlWithNoAuth.ToString() + " Frames");
 			if (m_controlWithNoAuth > MaxFrameWaitingForAuthority) {
 				m_opstate = OpState.Op_Default;
 				m_controlWithNoAuth = 0;
@@ -320,9 +333,10 @@ public class SoundObjectActs : NetworkBehaviour
 	private void moveObject() {
 		Transform letterTrans = transform.Find("Letters");
 		// We have picked an object and we're moving it...
-		Vector3 newdir = m_rotq*laser.transform.forward;
-		Vector3 newpos = laser.transform.position+newdir*m_distanceFromPointer;
-		if (this.GetType().Equals(typeof(WordActs))) {
+		Vector3 newdir = m_rotq * laser.transform.forward;
+		float distance = (gameObject.transform.position - laser.transform.position).magnitude;
+		Vector3 newpos = laser.transform.position + newdir * distance;
+		if (this is WordActs && m_opstate != OpState.Op_NewSpawn) {
 			Quaternion deltaRotation = controller.transform.rotation * Quaternion.Inverse(m_originalControllerRotation);
 			Vector3 tGlobal = transform.TransformPoint(m_originalHitPointLocal);
 			transform.position = tGlobal; 
@@ -336,7 +350,7 @@ public class SoundObjectActs : NetworkBehaviour
 		transform.position = newpos;
 		transform.rotation = GvrController.Orientation;
 
-		if (this.GetType().Equals(typeof(WordActs))) {
+		if (this is WordActs && m_opstate != OpState.Op_NewSpawn) {
 			letterTrans.localPosition += m_originalHitPointLocal;
 			transform.position = transform.TransformPoint(-m_originalHitPointLocal);
 		}
@@ -356,7 +370,7 @@ public class SoundObjectActs : NetworkBehaviour
 		m_hitPointToController = m_originalHitPoint - controller.transform.position;
 		m_originalHitPointLocal = transform.InverseTransformPoint(m_originalHitPoint);
 		m_rotq = Quaternion.FromToRotation (laser.transform.forward, intersectionLaser);
-		m_distanceFromPointer = intersectionLaser.magnitude;
+		// m_distanceFromPointer = intersectionLaser.magnitude;
 	}
 	
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
