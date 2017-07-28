@@ -24,18 +24,9 @@ public class NonVerbalActs : SoundObjectActs
 		fetchAudio (m_serverFileName);
 	}
 
-	void Start() {
+	protected override void Start() {
 		randomizePaperBall ();
-		if (m_looping) {
-			m_highlight.ConstantOnImmediate (HighlightColour);
-			m_sequencer.setCometVisibility (true);
-			if (!m_sequencer.loadedFromScene)
-				IAAPlayer.localPlayer.CmdGetSoundObjectSequencePath (netId);
-			else
-				IAAPlayer.localPlayer.CmdSoundObjectStartSequencer (netId);
-		} else if (m_drawingSequence) {
-			m_highlight.FlashingOn ();
-		}
+		base.Start ();
 	}
 		
 	void FixedUpdate() {
@@ -118,20 +109,6 @@ public class NonVerbalActs : SoundObjectActs
 		Vector3 maxvert;
 		maxvert = mesh.bounds.max;
 		col.radius = Mathf.Max(Mathf.Max(maxvert.x,maxvert.y),maxvert.z)+ .02f;
-	}
-
-	public override void setLooping(bool val) {
-		m_looping = val;
-		if (IAAPlayer.localPlayer == null) {
-			return;
-		}
-		if (m_looping) {
-			m_highlight.ConstantOnImmediate (HighlightColour);
-			IAAPlayer.localPlayer.CmdSoundObjectStartSequencer(netId);
-		} else {
-			m_highlight.ConstantOffImmediate ();
-			IAAPlayer.localPlayer.CmdSoundObjectStopSequencer(netId);
-		}
 	}
 
 }

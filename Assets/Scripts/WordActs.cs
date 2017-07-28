@@ -53,26 +53,15 @@ public class WordActs : SoundObjectActs
 		fetchAudio (m_serverFileName);
 	}
 
-	void Start() {
+	protected override void Start() {
 		addLetters (m_wordstr);
-
-		if (m_looping) {
-			// Debug.LogWarning ("Looping: " + netId);
-			m_highlight.ConstantOnImmediate (HighlightColour);
-			m_sequencer.setCometVisibility (true);
-			if (!m_sequencer.loadedFromScene)
-				IAAPlayer.localPlayer.CmdGetSoundObjectSequencePath (netId);
-			else
-				IAAPlayer.localPlayer.CmdSoundObjectStartSequencer (netId);
-		} else if (m_drawingSequence) {
-			m_highlight.FlashingOn ();
-		}
+		base.Start ();
 	}
 
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 
 	public override void OnGvrPointerHover(PointerEventData eventData) {
-		if (!m_looping) {
+		if (!m_looping && m_soundOwner == IAAPlayer.localPlayer.netId.Value) {
 			m_granOffset = getScrubValue ().x / bbdim.x + 0.5f;
 			IAAPlayer.localPlayer.CmdWordSetGranOffset (netId, m_granOffset);
 		}
@@ -104,8 +93,9 @@ public class WordActs : SoundObjectActs
 		return transform.InverseTransformPoint (reticle.transform.position);
 	}
 
-	public void setGranOffset(float s) {
-		m_granOffset = s;
+	public void setGranOffset(NetworkInstanceId playerId, float s) {
+		if (playerId.Value == m_soundOwner)
+			m_granOffset = s;
 	}
 
 	public void setLocalGranOffset(float s) {
@@ -150,21 +140,6 @@ public class WordActs : SoundObjectActs
 			m_mixer.SetFloat ("Rate", 100f);
 		} else {
 			m_mixer.SetFloat ("Rate", 0f);
-		}
-	}
-
-
-	public override void setLooping(bool loop) {
-		m_looping = loop;
-		if (IAAPlayer.localPlayer == null) {
-			return;
-		}
-		if (m_looping) {
-			m_highlight.ConstantOnImmediate (HighlightColour);
-			IAAPlayer.localPlayer.CmdSoundObjectStartSequencer(netId);
-		} else {
-			m_highlight.ConstantOffImmediate ();
-			IAAPlayer.localPlayer.CmdSoundObjectStopSequencer(netId);
 		}
 	}
 

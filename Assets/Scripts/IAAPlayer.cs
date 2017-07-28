@@ -122,6 +122,20 @@ public class IAAPlayer : NetworkBehaviour {
 			destroyscript.RpcActivate ();
 	}
 
+	[Command]
+	public void CmdLineUpForOwner(NetworkInstanceId objid) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
+		acts.soundOwnerIn (netId);
+	}
+
+	[Command]
+	public void CmdQuitLineForOwner(NetworkInstanceId objid) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
+		acts.soundOwnerOut (netId);
+	}
+
 //	[Command]
 //	public void CmdSetSoundObjectPositioned(NetworkInstanceId objid, bool state) {
 //		NetworkIdentity netid = NetworkServer.objects [objid];
@@ -134,24 +148,21 @@ public class IAAPlayer : NetworkBehaviour {
 //			netid.RemoveClientAuthority (connectionToClient);
 //	}
 
-	[Command]
-	public void CmdSetSoundObjectHitState(NetworkInstanceId objid, bool state) {
-		try {
-			GameObject obj = NetworkServer.objects [objid].gameObject;
-			SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
-			acts.setHit (state);
-		} catch (KeyNotFoundException e) {
-		}
-	}
+//	[Command]
+//	public void CmdSetSoundObjectHitState(NetworkInstanceId objid, bool state) {
+//		try {
+//			GameObject obj = NetworkServer.objects [objid].gameObject;
+//			SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
+//			acts.setHit (state, netId);
+//		} catch (KeyNotFoundException e) {
+//		}
+//	}
 
 	[Command]
-	public void CmdSetSoundObjectOwnState(NetworkInstanceId objid, bool state) {
-		try {
-			GameObject obj = NetworkServer.objects [objid].gameObject;
-			SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
-			acts.setOwn (state);
-		} catch (KeyNotFoundException e) {
-		}
+	public void CmdSetSoundObjectRecorder(NetworkInstanceId objid, bool state) {
+		GameObject obj = NetworkServer.objects [objid].gameObject;
+		SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
+		acts.setRecorder (netId, state);
 	}
 
 //	[Command]
@@ -187,7 +198,6 @@ public class IAAPlayer : NetworkBehaviour {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
 		SoundObjectSequencer seq = obj.GetComponent<SoundObjectSequencer> ();
 		seq.RpcStartSequencer ();
-		CmdSetSoundObjectHitState (objid, true);
 	}
 
 	[Command]
@@ -201,7 +211,7 @@ public class IAAPlayer : NetworkBehaviour {
 	public void CmdWordSetGranOffset(NetworkInstanceId objid, float f) {
 		GameObject obj = NetworkServer.objects [objid].gameObject;
 		WordActs acts = obj.GetComponent<WordActs> ();
-		acts.setGranOffset (f);
+		acts.setGranOffset (netId, f);
 	}
 		
 	[Command]

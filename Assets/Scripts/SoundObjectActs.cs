@@ -78,11 +78,20 @@ public class SoundObjectActs : NetworkBehaviour
 	protected AudioSource m_wordSource;
 	[HideInInspector][SyncVar]
 	public string m_serverFileName = "";
+	/// <summary>
+	/// An object is owned when someone is recording on it.
+	/// </summary>
 	[HideInInspector][SyncVar]
-	public bool m_owned = false;
+	public uint m_recorder = 0;
+	/// <summary>
+	/// The player who is controlling the sound/granular offset of the object is its sound owner.
+	/// </summary>
+	[HideInInspector][SyncVar]
+	public uint m_soundOwner = 0;
+	protected List<uint> m_soundOwnerQ = new List<uint>();
 	[SyncVar (hook = "playSoundHook")]
 	protected bool objectHit = false;
-	[SyncVar (hook = "setLoopingHook")]
+	[SyncVar (hook = "setLooping")]
 	public bool m_looping = false;
 	[SyncVar (hook = "setDrawingHighlight")]
 	protected bool m_drawingSequence = false;
@@ -129,6 +138,19 @@ public class SoundObjectActs : NetworkBehaviour
 		}
 	}
 
+	protected virtual void Start() {
+		if (m_looping) {
+			m_highlight.ConstantOnImmediate (HighlightColour);
+			m_sequencer.setCometVisibility (true);
+			if (!m_sequencer.loadedFromScene)
+				IAAPlayer.localPlayer.CmdGetSoundObjectSequencePath (netId);
+			else
+				IAAPlayer.localPlayer.CmdSoundObjectStartSequencer (netId);
+		} else if (m_drawingSequence) {
+			m_highlight.FlashingOn ();
+		}
+	}
+
 	protected OpState m_opstate {
 		get {
 			return m_opstate_internal;
@@ -139,7 +161,7 @@ public class SoundObjectActs : NetworkBehaviour
 				Debug.Log ("From State: " + m_opstate_internal.ToString () + " To State: " + value.ToString ());
 			}
 			if (!hasAuthority && (value == OpState.Op_Moving || value == OpState.Op_AdjustDistance || value == OpState.Op_NewSpawn)) {
-				if (m_owned) // We don't want to mess things up when others are recording
+				if (m_recorder != 0) // We don't want to mess things up when others are recording
 					return;
 				if (!IAAPlayer.localPlayer.getUserAuth (netId)) {
 					return;
@@ -156,7 +178,7 @@ public class SoundObjectActs : NetworkBehaviour
 
 	Vector2 delta = new Vector2(0, 0);
 	void Transition() {
-		// TODO: back to default when lose / fail to get authority
+		// TODO: back to default when lose / fail to get recorder registered
 		if (m_adjustDistanceCandidate || m_opstate == OpState.Op_AdjustDistance || m_opstate == OpState.Op_NewSpawn) {
 			delta = IAAController.Position - m_adjustDistanceTouchPos;
 			m_adjustDistanceTouchPos = IAAController.Position;
@@ -192,40 +214,43 @@ public class SoundObjectActs : NetworkBehaviour
 			}
 			break;
 		case OpState.Op_PressAndHoldCandidate:
-			if (IAAController.IsPressed) {
-				m_presstime += Time.deltaTime;
-				if (m_presstime > m_holdtime) {
-					m_presstime = 0;
-					IAAPlayer.localPlayer.CmdSetSoundObjectOwnState (netId, true);
-					m_opstate = OpState.Op_Recording;
-					m_drawingPlane.SetNormalAndPosition ((Camera.main.transform.position - reticle.transform.position).normalized, reticle.transform.position);
-					if (m_looping)
-						IAAPlayer.localPlayer.CmdToggleSoundObjectLoopingState (netId);
-					IAAPlayer.localPlayer.CmdSetSoundObjectDrawingSequence (netId, true);
-					IAAPlayer.localPlayer.CmdSetSoundObjectHitState (netId, false);
-					IAAPlayer.localPlayer.CmdSetSoundObjectHitState (netId, true);
-					m_sequencer.startNewSequence ();
-				}
-			} else {
-				// Not long enough. Change looping state.
-				IAAPlayer.localPlayer.CmdToggleSoundObjectLoopingState (netId);
+			if (!m_target) {
 				m_presstime = 0;
 				m_opstate = OpState.Op_Default;
+			} else {
+				if (IAAController.IsPressed) {
+					m_presstime += Time.deltaTime;
+					if (m_presstime > m_holdtime && m_recorder == 0 && m_target) {
+						m_presstime = 0;
+						IAAPlayer.localPlayer.CmdSetSoundObjectRecorder (netId, true);
+						m_opstate = OpState.Op_Recording;
+						m_drawingPlane.SetNormalAndPosition ((Camera.main.transform.position - reticle.transform.position).normalized, reticle.transform.position);
+						if (m_looping)
+							IAAPlayer.localPlayer.CmdToggleSoundObjectLoopingState (netId);
+						IAAPlayer.localPlayer.CmdSetSoundObjectDrawingSequence (netId, true);
+						m_sequencer.startNewSequence ();
+					}
+				} else {
+					// Not long enough. Change looping state.
+					IAAPlayer.localPlayer.CmdToggleSoundObjectLoopingState (netId);
+					m_presstime = 0;
+					m_opstate = OpState.Op_Default;
+				}
 			}
 			break;
 		case OpState.Op_Recording:
 			if (!IAAController.IsPressed) {
-				IAAPlayer.localPlayer.CmdSetSoundObjectOwnState (netId, false);
+				IAAPlayer.localPlayer.CmdSetSoundObjectRecorder (netId, false);
 				m_opstate = OpState.Op_Default;
 				m_sequencer.endSequence();
-				IAAPlayer.localPlayer.CmdSetSoundObjectDrawingSequence(netId,false);
+				IAAPlayer.localPlayer.CmdSetSoundObjectDrawingSequence(netId, false);
 				if (!m_looping)
 					IAAPlayer.localPlayer.CmdToggleSoundObjectLoopingState(netId);
 			}
 			break;
 		case OpState.Op_AdjustDistance:
 			if (IAAController.IsPressed) {
-				if (m_target) {
+				if (m_target && IAAController.IsCenterPress) {
 					m_opstate = OpState.Op_Moving;
 				} else {
 					m_opstate = OpState.Op_Default;
@@ -372,6 +397,38 @@ public class SoundObjectActs : NetworkBehaviour
 		m_rotq = Quaternion.FromToRotation (laser.transform.forward, intersectionLaser);
 		// m_distanceFromPointer = intersectionLaser.magnitude;
 	}
+
+	public void updateSoundOwner() {
+		if (m_recorder != 0) {
+			m_soundOwner = m_recorder;
+			setHit (m_soundOwnerQ.IndexOf(m_recorder) != -1);
+		} else {
+			if (m_soundOwnerQ.Count > 0) {
+				m_soundOwner = m_soundOwnerQ [0];
+				setHit (true);
+			} else {
+				m_soundOwner = 0;
+				setHit (false);
+			}
+		}
+	}
+
+	public void setHit(bool state) {
+		objectHit = state;
+	}
+
+	public void soundOwnerIn(NetworkInstanceId playerId) {
+		m_soundOwnerQ.Add (playerId.Value);
+		updateSoundOwner ();
+	}
+
+	public void soundOwnerOut(NetworkInstanceId playerId) {
+		bool result = m_soundOwnerQ.Remove (playerId.Value);
+		if (!result) {
+			Debug.LogError ("Deregister sound owner failed");
+		}
+		updateSoundOwner ();
+	}
 	
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 	public virtual void OnGvrPointerHover(PointerEventData eventData) {
@@ -379,28 +436,17 @@ public class SoundObjectActs : NetworkBehaviour
 
 	public void OnPointerEnter (PointerEventData eventData) {
 		m_target = true;
-		if (m_opstate != OpState.Op_Disabled) {
-			if (!m_looping) {
-				IAAPlayer.localPlayer.CmdSetSoundObjectHitState (netId, true);
-				// Decided to not to get Authority until you click on a thing.
-				// To avoid unnatural behaviour when multiple people are pointing on a same object
-				// IAAPlayer.getAuthority (netId);
-			}
-			if (m_opstate == OpState.Op_Recording) {
-				m_sequencer.addTime ();
-			}
+		IAAPlayer.localPlayer.CmdLineUpForOwner (netId);
+		if (m_opstate == OpState.Op_Recording) {
+			m_sequencer.addTime ();
 		}
 	}
 
 	public void OnPointerExit(PointerEventData eventData){
 		m_target = false;
-		if (m_opstate != OpState.Op_Disabled) {
-			if (!m_looping) {
-				IAAPlayer.localPlayer.CmdSetSoundObjectHitState (netId, false);
-			}
-			if (m_opstate == OpState.Op_Recording) {
-				m_sequencer.addTime ();
-			}
+		IAAPlayer.localPlayer.CmdQuitLineForOwner (netId);
+		if (m_opstate == OpState.Op_Recording) {
+			m_sequencer.addTime ();
 		}
 	}
 
@@ -427,12 +473,13 @@ public class SoundObjectActs : NetworkBehaviour
 		m_looping = !m_looping;
 	}
 
-	public void setHit(bool state) {
-		objectHit = state;
-	}
-
-	public void setOwn(bool state) {
-		m_owned = state;
+	public void setRecorder(NetworkInstanceId playerId, bool state) {
+		if (m_recorder == 0 && state) {
+			m_recorder = playerId.Value;
+		} else if (!state && m_recorder == playerId.Value) {
+			m_recorder = 0;
+		}
+		updateSoundOwner ();
 	}
 
 	public void setDrawingSequence(bool val) {
@@ -445,8 +492,19 @@ public class SoundObjectActs : NetworkBehaviour
 	public void playSoundHook(bool state) {
 		playSound (state);
 	}
-	public void setLoopingHook(bool state) {
-		setLooping (state);
+
+	public void setLooping(bool val) {
+		m_looping = val;
+		if (IAAPlayer.localPlayer == null) {
+			return;
+		}
+		if (m_looping) {
+			m_highlight.ConstantOnImmediate (HighlightColour);
+			IAAPlayer.localPlayer.CmdSoundObjectStartSequencer(netId);
+		} else {
+			m_highlight.ConstantOffImmediate ();
+			IAAPlayer.localPlayer.CmdSoundObjectStopSequencer(netId);
+		}
 	}
 
 	public void setDrawingHighlight(bool val) {
@@ -459,10 +517,6 @@ public class SoundObjectActs : NetworkBehaviour
 	}
 
 	public virtual void playSound(bool state) {
-		Debug.Log ("This should not be called");
-	}
-
-	public virtual void setLooping(bool state) {
 		Debug.Log ("This should not be called");
 	}
 

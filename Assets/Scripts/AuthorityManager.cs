@@ -12,7 +12,7 @@ public class AuthorityManager : NetworkBehaviour {
 		bool success = false;
 		GameObject obj = NetworkServer.objects [netInstanceId].gameObject;
 		SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
-		if (!acts.m_owned) {
+		if (acts.m_recorder == 0) {
 			success = NetworkServer.objects [netInstanceId].AssignClientAuthority (connectionToClient);
 		}
 		if (success)
