@@ -62,14 +62,6 @@ public class Hv_slo_Granular_Editor : Editor {
     if (!isEnabled) {
       EditorGUILayout.LabelField("Press Play!",  EditorStyles.centeredGreyMiniLabel);
     }
-    // events
-    GUI.enabled = isEnabled;
-    EditorGUILayout.Space();
-    // init
-    if (GUILayout.Button("init")) {
-      _dsp.SendEvent(Hv_slo_Granular_AudioLib.Event.Init);
-    }
-    
     GUILayout.EndVertical();
 
     // parameters
@@ -78,21 +70,21 @@ public class Hv_slo_Granular_Editor : Editor {
     EditorGUILayout.Space();
     EditorGUI.indentLevel++;
     
-    // grainDen_vari
+    // grainDel_vari
     GUILayout.BeginHorizontal();
-    float grainDen_vari = _dsp.GetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainden_vari);
-    float newGrainden_vari = EditorGUILayout.Slider("grainDen_vari", grainDen_vari, 0.0f, 100.0f);
-    if (grainDen_vari != newGrainden_vari) {
-      _dsp.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainden_vari, newGrainden_vari);
+    float grainDel_vari = _dsp.GetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Graindel_vari);
+    float newGraindel_vari = EditorGUILayout.Slider("grainDel_vari", grainDel_vari, 0.0f, 100.0f);
+    if (grainDel_vari != newGraindel_vari) {
+      _dsp.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Graindel_vari, newGraindel_vari);
     }
     GUILayout.EndHorizontal();
     
-    // grainDensity
+    // grainDelay
     GUILayout.BeginHorizontal();
-    float grainDensity = _dsp.GetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Graindensity);
-    float newGraindensity = EditorGUILayout.Slider("grainDensity", grainDensity, 0.0f, 1000.0f);
-    if (grainDensity != newGraindensity) {
-      _dsp.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Graindensity, newGraindensity);
+    float grainDelay = _dsp.GetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Graindelay);
+    float newGraindelay = EditorGUILayout.Slider("grainDelay", grainDelay, 0.0f, 5000.0f);
+    if (grainDelay != newGraindelay) {
+      _dsp.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Graindelay, newGraindelay);
     }
     GUILayout.EndHorizontal();
     
@@ -153,7 +145,7 @@ public class Hv_slo_Granular_Editor : Editor {
     // grainVolume
     GUILayout.BeginHorizontal();
     float grainVolume = _dsp.GetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainvolume);
-    float newGrainvolume = EditorGUILayout.Slider("grainVolume", grainVolume, 0.0f, 100.0f);
+    float newGrainvolume = EditorGUILayout.Slider("grainVolume", grainVolume, 0.0f, 1.0f);
     if (grainVolume != newGrainvolume) {
       _dsp.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainvolume, newGrainvolume);
     }
@@ -184,31 +176,19 @@ public class Hv_slo_Granular_Editor : Editor {
 [RequireComponent (typeof (AudioSource))]
 public class Hv_slo_Granular_AudioLib : MonoBehaviour {
   
-  // Events are used to trigger bangs in the patch context (thread-safe).
-  // Example usage:
-  /*
-    void Start () {
-        Hv_slo_Granular_AudioLib script = GetComponent<Hv_slo_Granular_AudioLib>();
-        script.SendEvent(Hv_slo_Granular_AudioLib.Event.Init);
-    }
-  */
-  public enum Event : uint {
-    Init = 0xB63E2A96,
-  }
-  
   // Parameters are used to send float messages into the patch context (thread-safe).
   // Example usage:
   /*
     void Start () {
         Hv_slo_Granular_AudioLib script = GetComponent<Hv_slo_Granular_AudioLib>();
         // Get and set a parameter
-        float grainDen_vari = script.GetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainden_vari);
-        script.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainden_vari, grainDen_vari + 0.1f);
+        float grainDel_vari = script.GetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Graindel_vari);
+        script.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Graindel_vari, grainDel_vari + 0.1f);
     }
   */
   public enum Parameter : uint {
-    Grainden_vari = 0xAC179442,
-    Graindensity = 0x418F6E9B,
+    Graindel_vari = 0x84FE9908,
+    Graindelay = 0x5B541F0D,
     Graindur_vari = 0x27CD066F,
     Grainduration = 0xA85E3A53,
     Grainpos_vari = 0x88BC54B0,
@@ -244,15 +224,15 @@ public class Hv_slo_Granular_AudioLib : MonoBehaviour {
   }
   public delegate void FloatMessageReceived(FloatMessage message);
   public FloatMessageReceived FloatReceivedCallback;
-  public float grainDen_vari = 50.0f;
-  public float grainDensity = 100.0f;
-  public float grainDur_vari = 50.0f;
+  public float grainDel_vari = 5.0f;
+  public float grainDelay = 0.0f;
+  public float grainDur_vari = 5.0f;
   public float grainDuration = 100.0f;
-  public float grainPos_vari = 50.0f;
+  public float grainPos_vari = 1.0f;
   public float grainPosition = 0.5f;
   public float grainRate = 1.0f;
-  public float grainRate_vari = 50.0f;
-  public float grainVolume = 100.0f;
+  public float grainRate_vari = 1.0f;
+  public float grainVolume = 1.0f;
   public float metro = 0.0f;
   public float source_Length = 441000.0f;
 
@@ -267,16 +247,11 @@ public class Hv_slo_Granular_AudioLib : MonoBehaviour {
     _context.RegisterSendHook();
   }
   
-  // see Hv_slo_Granular_AudioLib.Event for definitions
-  public void SendEvent(Hv_slo_Granular_AudioLib.Event e) {
-    if (IsInstantiated()) _context.SendBangToReceiver((uint) e);
-  }
-  
   // see Hv_slo_Granular_AudioLib.Parameter for definitions
   public float GetFloatParameter(Hv_slo_Granular_AudioLib.Parameter param) {
     switch (param) {
-      case Parameter.Grainden_vari: return grainDen_vari;
-      case Parameter.Graindensity: return grainDensity;
+      case Parameter.Graindel_vari: return grainDel_vari;
+      case Parameter.Graindelay: return grainDelay;
       case Parameter.Graindur_vari: return grainDur_vari;
       case Parameter.Grainduration: return grainDuration;
       case Parameter.Grainpos_vari: return grainPos_vari;
@@ -292,14 +267,14 @@ public class Hv_slo_Granular_AudioLib : MonoBehaviour {
 
   public void SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter param, float x) {
     switch (param) {
-      case Parameter.Grainden_vari: {
+      case Parameter.Graindel_vari: {
         x = Mathf.Clamp(x, 0.0f, 100.0f);
-        grainDen_vari = x;
+        grainDel_vari = x;
         break;
       }
-      case Parameter.Graindensity: {
-        x = Mathf.Clamp(x, 0.0f, 1000.0f);
-        grainDensity = x;
+      case Parameter.Graindelay: {
+        x = Mathf.Clamp(x, 0.0f, 5000.0f);
+        grainDelay = x;
         break;
       }
       case Parameter.Graindur_vari: {
@@ -333,7 +308,7 @@ public class Hv_slo_Granular_AudioLib : MonoBehaviour {
         break;
       }
       case Parameter.Grainvolume: {
-        x = Mathf.Clamp(x, 0.0f, 100.0f);
+        x = Mathf.Clamp(x, 0.0f, 1.0f);
         grainVolume = x;
         break;
       }
@@ -372,8 +347,8 @@ public class Hv_slo_Granular_AudioLib : MonoBehaviour {
   }
   
   private void Start() {
-    _context.SendFloatToReceiver((uint) Parameter.Grainden_vari, grainDen_vari);
-    _context.SendFloatToReceiver((uint) Parameter.Graindensity, grainDensity);
+    _context.SendFloatToReceiver((uint) Parameter.Graindel_vari, grainDel_vari);
+    _context.SendFloatToReceiver((uint) Parameter.Graindelay, grainDelay);
     _context.SendFloatToReceiver((uint) Parameter.Graindur_vari, grainDur_vari);
     _context.SendFloatToReceiver((uint) Parameter.Grainduration, grainDuration);
     _context.SendFloatToReceiver((uint) Parameter.Grainpos_vari, grainPos_vari);
