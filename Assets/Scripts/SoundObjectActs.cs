@@ -399,6 +399,7 @@ public class SoundObjectActs : NetworkBehaviour
 	}
 
 	public void updateSoundOwner() {
+		Debug.Log ("Updating owner!");
 		if (m_recorder != 0) {
 			m_soundOwner = m_recorder;
 			setHit (m_soundOwnerQ.IndexOf(m_recorder) != -1);
@@ -490,6 +491,8 @@ public class SoundObjectActs : NetworkBehaviour
 
 	// SyncVar does not call overrided function
 	public void playSoundHook(bool state) {
+		if (m_looping)
+			return;
 		playSound (state);
 	}
 

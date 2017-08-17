@@ -70,6 +70,7 @@ public class WordActs : SoundObjectActs
 
 	public override void OnGvrPointerHover(PointerEventData eventData) {
 		if (!m_looping && m_soundOwner == IAAPlayer.localPlayer.netId.Value) {
+			// Debug.Log ("I'm hovering on you");
 			m_granOffset = getScrubValue ().x / bbdim.x + 0.5f;
 			setGrainPosition ();
 			IAAPlayer.localPlayer.CmdWordSetGranOffset (netId, m_granOffset);
@@ -95,6 +96,7 @@ public class WordActs : SoundObjectActs
 		if (m_looping) {
 			if (granular)
 				granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition, m_localGranOffset);
+
 		} else {
 			if (granular)
 				granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition, m_granOffset);
