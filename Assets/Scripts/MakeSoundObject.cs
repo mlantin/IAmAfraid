@@ -24,8 +24,6 @@ public class MakeSoundObject : NetworkBehaviour {
 	/// <param name="sound">Wordinfo. Spawn as non verbal if sound.word equals ""</param>
 	/// <param name="isNewObject">Will have authority if it is newly generated.</param>
 	public void spawnSoundObject(WordInfo sound, bool isNewObject) {
-		// Right now this only gets called when it's a preload so we can assume that it is a preload
-		// and set the variable in the gameobject indicating that.
 		GameObject soundobj;
 		if (string.IsNullOrEmpty(sound.word)) {
 			soundobj = (GameObject)Instantiate (nonVerbalPrefab);

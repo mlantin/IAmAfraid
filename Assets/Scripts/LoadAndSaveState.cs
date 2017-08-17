@@ -44,8 +44,11 @@ public class LoadAndSaveState : NetworkBehaviour {
 				*/
 				IAAScene t = new IAAScene (stateFile.title, stateFile.sceneName, null);
 			}
-
-			List<WordInfo> wordlist = IAAScene.fromJSON(jsonText).wordInfoList;
+				
+			List<WordInfo> wordlist = new List<WordInfo>();
+			if (!string.IsNullOrEmpty (jsonText)) {
+				wordlist = IAAScene.fromJSON(jsonText).wordInfoList;
+			}
 			MakeSoundObject creatorObject = GetComponent<MakeSoundObject> ();
 
 			if (wordlist != null) {

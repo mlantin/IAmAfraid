@@ -74,6 +74,7 @@ public class SoundObjectActs : NetworkBehaviour
 
 	[HideInInspector]
 	public SoundObjectSequencer m_sequencer;
+	[HideInInspector][SyncVar]
 	public bool m_newSpawn = false;
 	protected AudioSource m_wordSource;
 	[HideInInspector][SyncVar]
@@ -132,13 +133,19 @@ public class SoundObjectActs : NetworkBehaviour
 
 	public override void OnStartClient() {
 		base.OnStartClient ();
+		Debug.Log ("OnStartClient() New spawn: " + m_newSpawn.ToString () + " Auth: " + hasAuthority.ToString ());
 		if (m_newSpawn) {
 			saveMovingInfo (null);
-			m_opstate = OpState.Op_NewSpawn;
 		}
 	}
-
 	protected virtual void Start() {
+		Debug.Log ("Start() New spawn: " + m_newSpawn.ToString () + " Auth: " + hasAuthority.ToString ());
+		if (m_newSpawn) {
+			if (hasAuthority) {
+				m_opstate = OpState.Op_NewSpawn;
+				m_newSpawn = false;
+			}
+		}
 		if (m_looping) {
 			m_highlight.ConstantOnImmediate (HighlightColour);
 			m_sequencer.setCometVisibility (true);
@@ -167,7 +174,8 @@ public class SoundObjectActs : NetworkBehaviour
 					return;
 				}
 				m_controlWithNoAuth = 0;
-				IAAPlayer.getAuthority (netId);
+				// if (value != OpState.Op_NewSpawn) 
+					IAAPlayer.getAuthority (netId);
 			} else if (value == OpState.Op_Default || (hasAuthority && (value != OpState.Op_Moving && value != OpState.Op_AdjustDistance && value != OpState.Op_NewSpawn))) {
 				IAAPlayer.localPlayer.removeUserAuth (netId);
 				IAAPlayer.removeAuthority (netId);
@@ -521,7 +529,7 @@ public class SoundObjectActs : NetworkBehaviour
 
 	protected void setVolumeFromHeight(float y) {
 		float vol = Mathf.Clamp(-50+y/1.8f*56f, -50f,6f);
-		Debug.Log ("y = " + y + " Vol = " + vol);
+		// Debug.Log ("y = " + y + " Vol = " + vol);
 		//		m_wordSource.gainDb = vol;
 		m_wordSource.volume = y/1.8f;
 	}
