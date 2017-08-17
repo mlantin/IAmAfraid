@@ -56,7 +56,7 @@ public class SoundObjectActs : NetworkBehaviour
 	/// The max time between lifting without losing distance control of the object.
 	/// </summary>
 	private float MaxTimeBetweenLifting = 0.4f;
-	private int MaxFrameWaitingForAuthority = 25;
+	private int MaxFrameWaitingForAuthority = 16;
 	private int m_controlWithNoAuth = 0;
 
 	protected GameObject m_laser = null;
