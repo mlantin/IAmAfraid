@@ -67,13 +67,6 @@ public class NonVerbalActs : SoundObjectActs
 		}
 	}
 
-	protected override void setVolumeFromHeight(float y) {
-		float dbvol = Mathf.Clamp(-50+y/1.8f*56f, -50f,6f);
-		float vol = Mathf.Pow(10.0f, dbvol/20.0f);
-		m_wordSource.volume = vol;
-		//m_wordSource.gainDb = dbvol;
-	}
-
 	void fetchAudio(string filename) {
 //		if (hasAuthority || (isServer && isClient)) { // we created the sound clip so it's probably still in memory
 			// Unfortunately hasAuthority is never true because authority is assigned after object creation.

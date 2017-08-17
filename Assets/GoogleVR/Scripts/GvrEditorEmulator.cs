@@ -20,11 +20,12 @@ using Gvr.Internal;
 
 /// Provides mouse-controlled head tracking emulation in the Unity editor.
 public class GvrEditorEmulator : MonoBehaviour {
-  // Simulated neck model.  Vector from the neck pivot point to the point between the eyes.
-  private static readonly Vector3 m_neckOffset = new Vector3(0, 0.075f, 0.08f);
-
   private const string AXIS_MOUSE_X = "Mouse X";
   private const string AXIS_MOUSE_Y = "Mouse Y";
+
+#if UNITY_EDITOR && UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_IOS)
+  // Simulated neck model.  Vector from the neck pivot point to the point between the eyes.
+  private static readonly Vector3 m_neckOffset = new Vector3(0, 0.075f, 0.08f);
 
   // Use mouse to emulate head in the editor.
   // These variables must be static so that head pose is maintained between scene changes,
@@ -34,18 +35,15 @@ public class GvrEditorEmulator : MonoBehaviour {
   private static float m_mouseZ = 0;
 
   private bool m_isRecenterOnlyController = false;
+#endif
 
-  [Tooltip("Camera to track")]
-  public Camera m_camera;
-
-	public Camera trackedCamera {
+// Camera to track
+	public Camera m_camera {
 		get {
-			if (m_camera == null)
-				m_camera = Camera.main;
-			
-			return m_camera;
+			return Camera.main;
 		}
 	}
+//	public Camera m_camera;
 
 #if UNITY_EDITOR && UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_IOS)
   void Start()
@@ -56,16 +54,14 @@ public class GvrEditorEmulator : MonoBehaviour {
     {
       m_isRecenterOnlyController = true;
     }
-    if (m_camera == null)
-    {
-      m_camera = Camera.main;
-    }
+//    if (m_camera == null)
+//    {
+//      m_camera = Camera.main;
+//    }
   }
 
   void Update()
   {
-		if (!trackedCamera)
-			return;
     if (GvrController.Recentered)
     {
       Recenter();
@@ -92,12 +88,12 @@ public class GvrEditorEmulator : MonoBehaviour {
       m_mouseZ = Mathf.Lerp(m_mouseZ, 0, Time.deltaTime / (Time.deltaTime + 0.1f));
     }
     rot = Quaternion.Euler(m_mouseY, m_mouseX, m_mouseZ);
-		var neck = (rot * m_neckOffset - m_neckOffset.y * Vector3.up) * trackedCamera.transform.lossyScale.y;
+    var neck = (rot * m_neckOffset - m_neckOffset.y * Vector3.up) * m_camera.transform.lossyScale.y;
 
-		Vector3 camPosition = trackedCamera.transform.position;
+    Vector3 camPosition = m_camera.transform.position;
     camPosition.y = neck.y;
-		trackedCamera.transform.localPosition = neck;
-		trackedCamera.transform.localRotation = rot;
+    m_camera.transform.localPosition = neck;
+    m_camera.transform.localRotation = rot;
   }
 #endif  // UNITY_EDITOR && UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_IOS)
 
@@ -109,8 +105,8 @@ public class GvrEditorEmulator : MonoBehaviour {
       return;
     }
     m_mouseX = m_mouseZ = 0;  // Do not reset pitch, which is how it works on the phone.
-		trackedCamera.transform.localPosition = Vector3.zero;
-		trackedCamera.transform.localRotation = new Quaternion(m_mouseX, m_mouseY, m_mouseZ, 1);
+    m_camera.transform.localPosition = Vector3.zero;
+    m_camera.transform.localRotation = new Quaternion(m_mouseX, m_mouseY, m_mouseZ, 1);
 #endif  // UNITY_EDITOR && UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_IOS)
   }
 }

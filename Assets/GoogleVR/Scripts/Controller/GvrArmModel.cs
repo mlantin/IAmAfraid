@@ -275,7 +275,7 @@ public class GvrArmModel : MonoBehaviour {
   private Vector3 GetHeadOrientation() {
 #if UNITY_EDITOR
     if (editorHeadCamera == null) {
-      //Debug.LogWarning("No Head Camera.");
+      Debug.LogWarning("No Head Camera.");
       return Vector3.forward;
     }
 

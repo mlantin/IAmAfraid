@@ -149,7 +149,7 @@ public class Webserver : MonoBehaviour {
 				playerOptions.AddServerScene(x.title, x.name);
 			});
 		} else {
-			Debug.LogAssertion ("Failed to get scene list");
+			Debug.LogAssertion ("Failed to get scene list from http://"+ m_serverIP + ":" + m_serverPort + "/scenes/");
 		}
 
 	}

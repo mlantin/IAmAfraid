@@ -1,10 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Audio;
+using System.Collections;
+using System.Collections.Generic;
 using HighlightingSystem;
 
 public class SoundObjectActs : NetworkBehaviour
@@ -516,11 +516,14 @@ public class SoundObjectActs : NetworkBehaviour
 		}
 	}
 
-	public virtual void playSound(bool state) {
-		Debug.Log ("This should not be called");
+	protected void setVolumeFromHeight(float y) {
+		float vol = Mathf.Clamp(-50+y/1.8f*56f, -50f,6f);
+		Debug.Log ("y = " + y + " Vol = " + vol);
+		//		m_wordSource.gainDb = vol;
+		m_wordSource.volume = y/1.8f;
 	}
 
-	protected virtual void setVolumeFromHeight(float y) {
+	public virtual void playSound(bool state) {
 		Debug.Log ("This should not be called");
 	}
 }

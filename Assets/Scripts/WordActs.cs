@@ -10,11 +10,10 @@ using HighlightingSystem;
 public class WordActs : SoundObjectActs
 {
     
-    private int m_granularSlot;
 	[SyncVar]
 	private float m_granOffset = 0;
 	private float m_localGranOffset = 0; // This one is not networked..for doing the sequencer.
-	private AudioMixer m_mixer;
+	private Hv_slo_Granular_AudioLib granular = null;
 
 	private float m_xspace = 0;
 	[HideInInspector]
@@ -60,9 +59,19 @@ public class WordActs : SoundObjectActs
 
 	#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 
+//	public override void OnPointerEnter (PointerEventData eventData) {
+//		if (!m_looping) {
+//			m_granOffset = getScrubValue ().x / bbdim.x + 0.5f;
+//			setGrainPosition ();
+//			IAAPlayer.localPlayer.CmdWordSetGranOffset (netId, m_granOffset);
+//		}
+//		base.OnPointerEnter (eventData);
+//	}
+
 	public override void OnGvrPointerHover(PointerEventData eventData) {
 		if (!m_looping && m_soundOwner == IAAPlayer.localPlayer.netId.Value) {
 			m_granOffset = getScrubValue ().x / bbdim.x + 0.5f;
+			setGrainPosition ();
 			IAAPlayer.localPlayer.CmdWordSetGranOffset (netId, m_granOffset);
 		}
 	}
@@ -80,12 +89,16 @@ public class WordActs : SoundObjectActs
 				m_sequencer.addScrub (m_granOffset);
 			}
 		}
+	}
+
+	void setGrainPosition() {
 		if (m_looping) {
-			if (m_mixer)
-				m_mixer.SetFloat ("Offset", m_localGranOffset);
+			if (granular)
+				granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition, m_localGranOffset);
 		} else {
-			if (m_mixer)
-				m_mixer.SetFloat ("Offset", m_granOffset);
+			if (granular)
+				granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition, m_granOffset);
+
 		}
 	}
 
@@ -94,12 +107,15 @@ public class WordActs : SoundObjectActs
 	}
 
 	public void setGranOffset(NetworkInstanceId playerId, float s) {
-		if (playerId.Value == m_soundOwner)
+		if (playerId.Value == m_soundOwner) {
 			m_granOffset = s;
+			granular.SetFloatParameter (Hv_slo_Granular_AudioLib.Parameter.Grainposition, m_granOffset);
+		}
 	}
 
 	public void setLocalGranOffset(float s) {
 		m_localGranOffset = s;
+		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition, m_localGranOffset);
 	}
 
 	Vector3 RayDrawingPlaneIntersect(Vector3 p) {
@@ -113,8 +129,7 @@ public class WordActs : SoundObjectActs
 
 	public override void OnNetworkDestroy() {
 		separateLetters ();
-		GranularUploadHandler.singleton.setSlotToEmpty (m_granularSlot);
-		m_mixer.SetFloat ("Rate", 0f);
+		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Metro, 0.0f);
 		Debug.Log ("EXTERMINATE!");
 //		if (isServer) {
 //			Debug.Log ("Exterminating");
@@ -133,13 +148,15 @@ public class WordActs : SoundObjectActs
 	public override void playSound(bool hit) {
 		objectHit = hit;
 		// Debug.LogWarning ("Plaing sound for " + netId);
-		if (m_mixer == null) {
+		if (granular == null) {
 			return;
 		}
 		if (hit) {
-			m_mixer.SetFloat ("Rate", 100f);
+			m_wordSource.Play ();
+			granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Metro, 1.0f);
 		} else {
-			m_mixer.SetFloat ("Rate", 0f);
+			m_wordSource.Stop ();
+			granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Metro, 0.0f);
 		}
 	}
 
@@ -210,40 +227,30 @@ public class WordActs : SoundObjectActs
 
 	void fetchAudio(string clipfn) {
 		if (hasAuthority) { // we created the sound clip so it's probably still in memory
-			m_granularSlot = GranularUploadHandler.singleton.uploadSample(SpeechToTextToAudio.singleton.mostRecentClip);
-			setUpMixer ();
+			setUpGranular (SpeechToTextToAudio.singleton.mostRecentClip);
 		} else {
 			StartCoroutine(Webserver.singleton.GetAudioClip (clipfn, 
 				(newclip) => {
-					m_granularSlot = GranularUploadHandler.singleton.uploadSample(newclip);
-					setUpMixer();
+					setUpGranular(newclip);
 				}));
 		}
 	}
-
-	protected override void setVolumeFromHeight(float y) {
-		float vol = Mathf.Clamp(-50+y/1.8f*56f, -50f,6f);
-		// Debug.Log ("y = " + y + " Vol = " + vol);
-		if (m_mixer == null) return;
-		m_mixer.SetFloat("Volume", vol);
-	}
 		
-	void setUpMixer() {
-		m_mixer = Resources.Load ("grain" + (m_granularSlot + 1).ToString ()) as AudioMixer;
-		m_wordSource.outputAudioMixerGroup = m_mixer.FindMatchingGroups ("Master") [0];
-		//gameObject.AddComponent<SilentAudioSource> ();
-		m_mixer.SetFloat ("Sample", m_granularSlot);
-		m_mixer.SetFloat("Speed", 1.0f);
-		m_mixer.SetFloat("Offset", 0.5f);
-		m_mixer.SetFloat("Window", 0.1f);
-		m_mixer.SetFloat("Rate", 0f);
-		m_mixer.SetFloat("RndSpeed", 0f);
-		m_mixer.SetFloat("RndOffset", 0.1f);
-		m_mixer.SetFloat("RndWindow", 0.01f);
-		m_mixer.SetFloat("RndRate", 0f);
-
+	public void setUpGranular(AudioClip newclip) {
+		granular = gameObject.AddComponent<Hv_slo_Granular_AudioLib>();
+		granular.FillTableWithMonoAudioClip("source_Array", newclip);
+		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Source_length, (newclip.samples));
+		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Metro, 0.0f);
+		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Graindel_vari, 5.0f);
+		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Graindelay, 5.0f);
+		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Graindur_vari, 5.0f);
+		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainduration, 100.0f);
+		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainpos_vari, 1.0f);
+		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition, 0.0f);
+		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainrate_vari, 1.0f);
+		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainrate, 1.0f);
 		setVolumeFromHeight (transform.position.y);
-
+		m_wordSource.Stop();
 	}
 
 	public void separateLetters(){
