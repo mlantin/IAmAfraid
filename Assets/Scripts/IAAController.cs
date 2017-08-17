@@ -70,7 +70,7 @@ public static class IAAController {
 	public static Quaternion Orientation {
 		get {
 			#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-			return GvrController.TouchPos;
+			return GvrController.Orientation;
 			#else
 			return Quaternion.identity;
 			#endif
