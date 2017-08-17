@@ -66,6 +66,17 @@ public static class IAAController {
 			#endif
 		}
 	}
+
+	public static Quaternion Orientation {
+		get {
+			#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
+			return GvrController.TouchPos;
+			#else
+			return Quaternion.identity;
+			#endif
+		}
+	}
+
 	/// <summary>
 	/// If touch position is at center and the button is pressed down.
 	/// </summary>
@@ -74,7 +85,7 @@ public static class IAAController {
 			#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 			return ((Position - Vector2.one / 2f).sqrMagnitude < .09  && IsPressed);
 			#else
-			return Vector2.zero;
+			return false;
 			#endif
 		}
 	}
@@ -86,7 +97,7 @@ public static class IAAController {
 			#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 			return (Position.x > .85f && IsPressed);
 			#else
-			return Vector2.zero;
+			return false;
 			#endif
 		}
 	}

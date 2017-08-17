@@ -246,7 +246,7 @@ public class WordActs : SoundObjectActs
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Graindel_vari, 5.0f);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Graindelay, 5.0f);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Graindur_vari, 5.0f);
-		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainduration, 100.0f);
+		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainduration, 150.0f);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainpos_vari, 1.0f);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition, 0.0f);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainrate_vari, 1.0f);

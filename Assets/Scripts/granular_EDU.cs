@@ -13,17 +13,17 @@ public class granular_EDU : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		//AudioSource source = GetComponent<AudioSource>();
-		//clip = source.clip;
+		AudioSource source = GetComponent<AudioSource>();
+		clip = source.clip;
 		granular.FillTableWithMonoAudioClip("source_Array", clip);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Source_length, (clip.samples));
-		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Metro, 0.0f);
+		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Metro, 1.0f);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Graindel_vari, 5.0f);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Graindelay, 5.0f);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Graindur_vari, 5.0f);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainduration, 100.0f);
-		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainpos_vari, 1.0f);
-		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition, 0.0f);
+		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainpos_vari, 0.5f);
+		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition, 0.5f);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainrate_vari, 1.0f);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainrate, 1.0f);
 

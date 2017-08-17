@@ -373,7 +373,7 @@ public class SoundObjectActs : NetworkBehaviour
 		if (newpos.y < 0.05f)
 			newpos.y = 0.05f;
 		transform.position = newpos;
-		transform.rotation = GvrController.Orientation;
+		transform.rotation = IAAController.Orientation;
 
 		if (this is WordActs && m_opstate != OpState.Op_NewSpawn) {
 			letterTrans.localPosition += m_originalHitPointLocal;

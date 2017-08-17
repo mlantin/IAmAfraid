@@ -120,6 +120,8 @@ public class Hv_slo_Granular_Editor : Editor {
     float grainPosition = _dsp.GetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition);
     float newGrainposition = EditorGUILayout.Slider("grainPosition", grainPosition, 0.0f, 1.0f);
     if (grainPosition != newGrainposition) {
+			Debug.Log ("hello I'm here");
+
       _dsp.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition, newGrainposition);
     }
     GUILayout.EndHorizontal();
