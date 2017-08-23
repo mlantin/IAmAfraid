@@ -84,7 +84,7 @@ public class WordActs : SoundObjectActs
 		if (m_opstate == OpState.Op_Recording) {
 			// Get the point on the current plane
 			//m_sequencer.addPos (gameObject.transform.InverseTransformPoint (reticle.transform.position));
-			m_sequencer.addPos (gameObject.transform.InverseTransformPoint (RayDrawingPlaneIntersect (reticle.transform.position)));
+			m_sequencer.addPos (gameObject.transform.InverseTransformPoint (RayDrawingPlaneIntersect (IAAController.reticle.transform.position)));
 			if (m_target) {
 				m_granOffset = getScrubValue ().x / bbdim.x + 0.5f;
 				m_sequencer.addScrub (m_granOffset);
@@ -105,7 +105,7 @@ public class WordActs : SoundObjectActs
 	}
 
 	Vector3 getScrubValue() {
-		return transform.InverseTransformPoint (reticle.transform.position);
+		return transform.InverseTransformPoint (IAAController.reticle.transform.position);
 	}
 
 	public void setGranOffset(NetworkInstanceId playerId, float s) {

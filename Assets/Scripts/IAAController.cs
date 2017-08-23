@@ -3,6 +3,36 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public static class IAAController {
+
+	public static GameObject m_reticle, m_laser, m_controller;
+
+	public static GameObject laser {
+		get {
+			if (m_laser == null) {
+				m_laser = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser").gameObject;
+			}
+			return m_laser;
+		}
+	}
+
+	public static GameObject reticle {
+		get {
+			if (m_reticle == null) {
+				m_reticle = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser/Reticle").gameObject;
+			}
+			return m_reticle;
+		}
+	}
+
+	public static GameObject controller {
+		get {
+			if (m_controller == null) {
+				m_controller = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Controller/ddcontroller").gameObject;
+			}
+			return m_controller;
+		}
+	}
+
 	public static bool ClickButtonUp {
 		get {
 			#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)

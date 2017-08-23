@@ -97,33 +97,6 @@ public class SoundObjectActs : NetworkBehaviour
 	[SyncVar (hook = "setDrawingHighlight")]
 	protected bool m_drawingSequence = false;
 
-	protected GameObject laser {
-		get {
-			if (m_laser == null) {
-				m_laser = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser").gameObject;
-			}
-			return m_laser;
-		}
-	}
-
-	protected GameObject reticle {
-		get {
-			if (m_reticle == null) {
-				m_reticle = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Laser/Reticle").gameObject;
-			}
-			return m_reticle;
-		}
-	}
-
-	protected GameObject controller {
-		get {
-			if (m_controller == null) {
-				m_controller = IAAPlayer.playerObject.transform.Find ("GvrControllerPointer/Controller/ddcontroller").gameObject;
-			}
-			return m_controller;
-		}
-	}
-
 	protected virtual void Awake() {
 		m_wordSource = GetComponent<AudioSource> ();
 		m_sequencer = GetComponent<SoundObjectSequencer> ();
@@ -232,7 +205,7 @@ public class SoundObjectActs : NetworkBehaviour
 						m_presstime = 0;
 						IAAPlayer.localPlayer.CmdSetSoundObjectRecorder (netId, true);
 						m_opstate = OpState.Op_Recording;
-						m_drawingPlane.SetNormalAndPosition ((Camera.main.transform.position - reticle.transform.position).normalized, reticle.transform.position);
+						m_drawingPlane.SetNormalAndPosition ((Camera.main.transform.position - IAAController.reticle.transform.position).normalized, IAAController.reticle.transform.position);
 						if (m_looping)
 							IAAPlayer.localPlayer.CmdToggleSoundObjectLoopingState (netId);
 						IAAPlayer.localPlayer.CmdSetSoundObjectDrawingSequence (netId, true);
@@ -352,7 +325,7 @@ public class SoundObjectActs : NetworkBehaviour
 
 	private void adjustDistance(float deltaY) {
 		deltaY = -deltaY;
-		Vector3 deltaFromController = gameObject.transform.position - controller.transform.position;
+		Vector3 deltaFromController = gameObject.transform.position - IAAController.controller.transform.position;
 		float len = deltaFromController.magnitude;
 		deltaFromController = deltaFromController.normalized;
 		len += len * deltaY * deltaY * Mathf.Sign(deltaY) * 20f;
@@ -360,22 +333,22 @@ public class SoundObjectActs : NetworkBehaviour
 			return;
 		}
 		deltaFromController *= len;
-		gameObject.transform.position = controller.transform.position + deltaFromController;
+		gameObject.transform.position = IAAController.controller.transform.position + deltaFromController;
 	}
 
 	private void moveObject() {
 		Transform letterTrans = transform.Find("Letters");
 		// We have picked an object and we're moving it...
-		Vector3 newdir = m_rotq * laser.transform.forward;
-		float distance = (gameObject.transform.position - laser.transform.position).magnitude;
-		Vector3 newpos = laser.transform.position + newdir * distance;
+		Vector3 newdir = m_rotq * IAAController.laser.transform.forward;
+		float distance = (gameObject.transform.position - IAAController.laser.transform.position).magnitude;
+		Vector3 newpos = IAAController.laser.transform.position + newdir * distance;
 		if (this is WordActs && m_opstate != OpState.Op_NewSpawn) {
-			Quaternion deltaRotation = controller.transform.rotation * Quaternion.Inverse(m_originalControllerRotation);
+			Quaternion deltaRotation = IAAController.controller.transform.rotation * Quaternion.Inverse(m_originalControllerRotation);
 			Vector3 tGlobal = transform.TransformPoint(m_originalHitPointLocal);
 			transform.position = tGlobal; 
 			letterTrans.localPosition -= m_originalHitPointLocal;
 			Vector3 newPosOffset = deltaRotation * m_hitPointToController;
-			newpos = controller.transform.position + newPosOffset;
+			newpos = IAAController.controller.transform.position + newPosOffset;
 		}
 		// Make sure we don't go through the floor
 		if (newpos.y < 0.05f)
@@ -391,18 +364,18 @@ public class SoundObjectActs : NetworkBehaviour
 
 	private void saveMovingInfo(PointerEventData eventData) {
 		Vector3 intersectionLaser;
-		m_originalControllerRotation = controller.transform.rotation;
-		m_originalLaserRotation = laser.transform.rotation;
+		m_originalControllerRotation = IAAController.controller.transform.rotation;
+		m_originalLaserRotation = IAAController.laser.transform.rotation;
 		if (eventData == null) {
-			m_originalHitPoint = laser.transform.position + laser.transform.forward;
-			intersectionLaser = laser.transform.forward;
+			m_originalHitPoint = IAAController.laser.transform.position + IAAController.laser.transform.forward;
+			intersectionLaser = IAAController.laser.transform.forward;
 		} else {
 			m_originalHitPoint = eventData.pointerCurrentRaycast.worldPosition;
-			intersectionLaser = gameObject.transform.position - laser.transform.position;
+			intersectionLaser = gameObject.transform.position - IAAController.laser.transform.position;
 		}
-		m_hitPointToController = m_originalHitPoint - controller.transform.position;
+		m_hitPointToController = m_originalHitPoint - IAAController.controller.transform.position;
 		m_originalHitPointLocal = transform.InverseTransformPoint(m_originalHitPoint);
-		m_rotq = Quaternion.FromToRotation (laser.transform.forward, intersectionLaser);
+		m_rotq = Quaternion.FromToRotation (IAAController.laser.transform.forward, intersectionLaser);
 		// m_distanceFromPointer = intersectionLaser.magnitude;
 	}
 
