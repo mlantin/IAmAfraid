@@ -66,9 +66,6 @@ public class SoundObjectActs : NetworkBehaviour
 	private int MaxFrameWaitingForAuthority = 16;
 	private int m_controlWithNoAuth = 0;
 
-	protected GameObject m_laser = null;
-	protected GameObject m_reticle = null;
-	protected GameObject m_controller = null;
 	protected GameObject m_tmpSphere = null;
 	protected Plane m_drawingPlane = new Plane ();
 	protected Highlighter m_highlight;
@@ -83,6 +80,8 @@ public class SoundObjectActs : NetworkBehaviour
 	public SoundObjectSequencer m_sequencer;
 	[HideInInspector][SyncVar]
 	public bool m_newSpawn = false;
+	[HideInInspector][SyncVar]
+	public uint m_creator = 0;
 	protected AudioSource m_wordSource;
 	[HideInInspector][SyncVar]
 	public string m_serverFileName = "";
@@ -118,10 +117,14 @@ public class SoundObjectActs : NetworkBehaviour
 			saveMovingInfo (null);
 		}
 	}
+		
 	protected virtual void Start() {
 		Debug.Log ("Start() New spawn: " + m_newSpawn.ToString () + " Auth: " + hasAuthority.ToString ());
+		Debug.Log ("Creator: " + m_creator + " Self: " + IAAPlayer.localPlayer.netId.Value);
 		if (m_newSpawn) {
-			if (hasAuthority) {
+			if (hasAuthority || IAAPlayer.localPlayer.netId.Value == m_creator) {
+				if (!hasAuthority)
+					Debug.Log ("Seems like an Unity bug. Auth comes too late.");
 				m_opstate = OpState.Op_NewSpawn;
 				m_newSpawn = false;
 			}

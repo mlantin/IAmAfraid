@@ -48,6 +48,8 @@ public class MakeSoundObject : NetworkBehaviour {
 		}
 		if (isNewObject) {
 			soundscript.m_newSpawn = true;
+			soundscript.m_creator = netId.Value;
+			Debug.Log(connectionToClient.connectionId);
 			NetworkServer.SpawnWithClientAuthority (soundobj, connectionToClient);
 		} else {
 			NetworkServer.Spawn (soundobj);
