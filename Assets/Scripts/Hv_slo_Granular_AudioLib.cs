@@ -120,8 +120,6 @@ public class Hv_slo_Granular_Editor : Editor {
     float grainPosition = _dsp.GetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition);
     float newGrainposition = EditorGUILayout.Slider("grainPosition", grainPosition, 0.0f, 1.0f);
     if (grainPosition != newGrainposition) {
-			Debug.Log ("hello I'm here");
-
       _dsp.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition, newGrainposition);
     }
     GUILayout.EndHorizontal();
@@ -141,15 +139,6 @@ public class Hv_slo_Granular_Editor : Editor {
     float newGrainrate_vari = EditorGUILayout.Slider("grainRate_vari", grainRate_vari, 0.0f, 100.0f);
     if (grainRate_vari != newGrainrate_vari) {
       _dsp.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainrate_vari, newGrainrate_vari);
-    }
-    GUILayout.EndHorizontal();
-    
-    // grainVolume
-    GUILayout.BeginHorizontal();
-    float grainVolume = _dsp.GetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainvolume);
-    float newGrainvolume = EditorGUILayout.Slider("grainVolume", grainVolume, 0.0f, 1.0f);
-    if (grainVolume != newGrainvolume) {
-      _dsp.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainvolume, newGrainvolume);
     }
     GUILayout.EndHorizontal();
     
@@ -197,7 +186,6 @@ public class Hv_slo_Granular_AudioLib : MonoBehaviour {
     Grainposition = 0x3283ACD4,
     Grainrate = 0x5B7EAA71,
     Grainrate_vari = 0x9EAAFCD9,
-    Grainvolume = 0xC20246C1,
     Metro = 0x9E78BC0,
     Source_length = 0xB8856A5E,
   }
@@ -234,7 +222,6 @@ public class Hv_slo_Granular_AudioLib : MonoBehaviour {
   public float grainPosition = 0.5f;
   public float grainRate = 1.0f;
   public float grainRate_vari = 1.0f;
-  public float grainVolume = 1.0f;
   public float metro = 0.0f;
   public float source_Length = 441000.0f;
 
@@ -260,7 +247,6 @@ public class Hv_slo_Granular_AudioLib : MonoBehaviour {
       case Parameter.Grainposition: return grainPosition;
       case Parameter.Grainrate: return grainRate;
       case Parameter.Grainrate_vari: return grainRate_vari;
-      case Parameter.Grainvolume: return grainVolume;
       case Parameter.Metro: return metro;
       case Parameter.Source_length: return source_Length;
       default: return 0.0f;
@@ -309,11 +295,6 @@ public class Hv_slo_Granular_AudioLib : MonoBehaviour {
         grainRate_vari = x;
         break;
       }
-      case Parameter.Grainvolume: {
-        x = Mathf.Clamp(x, 0.0f, 1.0f);
-        grainVolume = x;
-        break;
-      }
       case Parameter.Metro: {
         x = Mathf.Clamp(x, 0.0f, 1.0f);
         metro = x;
@@ -357,7 +338,6 @@ public class Hv_slo_Granular_AudioLib : MonoBehaviour {
     _context.SendFloatToReceiver((uint) Parameter.Grainposition, grainPosition);
     _context.SendFloatToReceiver((uint) Parameter.Grainrate, grainRate);
     _context.SendFloatToReceiver((uint) Parameter.Grainrate_vari, grainRate_vari);
-    _context.SendFloatToReceiver((uint) Parameter.Grainvolume, grainVolume);
     _context.SendFloatToReceiver((uint) Parameter.Metro, metro);
     _context.SendFloatToReceiver((uint) Parameter.Source_length, source_Length);
   }
@@ -539,7 +519,7 @@ class Hv_slo_Granular_Context {
   [MonoPInvokeCallback(typeof(PrintHook))]
   private static void OnPrint(IntPtr context, string printName, string str, IntPtr message) {
     float timeInSecs = hv_samplesToMilliseconds(context, hv_msg_getTimestamp(message)) / 1000.0f;
-//    Debug.Log(string.Format("{0} [{1:0.000}]: {2}", printName, timeInSecs, str));
+    Debug.Log(string.Format("{0} [{1:0.000}]: {2}", printName, timeInSecs, str));
   }
 
   [MonoPInvokeCallback(typeof(SendHook))]

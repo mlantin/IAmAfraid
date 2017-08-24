@@ -130,6 +130,7 @@ public class WordActs : SoundObjectActs
 
 
 	public override void OnNetworkDestroy() {
+		base.OnNetworkDestroy ();
 		separateLetters ();
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Metro, 0.0f);
 		Debug.Log ("EXTERMINATE!");
@@ -251,6 +252,7 @@ public class WordActs : SoundObjectActs
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition, 0.0f);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainrate_vari, 1.0f);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainrate, 1.0f);
+		assignMixer ();
 		setVolumeFromHeight (transform.position.y);
 		m_wordSource.Stop();
 	}

@@ -78,10 +78,11 @@ public class NonVerbalActs : SoundObjectActs
 			// out if there is only one client.
 		if (hasAuthority) {
 			m_wordSource.clip = NonVerbalRecord.singleton.mostRecentClip;
+			assignMixer ();
 			setVolumeFromHeight (transform.position.y);
 		} else {
 			StartCoroutine(Webserver.singleton.GetAudioClip (filename, 
-				(newclip) => { m_wordSource.clip = newclip; setVolumeFromHeight(transform.position.y);}));
+				(newclip) => { m_wordSource.clip = newclip; assignMixer(); setVolumeFromHeight(transform.position.y);}));
 		}
 	}
 

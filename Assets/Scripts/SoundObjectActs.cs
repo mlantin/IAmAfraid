@@ -13,6 +13,13 @@ public class SoundObjectActs : NetworkBehaviour
 #endif
 {
 	static protected Color HighlightColour = new Color(0.639216f, 0.458824f, 0.070588f);
+
+	// Sound vars
+	static int MIXERCOUNT = 64;
+	static bool[] mixers = new bool[MIXERCOUNT];
+	protected AudioMixer m_audiomixer;
+	protected int m_mixeridx;
+
 	// This is to set a timer when a person clicks. If we linger long enough 
 	// we call it a press&hold.
 	protected float m_presstime = 0;
@@ -129,6 +136,10 @@ public class SoundObjectActs : NetworkBehaviour
 		} else if (m_drawingSequence) {
 			m_highlight.FlashingOn ();
 		}
+	}
+
+	public override void OnNetworkDestroy(){
+		mixers [m_mixeridx] = false;
 	}
 
 	protected OpState m_opstate {
@@ -504,7 +515,24 @@ public class SoundObjectActs : NetworkBehaviour
 		float vol = Mathf.Clamp(-50+y/1.8f*56f, -50f,6f);
 		// Debug.Log ("y = " + y + " Vol = " + vol);
 		//		m_wordSource.gainDb = vol;
-		m_wordSource.volume = y/1.8f;
+		//m_wordSource.volume = y/1.8f;
+		m_audiomixer.SetFloat("Volume", vol);
+	}
+
+	protected void assignMixer() {
+		for (int i = 0; i < MIXERCOUNT; i++) {
+			if (!mixers [i]) {
+				m_mixeridx = i;
+				mixers [i] = true;
+				break;
+			}
+		}
+		m_audiomixer = (Resources.Load("SoundObjectMixer"+(m_mixeridx+1)) as AudioMixer);
+		if (m_audiomixer != null)
+			m_wordSource.outputAudioMixerGroup = m_audiomixer.FindMatchingGroups ("Master") [0];
+		else
+			Debug.Log ("Error: Couldn't find audio mixer");
+			
 	}
 
 	public virtual void playSound(bool state) {
