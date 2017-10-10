@@ -18,7 +18,7 @@ public class SoundObjectActs : NetworkBehaviour
 	static int MIXERCOUNT = 64;
 	static bool[] mixers = new bool[MIXERCOUNT];
 	protected AudioMixer m_audiomixer;
-	protected int m_mixeridx;
+	protected int m_mixeridx = -1;
 
 	// This is to set a timer when a person clicks. If we linger long enough 
 	// we call it a press&hold.
@@ -126,8 +126,8 @@ public class SoundObjectActs : NetworkBehaviour
 				if (!hasAuthority)
 					Debug.Log ("Seems like an Unity bug. Auth comes too late.");
 				m_opstate = OpState.Op_NewSpawn;
-				m_newSpawn = false;
 			}
+			m_newSpawn = false;
 		}
 		if (m_looping) {
 			m_highlight.ConstantOnImmediate (HighlightColour);
@@ -143,6 +143,7 @@ public class SoundObjectActs : NetworkBehaviour
 
 	public override void OnNetworkDestroy(){
 		mixers [m_mixeridx] = false;
+		m_mixeridx = -1;
 	}
 
 	protected OpState m_opstate {
@@ -515,6 +516,8 @@ public class SoundObjectActs : NetworkBehaviour
 	}
 
 	protected void setVolumeFromHeight(float y) {
+		if (m_mixeridx == -1)
+			return;
 		float vol = Mathf.Clamp(-50+y/1.8f*56f, -50f,6f);
 		// Debug.Log ("y = " + y + " Vol = " + vol);
 		//		m_wordSource.gainDb = vol;
@@ -523,6 +526,7 @@ public class SoundObjectActs : NetworkBehaviour
 	}
 
 	protected void assignMixer() {
+		Debug.Log ("Assigning Mixer");
 		for (int i = 0; i < MIXERCOUNT; i++) {
 			if (!mixers [i]) {
 				m_mixeridx = i;

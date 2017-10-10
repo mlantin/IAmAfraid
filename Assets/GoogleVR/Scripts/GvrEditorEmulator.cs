@@ -38,12 +38,12 @@ public class GvrEditorEmulator : MonoBehaviour {
 #endif
 
 // Camera to track
-	public Camera m_camera {
-		get {
-			return Camera.main;
-		}
-	}
-//	public Camera m_camera;
+//	public Camera m_camera {
+//		get {
+//			return Camera.main;
+//		}
+//	}
+	public Camera m_camera = null;
 
 #if UNITY_EDITOR && UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_IOS)
   void Start()
@@ -54,10 +54,10 @@ public class GvrEditorEmulator : MonoBehaviour {
     {
       m_isRecenterOnlyController = true;
     }
-//    if (m_camera == null)
-//    {
-//      m_camera = Camera.main;
-//    }
+    if (m_camera == null)
+    {
+      m_camera = Camera.main;
+    }
   }
 
   void Update()
@@ -88,12 +88,14 @@ public class GvrEditorEmulator : MonoBehaviour {
       m_mouseZ = Mathf.Lerp(m_mouseZ, 0, Time.deltaTime / (Time.deltaTime + 0.1f));
     }
     rot = Quaternion.Euler(m_mouseY, m_mouseX, m_mouseZ);
-    var neck = (rot * m_neckOffset - m_neckOffset.y * Vector3.up) * m_camera.transform.lossyScale.y;
+		if (m_camera) {
+			var neck = (rot * m_neckOffset - m_neckOffset.y * Vector3.up) * m_camera.transform.lossyScale.y;
 
-    Vector3 camPosition = m_camera.transform.position;
-    camPosition.y = neck.y;
-    m_camera.transform.localPosition = neck;
-    m_camera.transform.localRotation = rot;
+			Vector3 camPosition = m_camera.transform.position;
+			camPosition.y = neck.y;
+			m_camera.transform.localPosition = neck;
+			m_camera.transform.localRotation = rot;
+		}
   }
 #endif  // UNITY_EDITOR && UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_IOS)
 

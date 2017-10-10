@@ -30,6 +30,7 @@ public class IAAPlayer : NetworkBehaviour {
 	MQTTTrack m_tracker = null;
 
 	public override void OnStartLocalPlayer() {
+		Debug.Log ("IAAPlayer: On StartLocalPlayer()");
 		// localPlayer = this;
 		//m_tracker = playerObject.GetComponent<ViconActor> ();
 		m_tracker = playerObject.GetComponent<MQTTTrack>();
@@ -42,11 +43,11 @@ public class IAAPlayer : NetworkBehaviour {
 		localPlayer = this;
 	}
 
-	void Start() {
-		if (isLocalPlayer) {
-			
-		}
-	}
+//	void Start() {
+//		if (isLocalPlayer) {
+//			
+//		}
+//	}
 
 	public void Update() {
 		#if UNITY_ANDROID
@@ -110,6 +111,11 @@ public class IAAPlayer : NetworkBehaviour {
 
 	[Command]
 	public void CmdDestroyObject(NetworkInstanceId objid) {
+		NetworkIdentity netid = NetworkServer.objects [objid];
+		GameObject obj = netid.gameObject;
+		SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
+		if (acts.m_looping)
+			CmdToggleSoundObjectLoopingState (objid);
 		NetworkServer.Destroy (NetworkServer.objects [objid].gameObject);
 	}
 
@@ -118,10 +124,14 @@ public class IAAPlayer : NetworkBehaviour {
 		NetworkIdentity netid = NetworkServer.objects [objid];
 		GameObject obj = netid.gameObject;
 		TimedDestroy destroyscript = obj.GetComponent<TimedDestroy> ();
-		if (destroyscript)
+		if (destroyscript) {
+			SoundObjectActs acts = obj.GetComponent<SoundObjectActs> ();
+			if (acts.m_looping)
+				CmdToggleSoundObjectLoopingState (objid);
 			destroyscript.RpcActivate ();
-		else
+		} else {
 			CmdDestroyObject (objid);
+		}
 	}
 
 	[Command]

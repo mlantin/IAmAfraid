@@ -209,10 +209,10 @@ public class SpeechToTextToAudio : NetworkBehaviour {
 			}
 		} else {
 			// Only for debugging
-			string text = "Test";
-			m_mostRecentTranscript = text;
-			m_mostRecentFilename = Path.Combine("temp", Webserver.GenerateFileName (netId.ToString ()));
-			StartCoroutine (handleUpload ());
+//			string text = "Test";
+//			m_mostRecentTranscript = text;
+//			m_mostRecentFilename = Path.Combine("temp", Webserver.GenerateFileName (netId.ToString ()));
+//			StartCoroutine (handleUpload ());
 		}
 	}
 
