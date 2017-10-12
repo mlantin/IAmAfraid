@@ -14,6 +14,7 @@ public class WordActs : SoundObjectActs
 	private float m_granOffset = 0;
 	private float m_localGranOffset = 0; // This one is not networked..for doing the sequencer.
 	private Hv_slo_Granular_AudioLib granular = null;
+	private bool m_setMetroOn = false; // This is true when we went from off to on...it's to deal with a strange delay bug with the granular plugin
 
 	private float m_xspace = 0;
 	[HideInInspector]
@@ -72,7 +73,7 @@ public class WordActs : SoundObjectActs
 		if (!m_looping && m_soundOwner == IAAPlayer.localPlayer.netId.Value) {
 			// Debug.Log ("I'm hovering on you");
 			m_granOffset = getScrubValue ().x / bbdim.x + 0.5f;
-//,			setGrainPosition ();
+//			setGrainPosition ();
 			IAAPlayer.localPlayer.CmdWordSetGranOffset (netId, m_granOffset);
 		}
 	}
@@ -80,7 +81,10 @@ public class WordActs : SoundObjectActs
 	#endif
 
 	void FixedUpdate() {
-		
+		if (m_setMetroOn) {
+			granular.SetFloatParameter (Hv_slo_Granular_AudioLib.Parameter.Metro, 1.0f);
+			m_setMetroOn = false;
+		}
 		if (m_opstate == OpState.Op_Recording) {
 			// Get the point on the current plane
 			//m_sequencer.addPos (gameObject.transform.InverseTransformPoint (reticle.transform.position));
@@ -158,9 +162,15 @@ public class WordActs : SoundObjectActs
 		}
 		if (hit) {
 			m_wordSource.Play ();
+			// This doesn't seem to do anything if the word has been off for a while. There is a delay
+			// between setting the word to playing and the granular plugin being able to
+			// take messages. So I'm going to try setting a variable to wait until the next
+			// update to send the metro=1 call.
+			m_setMetroOn = true;
 			granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Metro, 1.0f);
 		} else {
 			m_wordSource.Stop ();
+			m_setMetroOn = false;
 			granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Metro, 0.0f);
 		}
 	}
@@ -244,6 +254,7 @@ public class WordActs : SoundObjectActs
 	public void setUpGranular(AudioClip newclip) {
 		granular = gameObject.AddComponent<Hv_slo_Granular_AudioLib>();
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Source_length, (newclip.samples));
+		granular.FillTableWithMonoAudioClip("source_Array", newclip);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Metro, 0.0f);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Graindel_vari, 5.0f);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Graindelay, 5.0f);
@@ -253,10 +264,10 @@ public class WordActs : SoundObjectActs
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition, 0.0f);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainrate_vari, 1.0f);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainrate, 1.0f);
-		granular.FillTableWithMonoAudioClip("source_Array", newclip);
 		assignMixer ();
 		setVolumeFromHeight (transform.position.y);
-		m_wordSource.Stop();
+//		m_wordSource.Play();
+		m_wordSource.loop = true;
 	}
 
 	public void separateLetters(){
