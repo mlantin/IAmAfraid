@@ -72,7 +72,7 @@ public class WordActs : SoundObjectActs
 		if (!m_looping && m_soundOwner == IAAPlayer.localPlayer.netId.Value) {
 			// Debug.Log ("I'm hovering on you");
 			m_granOffset = getScrubValue ().x / bbdim.x + 0.5f;
-			setGrainPosition ();
+//,			setGrainPosition ();
 			IAAPlayer.localPlayer.CmdWordSetGranOffset (netId, m_granOffset);
 		}
 	}
@@ -89,16 +89,17 @@ public class WordActs : SoundObjectActs
 				m_granOffset = getScrubValue ().x / bbdim.x + 0.5f;
 				m_sequencer.addScrub (m_granOffset);
 			}
-		}
+		} 
+		setGrainPosition ();
 	}
 
 	void setGrainPosition() {
-		if (m_looping) {
-			if (granular)
-				granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition, m_localGranOffset);
-
-		} else {
-			if (granular)
+//		if (m_looping) {
+//			if (granular)
+//				granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition, m_localGranOffset);
+//
+//		} else {
+		if (!m_looping && granular) {
 				granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition, m_granOffset);
 
 		}
@@ -111,7 +112,8 @@ public class WordActs : SoundObjectActs
 	public void setGranOffset(NetworkInstanceId playerId, float s) {
 		if (playerId.Value == m_soundOwner) {
 			m_granOffset = s;
-			granular.SetFloatParameter (Hv_slo_Granular_AudioLib.Parameter.Grainposition, m_granOffset);
+			if (granular)
+				granular.SetFloatParameter (Hv_slo_Granular_AudioLib.Parameter.Grainposition, m_granOffset);
 		}
 	}
 
@@ -241,7 +243,6 @@ public class WordActs : SoundObjectActs
 		
 	public void setUpGranular(AudioClip newclip) {
 		granular = gameObject.AddComponent<Hv_slo_Granular_AudioLib>();
-		granular.FillTableWithMonoAudioClip("source_Array", newclip);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Source_length, (newclip.samples));
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Metro, 0.0f);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Graindel_vari, 5.0f);
@@ -252,6 +253,7 @@ public class WordActs : SoundObjectActs
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition, 0.0f);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainrate_vari, 1.0f);
 		granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainrate, 1.0f);
+		granular.FillTableWithMonoAudioClip("source_Array", newclip);
 		assignMixer ();
 		setVolumeFromHeight (transform.position.y);
 		m_wordSource.Stop();

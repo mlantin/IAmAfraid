@@ -487,6 +487,7 @@ public class SoundObjectActs : NetworkBehaviour
 
 	// SyncVar does not call overrided function
 	public void playSoundHook(bool state) {
+		Debug.Log ("Setting play to " + state);
 		if (m_looping)
 			return;
 		playSound (state);

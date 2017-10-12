@@ -519,7 +519,7 @@ class Hv_slo_Granular_Context {
   [MonoPInvokeCallback(typeof(PrintHook))]
   private static void OnPrint(IntPtr context, string printName, string str, IntPtr message) {
     float timeInSecs = hv_samplesToMilliseconds(context, hv_msg_getTimestamp(message)) / 1000.0f;
-    Debug.Log(string.Format("{0} [{1:0.000}]: {2}", printName, timeInSecs, str));
+//    Debug.Log(string.Format("{0} [{1:0.000}]: {2}", printName, timeInSecs, str));
   }
 
   [MonoPInvokeCallback(typeof(SendHook))]
