@@ -76,14 +76,14 @@ public class NonVerbalActs : SoundObjectActs
 			// the phone that we don't need an extra server. This will most probably break when we are running a 
 			// proper host because we won't be the one that generated the clip. There might be a way of finding
 			// out if there is only one client.
-		if (hasAuthority) {
-			m_wordSource.clip = NonVerbalRecord.singleton.mostRecentClip;
-			assignMixer ();
-			setVolumeFromHeight (transform.position.y);
-		} else {
+//		if (hasAuthority) {
+//			m_wordSource.clip = NonVerbalRecord.singleton.mostRecentClip;
+//			assignMixer ();
+//			setVolumeFromHeight (transform.position.y);
+//		} else {
 			StartCoroutine(Webserver.singleton.GetAudioClip (filename, 
 				(newclip) => { m_wordSource.clip = newclip; assignMixer(); setVolumeFromHeight(transform.position.y);}));
-		}
+//		}
 	}
 
 	void randomizePaperBall() {

@@ -98,11 +98,6 @@ public class WordActs : SoundObjectActs
 	}
 
 	void setGrainPosition() {
-//		if (m_looping) {
-//			if (granular)
-//				granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition, m_localGranOffset);
-//
-//		} else {
 		if (!m_looping && granular) {
 				granular.SetFloatParameter(Hv_slo_Granular_AudioLib.Parameter.Grainposition, m_granOffset);
 
@@ -241,14 +236,10 @@ public class WordActs : SoundObjectActs
 	}
 
 	void fetchAudio(string clipfn) {
-		if (hasAuthority) { // we created the sound clip so it's probably still in memory
-			setUpGranular (SpeechToTextToAudio.singleton.mostRecentClip);
-		} else {
-			StartCoroutine(Webserver.singleton.GetAudioClip (clipfn, 
+		StartCoroutine(Webserver.singleton.GetAudioClip (clipfn, 
 				(newclip) => {
 					setUpGranular(newclip);
 				}));
-		}
 	}
 		
 	public void setUpGranular(AudioClip newclip) {
